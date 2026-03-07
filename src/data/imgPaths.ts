@@ -188,16 +188,6 @@ export const productImages = {
    macaron: `${productsImagesPath}/macaron.png`,
    afternoonTea: `${productsImagesPath}/afternoon-tea.png`,
    birthdayCake: `${productsImagesPath}/birthday-cake.png`,
-   americano: `${productsImagesPath}/americano.png`,
-   latte: `${productsImagesPath}/latte.png`,
-   redBeanMilkTea: `${productsImagesPath}/red-bean-milk-tea.png`,
-   signatureMilkTea: `${productsImagesPath}/signature-milk-tea.png`,
-   orangeTea: `${productsImagesPath}/orange-tea.png`,
-   strawberryTea: `${productsImagesPath}/strawberry-tea.png`,
-   taroMilkTea: `${productsImagesPath}/taro-milk-tea.png`,
-   vanillaIceCream: `${productsImagesPath}/vanilla-ice-cream.png`,
-   matchaIceCream: `${productsImagesPath}/matcha-ice-cream.png`,
-   mangoPomeloAlt: `${productsImagesPath}/yangzhi-ganlu.png`,
 } as const;
 
 // ==================== 积分商品图片路径 ====================
