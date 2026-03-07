@@ -1,0 +1,69 @@
+/**
+ * 订单管理 composable
+ */
+
+import { ref, computed } from 'vue';
+import type { Order, OrderStatus } from '@/types';
+import { getActiveOrders, getHistoryOrders } from '@/mock';
+
+// 当前查看的订单列表
+const orderList = ref<Order[]>([]);
+
+// 是否显示当前订单
+const showActive = ref(true);
+
+export function useOrder() {
+   /**
+    * 获取订单状态文本
+    */
+   const getStatusText = (status: OrderStatus): string => {
+      const statusMap: Record<OrderStatus, string> = {
+         pending: '待处理',
+         preparing: '制作中',
+         ready: '待取餐',
+         completed: '已完成',
+      };
+      return statusMap[status];
+   };
+
+   /**
+    * 获取订单状态样式类名
+    */
+   const getStatusClass = (status: OrderStatus): string => {
+      return `status-${status}`;
+   };
+
+   /**
+    * 切换显示当前/历史订单
+    */
+   const toggleOrderType = (isCurrent: boolean): void => {
+      showActive.value = isCurrent;
+      orderList.value = isCurrent ? getActiveOrders() : getHistoryOrders();
+   };
+
+   /**
+    * 初始化订单列表
+    */
+   const initOrders = (): void => {
+      orderList.value = getActiveOrders();
+   };
+
+   /**
+    * 当前显示的订单列表
+    */
+   const displayOrders = computed(() => orderList.value);
+
+   /**
+    * 是否显示当前订单
+    */
+   const isShowActive = computed(() => showActive.value);
+
+   return {
+      displayOrders,
+      isShowActive,
+      getStatusText,
+      getStatusClass,
+      toggleOrderType,
+      initOrders,
+   };
+}

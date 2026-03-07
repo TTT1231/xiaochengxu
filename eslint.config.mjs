@@ -1,9 +1,12 @@
 import tsParser from '@typescript-eslint/parser';
 import tsPlugin from '@typescript-eslint/eslint-plugin';
+import vuePlugin from 'eslint-plugin-vue';
 import prettierConfig from 'eslint-config-prettier';
 import prettierPlugin from 'eslint-plugin-prettier';
+import * as vueParser from 'vue-eslint-parser';
 
 export default [
+   // JS/TS 文件配置
    {
       files: ['**/*.{js,ts,mjs}'],
       ignores: ['eslint.config.mjs'], // 排除配置文件
@@ -53,6 +56,34 @@ export default [
          'prettier/prettier': 'error',
       },
    },
+
+   // Vue 文件配置
+   {
+      files: ['**/*.vue'],
+      languageOptions: {
+         parser: vueParser,
+         parserOptions: {
+            parser: tsParser,
+            ecmaVersion: 'latest',
+            sourceType: 'module',
+         },
+      },
+      plugins: {
+         vue: vuePlugin,
+         prettier: prettierPlugin,
+      },
+      rules: {
+         // Vue 3 推荐规则
+         'vue/multi-word-component-names': 'off',
+         'vue/no-v-html': 'warn',
+         'vue/require-default-prop': 'off',
+         'vue/require-explicit-emits': 'warn',
+
+         // Prettier 集成
+         'prettier/prettier': 'error',
+      },
+   },
+
    prettierConfig, // 禁用与 Prettier 冲突的规则，必须放在最后
    {
       ignores: ['node_modules/**', 'dist/**', 'esbuild.config.mjs'],

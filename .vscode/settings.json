@@ -10,7 +10,7 @@
   "editor.defaultFormatter": "esbenp.prettier-vscode", // 默认使用Prettier格式化
   "editor.formatOnSave": true, // 保存时自动格式化
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit" // 保存时自动修复ESLint错误
+    "source.fixAll.eslint": "always" // 保存时自动修复ESLint错误
   },
 
   // 光标与动画
@@ -48,6 +48,10 @@
     "editor.formatOnSave": true
   },
   "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[vue]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true
   },

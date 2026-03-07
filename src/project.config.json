@@ -1,0 +1,37 @@
+{
+   "description": "甜品屋小程序",
+   "packOptions": {
+      "ignore": []
+   },
+   "setting": {
+      "urlCheck": false,
+      "es6": true,
+      "postcss": false,
+      "minified": false,
+      "newFeature": true,
+      "bigPackageSizeSupport": true,
+      "ignoreDevUnusedFiles": false
+   },
+   "compileType": "miniprogram",
+   "libVersion": "",
+   "appid": "",
+   "projectname": "甜品屋",
+   "condition": {
+      "search": {
+         "current": -1,
+         "list": []
+      },
+      "conversation": {
+         "current": -1,
+         "list": []
+      },
+      "game": {
+         "current": -1,
+         "list": []
+      },
+      "miniprogram": {
+         "current": -1,
+         "list": []
+      }
+   }
+}
