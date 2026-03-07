@@ -1,13 +1,18 @@
 <template>
-   <view class="stats-card">
+   <view class="stats-container">
       <view class="stat-item" @click="handlePointsClick">
-         <text class="stat-value">{{ points }}</text>
-         <text class="stat-label">积分</text>
+         <text class="stat-label">我的积分</text>
+         <view class="stat-value-row">
+            <text class="stat-value">{{ formatNumber(points) }}</text>
+            <text class="stat-unit">分</text>
+         </view>
       </view>
-      <view class="stat-divider" />
       <view class="stat-item" @click="handleCouponsClick">
-         <text class="stat-value">{{ coupons }}</text>
          <text class="stat-label">优惠券</text>
+         <view class="stat-value-row">
+            <text class="stat-value">{{ coupons }}</text>
+            <text class="stat-unit">张</text>
+         </view>
       </view>
    </view>
 </template>
@@ -25,6 +30,10 @@ const emit = defineEmits<{
    (e: 'click:coupons'): void;
 }>();
 
+const formatNumber = (num: number): string => {
+   return num.toLocaleString();
+};
+
 const handlePointsClick = () => {
    emit('click:points');
 };
@@ -35,20 +44,21 @@ const handleCouponsClick = () => {
 </script>
 
 <style lang="scss" scoped>
-.stats-card {
-   background-color: $bg-card;
-   border-radius: $radius-lg;
+.stats-container {
    display: flex;
-   align-items: center;
-   padding: 32rpx 0;
+   gap: 24rpx;
 }
 
 .stat-item {
    flex: 1;
+   background-color: $bg-card;
+   border-radius: $radius-lg;
    display: flex;
    flex-direction: column;
-   align-items: center;
-   gap: 8rpx;
+   align-items: flex-start;
+   padding: 32rpx;
+   box-shadow: $shadow-card;
+   gap: 12rpx;
    cursor: pointer;
 
    &:active {
@@ -56,22 +66,29 @@ const handleCouponsClick = () => {
    }
 }
 
+.stat-label {
+   font-size: 26rpx;
+   color: $text-secondary;
+   line-height: 36rpx;
+}
+
+.stat-value-row {
+   display: flex;
+   align-items: baseline;
+   gap: 8rpx;
+}
+
 .stat-value {
    font-size: 44rpx;
    font-weight: 700;
    color: $brand-primary;
    line-height: 60rpx;
+   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
-.stat-label {
+.stat-unit {
    font-size: 24rpx;
    color: $text-secondary;
    line-height: 34rpx;
-}
-
-.stat-divider {
-   width: 1rpx;
-   height: 60rpx;
-   background-color: $border-light;
 }
 </style>

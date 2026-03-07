@@ -69,13 +69,18 @@ const handleMenuClick = (key: string) => {
 }
 
 .menu-icon {
-   width: 40rpx;
-   height: 40rpx;
-   margin-right: 20rpx;
+   width: 56rpx;
+   height: 56rpx;
+   margin-right: 24rpx;
+   background-color: rgba(238, 134, 43, 0.1);
+   border-radius: 12rpx;
+   display: flex;
+   align-items: center;
+   justify-content: center;
 
    .icon {
-      width: 100%;
-      height: 100%;
+      width: 32rpx;
+      height: 32rpx;
    }
 }
 

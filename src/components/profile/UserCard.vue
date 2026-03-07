@@ -1,13 +1,12 @@
 <template>
    <view class="user-card">
-      <view class="avatar-wrapper">
-         <image :src="user.avatar" class="avatar" mode="aspectFill" />
-      </view>
+      <image :src="user.avatar" class="avatar" mode="aspectFill" />
       <view class="user-info">
          <text class="nickname">{{ user.nickname }}</text>
          <view class="member-badge">
             <text class="member-text">{{ user.memberLevel }}</text>
          </view>
+         <text class="user-id">ID: {{ user.id }}</text>
       </view>
    </view>
 </template>
@@ -24,27 +23,19 @@ defineProps<Props>();
 
 <style lang="scss" scoped>
 .user-card {
-   background: linear-gradient(
-      135deg,
-      $brand-primary 0%,
-      $brand-primary-dark 100%
-   );
-   border-radius: $radius-lg;
-   padding: 40rpx 32rpx;
+   background-color: transparent;
+   padding: 20rpx 0 40rpx 0;
    display: flex;
    align-items: center;
 }
 
-.avatar-wrapper {
-   margin-right: 24rpx;
-
-   .avatar {
-      width: 120rpx;
-      height: 120rpx;
-      border-radius: $radius-full;
-      border: 4rpx solid rgba(255, 255, 255, 0.3);
-      background-color: $bg-card;
-   }
+.avatar {
+   width: 140rpx;
+   height: 140rpx;
+   border-radius: $radius-full;
+   background-color: #6bb2aa;
+   margin-right: 32rpx;
+   flex-shrink: 0;
 }
 
 .user-info {
@@ -52,26 +43,33 @@ defineProps<Props>();
    display: flex;
    flex-direction: column;
    gap: 12rpx;
+}
 
-   .nickname {
-      font-size: 36rpx;
-      font-weight: 600;
-      color: #ffffff;
-      line-height: 50rpx;
-   }
+.nickname {
+   font-size: 38rpx;
+   font-weight: 600;
+   color: #1e293b;
+   line-height: 52rpx;
+}
 
-   .member-badge {
-      align-self: flex-start;
-      background-color: rgba(255, 255, 255, 0.2);
-      backdrop-filter: blur(10rpx);
-      border-radius: $radius-full;
-      padding: 8rpx 20rpx;
+.member-badge {
+   align-self: flex-start;
+   background-color: rgba($brand-primary, 0.1);
+   border-radius: $radius-full;
+   padding: 4rpx 16rpx;
+}
 
-      .member-text {
-         font-size: 22rpx;
-         color: #ffffff;
-         line-height: 30rpx;
-      }
-   }
+.member-text {
+   font-size: 22rpx;
+   color: $brand-primary;
+   font-weight: 500;
+   line-height: 30rpx;
+}
+
+.user-id {
+   font-size: 24rpx;
+   color: #94a3b8;
+   line-height: 34rpx;
+   margin-top: 4rpx;
 }
 </style>

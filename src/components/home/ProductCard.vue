@@ -10,20 +10,8 @@
          </view>
          <view class="product-bottom">
             <text class="product-price">¥{{ product.price.toFixed(2) }}</text>
-            <view class="quantity-control">
-               <view
-                  v-if="quantity > 0"
-                  class="control-btn minus"
-                  @click.stop="handleRemove"
-               >
-                  <text class="minus-text">−</text>
-               </view>
-               <text v-if="quantity > 0" class="quantity-text">{{
-                  quantity
-               }}</text>
-               <view class="control-btn plus" @click.stop="handleAdd">
-                  <image class="add-icon" :src="addIconSrc" mode="aspectFit" />
-               </view>
+            <view class="add-btn" @click.stop="handleAdd">
+               <image class="add-icon" :src="addIconSrc" mode="aspectFit" />
             </view>
          </view>
       </view>
@@ -36,16 +24,12 @@ import { commonIcons } from '@/data/imgPaths';
 
 interface Props {
    product: Product;
-   quantity?: number;
 }
 
-withDefaults(defineProps<Props>(), {
-   quantity: 0,
-});
+defineProps<Props>();
 
 interface Emits {
    (e: 'add'): void;
-   (e: 'remove'): void;
 }
 
 const emit = defineEmits<Emits>();
@@ -54,10 +38,6 @@ const addIconSrc = commonIcons.add;
 
 const handleAdd = (): void => {
    emit('add');
-};
-
-const handleRemove = (): void => {
-   emit('remove');
 };
 </script>
 
@@ -87,7 +67,7 @@ const handleRemove = (): void => {
    display: flex;
    flex-direction: column;
    justify-content: space-between;
-   padding: 4rpx 0;
+   padding: 2rpx 0 4rpx;
    min-width: 0;
 }
 
@@ -127,47 +107,18 @@ const handleRemove = (): void => {
    font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
-.quantity-control {
-   display: flex;
-   align-items: center;
-   gap: 8rpx;
-}
-
-.control-btn {
+.add-btn {
    width: 56rpx;
    height: 56rpx;
    border-radius: 50%;
+   background-color: $brand-primary;
    display: flex;
    align-items: center;
    justify-content: center;
-
-   &.minus {
-      background-color: $bg-page;
-      border: 2rpx solid $border-default;
-   }
-
-   &.plus {
-      background-color: $brand-primary;
-   }
-}
-
-.minus-text {
-   font-size: 28rpx;
-   font-weight: 300;
-   color: $text-primary;
-   line-height: 1;
 }
 
 .add-icon {
    width: 21rpx;
    height: 21rpx;
-}
-
-.quantity-text {
-   font-size: 28rpx;
-   font-weight: 500;
-   color: $text-primary;
-   min-width: 32rpx;
-   text-align: center;
 }
 </style>

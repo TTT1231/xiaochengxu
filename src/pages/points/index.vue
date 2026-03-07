@@ -13,22 +13,27 @@
             />
          </view>
 
-         <view class="rewards-list">
-            <view
-               v-for="reward in filteredRewards"
-               :key="reward.id"
-               class="reward-item"
-            >
-               <RewardCard
-                  :reward="reward"
-                  @click="handleRewardClick(reward)"
-               />
+         <scroll-view class="rewards-scroll" scroll-y>
+            <view class="rewards-list">
+               <view
+                  v-for="reward in filteredRewards"
+                  :key="reward.id"
+                  class="reward-item"
+               >
+                  <RewardCard
+                     :reward="reward"
+                     @click="handleRewardClick(reward)"
+                  />
+               </view>
             </view>
-         </view>
 
-         <view v-if="filteredRewards.length === 0" class="empty-state">
-            <text class="empty-text">暂无该分类商品</text>
-         </view>
+            <view v-if="filteredRewards.length === 0" class="empty-state">
+               <text class="empty-text">暂无该分类商品</text>
+            </view>
+
+            <!-- 底部占位 -->
+            <view class="bottom-spacer"></view>
+         </scroll-view>
       </view>
    </view>
 </template>
@@ -53,7 +58,6 @@ const handleCategoryChange = (category: string) => {
 
 const handleRewardClick = (reward: any) => {
    console.log('Clicked reward:', reward);
-   // TODO: Navigate to reward detail page
 };
 </script>
 
@@ -61,15 +65,27 @@ const handleRewardClick = (reward: any) => {
 .points-page {
    min-height: 100vh;
    background-color: $bg-page;
+   /* 为 Header 留出空间 */
+   padding-top: 176rpx;
+   box-sizing: border-box;
 }
 
 .page-content {
-   padding-top: calc(var(--status-bar-height) + 88rpx);
-   padding-bottom: 32rpx;
+   height: calc(100vh - 176rpx);
+   display: flex;
+   flex-direction: column;
+   /* 额外的顶部间距 */
+   padding-top: 24rpx;
 }
 
 .category-section {
    margin: 24rpx 24rpx 20rpx;
+   flex-shrink: 0;
+}
+
+.rewards-scroll {
+   flex: 1;
+   height: calc(100vh - 176rpx - 200rpx); /* 减去 Header 和 PointsCard+分类的高度 */
 }
 
 .rewards-list {
@@ -93,5 +109,9 @@ const handleRewardClick = (reward: any) => {
 .empty-text {
    font-size: 28rpx;
    color: $text-muted;
+}
+
+.bottom-spacer {
+   height: 48rpx;
 }
 </style>

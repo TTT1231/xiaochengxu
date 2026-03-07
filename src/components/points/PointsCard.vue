@@ -26,6 +26,7 @@ defineProps<Props>();
    border-radius: $radius-lg;
    padding: 32rpx;
    box-shadow: $shadow-card;
+   margin: 0 24rpx; /* 添加水平边距 */
 }
 
 .card-content {

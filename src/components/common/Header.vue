@@ -51,7 +51,7 @@
             <view v-if="showBack" class="back-btn" @click="handleBack">
                <image
                   class="back-icon"
-                  src="/static/icons/common/back.png"
+                  src="/static/icons/common/back.svg"
                   mode="aspectFit"
                />
             </view>

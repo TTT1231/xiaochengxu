@@ -1,36 +1,33 @@
 <template>
    <view class="order-card" @click="handleCardClick">
-      <view class="store-info">
+      <view class="card-top">
          <image class="store-image" :src="order.storeImage" mode="aspectFill" />
-         <view class="store-details">
-            <text class="store-name">{{ order.storeName }}</text>
-            <view class="status-badge" :class="getStatusClass(order.status)">
-               <text class="status-text">{{
-                  getStatusText(order.status)
-               }}</text>
+         <view class="card-content">
+            <view class="content-header">
+               <text class="store-name">{{ order.storeName }}</text>
+               <text class="arrow">›</text>
+            </view>
+            <text class="order-no">订单号: {{ order.orderNo }}</text>
+            <view class="status-row">
+               <view
+                  class="status-dot"
+                  :class="getStatusClass(order.status)"
+               ></view>
+               <text class="status-text" :class="getStatusClass(order.status)">
+                  {{ getStatusText(order.status) }}
+               </text>
             </view>
          </view>
       </view>
 
-      <view class="order-items">
-         <text
-            v-for="(item, index) in order.items"
-            :key="index"
-            class="item-text"
-         >
-            {{ item.productName }} x{{ item.quantity }}
-         </text>
-      </view>
+      <view class="card-divider" />
 
-      <view class="order-footer">
-         <view class="time-info">
-            <text class="time-text">{{
-               order.estimatedTime || '计算中...'
-            }}</text>
-         </view>
-         <view class="amount-info">
-            <text class="amount-label">总计：</text>
-            <text class="amount-value">¥{{ order.totalAmount }}</text>
+      <view class="card-footer">
+         <text class="time-text"
+            >预计 {{ order.estimatedTime || '15 分钟' }}后可取</text
+         >
+         <view class="detail-btn">
+            <text class="detail-text">查看详情</text>
          </view>
       </view>
    </view>
@@ -52,7 +49,7 @@ const emit = defineEmits<{
 const getStatusText = (status: string): string => {
    const statusMap: Record<string, string> = {
       pending: '待处理',
-      preparing: '制作中',
+      preparing: '正在制作中...',
       ready: '待取餐',
       completed: '已完成',
    };
@@ -71,120 +68,123 @@ const handleCardClick = () => {
 <style lang="scss" scoped>
 .order-card {
    background-color: $bg-card;
-   border-radius: $radius-lg;
-   padding: 24rpx;
+   border-radius: 24rpx;
+   padding: 0;
    margin-bottom: 24rpx;
    box-shadow: $shadow-card;
 }
 
-.store-info {
+.card-top {
    display: flex;
-   align-items: center;
-   margin-bottom: 20rpx;
+   gap: 24rpx;
+   padding: 32rpx 32rpx 24rpx;
 }
 
 .store-image {
-   width: 88rpx;
-   height: 88rpx;
-   border-radius: $radius-md;
-   margin-right: 20rpx;
+   width: 140rpx;
+   height: 140rpx;
+   border-radius: 16rpx;
    background-color: $bg-hover;
+   flex-shrink: 0;
 }
 
-.store-details {
+.card-content {
    flex: 1;
    display: flex;
    flex-direction: column;
-   gap: 12rpx;
+   justify-content: flex-start;
+   min-width: 0;
+}
+
+.content-header {
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   margin-bottom: 8rpx;
 }
 
 .store-name {
-   font-size: 30rpx;
+   font-size: 32rpx;
    font-weight: 600;
-   color: $text-primary;
-   line-height: 42rpx;
+   color: #1e293b;
+   line-height: 44rpx;
+   flex: 1;
+   overflow: hidden;
+   text-overflow: ellipsis;
+   white-space: nowrap;
 }
 
-.status-badge {
-   align-self: flex-start;
-   padding: 8rpx 20rpx;
-   border-radius: $radius-full;
+.arrow {
+   font-size: 36rpx;
+   color: #94a3b8;
+   margin-left: 8rpx;
+}
 
-   &.status-preparing {
-      background-color: rgba($status-preparing, 0.1);
+.order-no {
+   font-size: 26rpx;
+   color: #64748b;
+   line-height: 36rpx;
+   margin-bottom: 12rpx;
+}
+
+.status-row {
+   display: flex;
+   align-items: center;
+   gap: 8rpx;
+}
+
+.status-dot {
+   width: 12rpx;
+   height: 12rpx;
+   border-radius: 50%;
+
+   &.status-preparing,
+   &.status-pending {
+      background-color: $brand-primary;
    }
 
    &.status-ready {
-      background-color: rgba($status-ready, 0.1);
-   }
-
-   &.status-pending {
-      background-color: rgba($status-pending, 0.1);
+      background-color: $status-ready;
    }
 }
 
 .status-text {
-   font-size: 24rpx;
-   font-weight: 500;
-
-   .status-preparing & {
-      color: $status-preparing;
-   }
-
-   .status-ready & {
-      color: $status-ready;
-   }
-
-   .status-pending & {
-      color: $status-pending;
-   }
-}
-
-.order-items {
-   display: flex;
-   flex-direction: column;
-   gap: 8rpx;
-   padding-left: 108rpx;
-   margin-bottom: 20rpx;
-}
-
-.item-text {
    font-size: 26rpx;
-   color: $text-secondary;
-   line-height: 36rpx;
+   &.status-preparing,
+   &.status-pending {
+      color: $brand-primary;
+   }
 }
 
-.order-footer {
+.card-divider {
+   height: 2rpx;
+   background-color: rgba(0, 0, 0, 0.04);
+}
+
+.card-footer {
    display: flex;
    justify-content: space-between;
    align-items: center;
-   padding-left: 108rpx;
-}
-
-.time-info {
-   display: flex;
-   align-items: center;
+   padding: 24rpx 32rpx;
+   background-color: #fafafa;
+   border-bottom-left-radius: 24rpx;
+   border-bottom-right-radius: 24rpx;
 }
 
 .time-text {
-   font-size: 24rpx;
-   color: $text-tertiary;
-}
-
-.amount-info {
-   display: flex;
-   align-items: baseline;
-}
-
-.amount-label {
    font-size: 26rpx;
-   color: $text-secondary;
-   margin-right: 4rpx;
+   color: #64748b;
 }
 
-.amount-value {
-   font-size: 32rpx;
-   font-weight: 600;
-   color: $brand-primary;
+.detail-btn {
+   background-color: $brand-primary;
+   border-radius: $radius-full;
+   padding: 12rpx 32rpx;
+}
+
+.detail-text {
+   font-size: 26rpx;
+   color: #ffffff;
+   font-weight: 500;
 }
 </style>

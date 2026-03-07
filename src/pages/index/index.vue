@@ -60,7 +60,10 @@
                   </view>
                </view>
                <!-- 底部留白 -->
-               <view class="bottom-spacer"></view>
+               <view
+                  class="bottom-spacer"
+                  :class="{ 'has-cart': totalCount > 0 }"
+               ></view>
             </view>
          </view>
       </view>
@@ -107,7 +110,10 @@ const getProductsByCategory = (categoryId: string): Product[] => {
 onReady(() => {
    const systemInfo = uni.getSystemInfoSync();
    const statusBarHeight = systemInfo.statusBarHeight || 0;
-   headerHeight.value = statusBarHeight + 116;
+   // 顶部各部分高度(rpx)：
+   // padding-top(32) + top-bar(80) + gap(32) + search-bar(60) + padding-bottom(16) = 220rpx
+   // 根据屏幕宽度将 220rpx 动态转换为 px，防止 iPad 和非标准手机上计算高度错误导致被压盖
+   headerHeight.value = statusBarHeight + Math.ceil(uni.upx2px(220));
 });
 
 // 监听页面滚动
@@ -186,6 +192,9 @@ const handleCartClick = (): void => {
 .page {
    min-height: 100vh;
    background-color: $bg-page;
+   /* 为 TabBar 留出空间 */
+   padding-bottom: 128rpx;
+   box-sizing: border-box;
 }
 
 // 内容区域容器 - 灰色背景作为左侧分类栏的延伸
@@ -205,7 +214,7 @@ const handleCartClick = (): void => {
    z-index: 50;
    display: flex;
    flex-direction: column;
-   padding-bottom: 280rpx; // 与 .bottom-spacer 保持一致
+   padding-bottom: 40rpx; // 去除过大留白
 }
 
 .category-item {
@@ -245,9 +254,7 @@ const handleCartClick = (): void => {
 
 // 主内容区域
 .main-content {
-   // 移除 min-height 和 padding-bottom
-   // 购物车是 fixed 定位，不需要为它预留 padding 空间
-   // 底部留白由 .bottom-spacer 处理
+   background-color: #ffffff;
 }
 
 // 产品区域
@@ -278,11 +285,15 @@ const handleCartClick = (): void => {
    padding-bottom: 24rpx;
 }
 
-// 底部留白 - 防止最后的内容被购物车遮挡，并留出舒适的点击空间
-// 购物车条高度 112rpx + 图标向上延伸 32rpx + 舒适间距 48rpx ≈ 192rpx
-// 加上 TabBar 区域的视觉平衡，总共需要约 280rpx
+// 底部留白 - 动态高度，有购物车时才撑开大口子，平时留小口子防止界面太空旷
 .bottom-spacer {
-   height: 280rpx;
-   background-color: $bg-card; // 确保是白色背景，不是灰色
+   height: 60rpx;
+   background-color: transparent;
+   transition: height 0.3s;
+
+   &.has-cart {
+      /* 购物车条高度 112rpx + 图标向上延伸 32rpx + 舒适间距 76rpx = 220rpx */
+      height: 220rpx;
+   }
 }
 </style>

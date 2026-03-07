@@ -5,10 +5,10 @@
 import type { User } from '@/types';
 
 export const currentUser: User = {
-   id: 'user-1',
-   nickname: '甜品爱好者',
+   id: '8829341',
+   nickname: '小食光用户',
    avatar: '/static/images/avatar.png',
-   memberLevel: '黄金会员',
-   points: 2580,
-   coupons: 3,
+   memberLevel: '高级会员',
+   points: 1280,
+   coupons: 6,
 };

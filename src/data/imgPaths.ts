@@ -121,10 +121,16 @@ export const commonIcons = {
    chevronDownActive: `${commonIconsPath}/chevron-down-active.svg`,
 
    // 返回图标
-   back: `${commonIconsPath}/back.png`,
+   back: `${commonIconsPath}/back.svg`,
 
    // 扫码图标
    scan: `${commonIconsPath}/scan.svg`,
+
+   // 刷新/再来一单图标
+   refresh: `${commonIconsPath}/refresh.svg`,
+
+   // 客服图标
+   customerService: `${commonIconsPath}/customer-service.svg`,
 } as const;
 
 // ==================== 菜单图标 ====================
@@ -132,33 +138,24 @@ export const commonIcons = {
 export const menuIconsPath = `${ICONS_BASE}/menu`;
 
 /**
- * 菜单图标路径
+ * 菜单图标路径（个人中心）
+ * 根据原型：我的优惠券、地址管理、系统设置
  */
 export const menuIcons: MenuIcon[] = [
    {
-      key: 'points',
-      icon: `${menuIconsPath}/menu-points.png`,
-      label: '我的积分',
-   },
-   {
       key: 'coupons',
-      icon: `${menuIconsPath}/menu-coupons.png`,
-      label: '优惠券',
+      icon: `${menuIconsPath}/menu-coupons.svg`,
+      label: '我的优惠券',
    },
    {
       key: 'address',
-      icon: `${menuIconsPath}/menu-address.png`,
-      label: '收货地址',
+      icon: `${menuIconsPath}/menu-address.svg`,
+      label: '地址管理',
    },
    {
       key: 'settings',
-      icon: `${menuIconsPath}/menu-settings.png`,
-      label: '设置',
-   },
-   {
-      key: 'about',
-      icon: `${menuIconsPath}/menu-about.png`,
-      label: '关于我们',
+      icon: `${menuIconsPath}/menu-settings.svg`,
+      label: '系统设置',
    },
 ];
 
@@ -209,18 +206,22 @@ export const rewardsImagesPath = `${IMAGES_BASE}/rewards`;
 
 /**
  * 积分商品图片路径映射
+ * 优惠券类统一使用 coupon-placeholder.png
+ * 礼品类统一使用 gift-placeholder.png
  */
 export const rewardImages = {
-   milkTeaCoupon: `${rewardsImagesPath}/milk-tea-coupon.png`,
-   fruitTeaCoupon: `${rewardsImagesPath}/fruit-tea-coupon.png`,
-   coffeeCoupon: `${rewardsImagesPath}/coffee-coupon.png`,
-   dessertCoupon: `${rewardsImagesPath}/dessert-coupon.png`,
-   iceCreamCoupon: `${rewardsImagesPath}/ice-cream-coupon.png`,
-   mug: `${rewardsImagesPath}/mug.png`,
-   bag: `${rewardsImagesPath}/bag.png`,
-   keychain: `${rewardsImagesPath}/keychain.png`,
-   doublePoints: `${rewardsImagesPath}/double-points.png`,
-   birthdayGift: `${rewardsImagesPath}/birthday-gift.png`,
+   // 优惠券类 - 统一使用橙色占位图
+   milkTeaCoupon: `${rewardsImagesPath}/coupon-placeholder.png`,
+   fruitTeaCoupon: `${rewardsImagesPath}/coupon-placeholder.png`,
+   coffeeCoupon: `${rewardsImagesPath}/coupon-placeholder.png`,
+   dessertCoupon: `${rewardsImagesPath}/coupon-placeholder.png`,
+   iceCreamCoupon: `${rewardsImagesPath}/coupon-placeholder.png`,
+   // 礼品类 - 统一使用蓝色占位图
+   mug: `${rewardsImagesPath}/gift-placeholder.png`,
+   bag: `${rewardsImagesPath}/gift-placeholder.png`,
+   keychain: `${rewardsImagesPath}/gift-placeholder.png`,
+   doublePoints: `${rewardsImagesPath}/gift-placeholder.png`,
+   birthdayGift: `${rewardsImagesPath}/gift-placeholder.png`,
 } as const;
 
 // ==================== 通用图片路径 ====================

@@ -38,11 +38,12 @@ const handleToggle = (value: boolean) => {
 <style lang="scss" scoped>
 .order-toggle {
    display: flex;
-   width: 320rpx;
-   height: 72rpx;
-   background-color: #f5f5f5;
+   width: 100%;
+   height: 88rpx;
+   background-color: #fcece3;
    border-radius: $radius-full;
-   padding: 6rpx;
+   padding: 8rpx;
+   box-sizing: border-box;
 }
 
 .toggle-btn {
@@ -51,29 +52,24 @@ const handleToggle = (value: boolean) => {
    align-items: center;
    justify-content: center;
    border-radius: $radius-full;
-   transition:
-      background-color 0.3s,
-      opacity 0.3s;
+   transition: all 0.3s;
 
    &.active {
-      background-color: $brand-primary;
-   }
-
-   &:not(.active) {
-      opacity: 0.6;
+      background-color: #ffffff;
+      box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
    }
 }
 
 .btn-text {
-   font-size: 28rpx;
+   font-size: 30rpx;
    font-weight: 500;
 
    .toggle-btn.active & {
-      color: #ffffff;
+      color: $brand-primary;
    }
 
    .toggle-btn:not(.active) & {
-      color: $text-secondary;
+      color: #94a3b8;
    }
 }
 </style>

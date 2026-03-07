@@ -1,21 +1,31 @@
 <template>
    <view class="history-card" @click="handleCardClick">
-      <view class="card-header">
-         <text class="store-name">{{ order.storeName }}</text>
-         <text class="order-no">{{ order.orderNo }}</text>
+      <view class="content-header">
+         <image
+            class="store-avatar"
+            :src="order.storeImage"
+            mode="aspectFill"
+         />
+         <view class="store-info">
+            <text class="store-name">{{ order.storeName }}</text>
+            <text class="order-time">{{ formatDate(order.createdAt) }}</text>
+         </view>
+         <text class="status-num">已完成</text>
       </view>
 
-      <view class="card-content">
-         <view class="items-summary">
-            <text class="summary-text">{{ getItemsSummary }}</text>
-         </view>
-      </view>
+      <view class="card-divider" />
+
+      <text class="items-summary">{{ getItemsSummary }}</text>
 
       <view class="card-footer">
-         <text class="order-date">{{ formatDate(order.createdAt) }}</text>
-         <view class="amount-info">
-            <text class="amount-label">总计：</text>
-            <text class="amount-value">¥{{ order.totalAmount }}</text>
+         <text class="price">¥{{ order.totalAmount.toFixed(2) }}</text>
+         <view class="reorder-btn" @click.stop="handleReorder">
+            <image
+               class="refresh-icon"
+               :src="refreshIconSrc"
+               mode="aspectFit"
+            />
+            <text class="reorder-text">再来一单</text>
          </view>
       </view>
    </view>
@@ -24,6 +34,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import type { Order } from '@/types';
+import { commonIcons } from '@/data/imgPaths';
 
 interface Props {
    order: Order;
@@ -33,19 +44,19 @@ const props = defineProps<Props>();
 
 const emit = defineEmits<{
    click: [order: Order];
+   reorder: [order: Order];
 }>();
+
+const refreshIconSrc = commonIcons.refresh;
 
 const getItemsSummary = computed(() => {
    const items = props.order.items;
-   if (items.length === 0) return '无商品';
-   if (items.length === 1) {
-      return `${items[0].productName} x${items[0].quantity}`;
-   }
-   return `${items[0].productName} 等${items.length}件商品`;
+   if (items.length === 0) return '';
+   return items.map(item => `${item.productName} x${item.quantity}`).join(', ');
 });
 
 const formatDate = (dateStr: string): string => {
-   // Format: 2025-03-05 15:20:00 -> 03-05 15:20
+   // Format: 2025-03-05 15:20:00 -> 2023-10-22 14:30
    const match = dateStr.match(/\d{4}-(\d{2})-(\d{2})\s+(\d{2}):(\d{2})/);
    if (match) {
       return `${match[1]}-${match[2]} ${match[3]}:${match[4]}`;
@@ -56,79 +67,116 @@ const formatDate = (dateStr: string): string => {
 const handleCardClick = () => {
    emit('click', props.order);
 };
+
+const handleReorder = () => {
+   emit('reorder', props.order);
+};
 </script>
 
 <style lang="scss" scoped>
 .history-card {
    background-color: $bg-card;
-   border-radius: $radius-lg;
-   padding: 24rpx;
+   border-radius: 24rpx;
+   padding: 32rpx;
    margin-bottom: 24rpx;
    box-shadow: $shadow-card;
+   display: flex;
+   flex-direction: column;
 }
 
-.card-header {
+.content-header {
    display: flex;
-   justify-content: space-between;
-   align-items: center;
-   margin-bottom: 16rpx;
+   align-items: flex-start;
+   margin-bottom: 24rpx;
+}
+
+.store-avatar {
+   width: 80rpx;
+   height: 80rpx;
+   border-radius: 50%;
+   background-color: $bg-hover;
+   margin-right: 24rpx;
+   flex-shrink: 0;
+}
+
+.store-info {
+   flex: 1;
+   display: flex;
+   flex-direction: column;
+   min-width: 0;
 }
 
 .store-name {
    font-size: 30rpx;
    font-weight: 600;
-   color: $text-primary;
+   color: #1e293b;
    line-height: 42rpx;
+   margin-bottom: 4rpx;
+   overflow: hidden;
+   white-space: nowrap;
+   text-overflow: ellipsis;
 }
 
-.order-no {
+.order-time {
    font-size: 24rpx;
-   color: $text-muted;
+   color: #94a3b8;
    line-height: 34rpx;
 }
 
-.card-content {
-   margin-bottom: 16rpx;
+.status-num {
+   font-size: 26rpx;
+   color: #94a3b8;
+   margin-left: 16rpx;
+}
+
+.card-divider {
+   height: 2rpx;
+   background-color: rgba(0, 0, 0, 0.04);
+   margin-bottom: 24rpx;
 }
 
 .items-summary {
-   padding: 16rpx;
-   background-color: $bg-page;
-   border-radius: $radius-sm;
-}
-
-.summary-text {
-   font-size: 26rpx;
-   color: $text-secondary;
-   line-height: 36rpx;
+   font-size: 28rpx;
+   color: #475569;
+   line-height: 40rpx;
+   margin-bottom: 32rpx;
+   overflow: hidden;
+   white-space: nowrap;
+   text-overflow: ellipsis;
 }
 
 .card-footer {
    display: flex;
-   justify-content: space-between;
    align-items: center;
+   justify-content: space-between;
 }
 
-.order-date {
-   font-size: 24rpx;
-   color: $text-tertiary;
-   line-height: 34rpx;
+.price {
+   font-size: 36rpx;
+   font-weight: 700;
+   color: #1e293b;
+   line-height: 48rpx;
+   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
-.amount-info {
+.reorder-btn {
    display: flex;
-   align-items: baseline;
+   align-items: center;
+   gap: 8rpx;
+   padding: 10rpx 32rpx;
+   border: 2rpx solid rgba(238, 134, 43, 0.3);
+   border-radius: $radius-full;
+   background-color: #fff;
 }
 
-.amount-label {
+.refresh-icon {
+   width: 24rpx;
+   height: 24rpx;
+}
+
+.reorder-text {
    font-size: 26rpx;
-   color: $text-tertiary;
-   margin-right: 4rpx;
-}
-
-.amount-value {
-   font-size: 28rpx;
+   color: $brand-primary;
    font-weight: 500;
-   color: $status-completed;
 }
 </style>
