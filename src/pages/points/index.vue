@@ -40,6 +40,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import type { Reward } from '@/types';
 import Header from '@/components/common/Header.vue';
 import PointsCard from '@/components/points/PointsCard.vue';
 import CategoryTabs from '@/components/points/CategoryTabs.vue';
@@ -56,8 +57,8 @@ const handleCategoryChange = (category: string) => {
    activeCategory.value = category;
 };
 
-const handleRewardClick = (reward: any) => {
-   console.log('Clicked reward:', reward);
+const handleRewardClick = (reward: Reward) => {
+   // TODO: Implement reward redemption
 };
 </script>
 
@@ -85,7 +86,9 @@ const handleRewardClick = (reward: any) => {
 
 .rewards-scroll {
    flex: 1;
-   height: calc(100vh - 176rpx - 200rpx); /* 减去 Header 和 PointsCard+分类的高度 */
+   height: calc(
+      100vh - 176rpx - 200rpx
+   ); /* 减去 Header 和 PointsCard+分类的高度 */
 }
 
 .rewards-list {

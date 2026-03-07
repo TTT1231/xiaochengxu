@@ -63,21 +63,11 @@ const handlePointsClick = () => {
 };
 
 const handleCouponsClick = () => {
-   console.log('Navigate to coupons');
+   // TODO: Navigate to coupons page
 };
 
 const handleMenuClick = (key: string) => {
-   switch (key) {
-      case 'coupons':
-         console.log('Navigate to coupons');
-         break;
-      case 'address':
-         console.log('Navigate to address');
-         break;
-      case 'settings':
-         console.log('Navigate to settings');
-         break;
-   }
+   // TODO: Implement menu navigation
 };
 
 const handleServiceClick = () => {

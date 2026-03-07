@@ -8,7 +8,9 @@
          />
          <view class="store-info">
             <text class="store-name">{{ order.storeName }}</text>
-            <text class="order-time">{{ formatDate(order.createdAt) }}</text>
+            <text class="order-time">{{
+               formatDateTime(order.createdAt)
+            }}</text>
          </view>
          <text class="status-num">已完成</text>
       </view>
@@ -18,7 +20,7 @@
       <text class="items-summary">{{ getItemsSummary }}</text>
 
       <view class="card-footer">
-         <text class="price">¥{{ order.totalAmount.toFixed(2) }}</text>
+         <text class="price">{{ formatPriceDisplay(order.totalAmount) }}</text>
          <view class="reorder-btn" @click.stop="handleReorder">
             <image
                class="refresh-icon"
@@ -35,6 +37,7 @@
 import { computed } from 'vue';
 import type { Order } from '@/types';
 import { commonIcons } from '@/data/imgPaths';
+import { formatPriceDisplay, formatDateTime } from '@/utils/format';
 
 interface Props {
    order: Order;
@@ -54,15 +57,6 @@ const getItemsSummary = computed(() => {
    if (items.length === 0) return '';
    return items.map(item => `${item.productName} x${item.quantity}`).join(', ');
 });
-
-const formatDate = (dateStr: string): string => {
-   // Format: 2025-03-05 15:20:00 -> 2023-10-22 14:30
-   const match = dateStr.match(/\d{4}-(\d{2})-(\d{2})\s+(\d{2}):(\d{2})/);
-   if (match) {
-      return `${match[1]}-${match[2]} ${match[3]}:${match[4]}`;
-   }
-   return dateStr;
-};
 
 const handleCardClick = () => {
    emit('click', props.order);

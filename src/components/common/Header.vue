@@ -84,8 +84,8 @@ withDefaults(defineProps<Props>(), {
 const statusBarHeight = ref(0);
 
 onMounted(() => {
-   const systemInfo = uni.getSystemInfoSync();
-   statusBarHeight.value = systemInfo.statusBarHeight || 0;
+   const windowInfo = uni.getWindowInfo();
+   statusBarHeight.value = windowInfo.statusBarHeight || 0;
 });
 
 const handleBack = () => {
@@ -95,15 +95,15 @@ const handleBack = () => {
 };
 
 const handleLocationClick = () => {
-   console.log('Location clicked');
+   // TODO: Implement location selector
 };
 
 const handleNotificationClick = () => {
-   console.log('Notification clicked');
+   // TODO: Navigate to notifications
 };
 
 const handleScanClick = () => {
-   console.log('Scan clicked');
+   // TODO: Implement QR scan
 };
 </script>
 

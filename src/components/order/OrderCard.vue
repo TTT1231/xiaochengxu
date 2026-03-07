@@ -35,30 +35,15 @@
 
 <script setup lang="ts">
 import type { Order } from '@/types';
+import { getStatusText, getStatusClass } from '@/composables/useOrder';
 
-interface Props {
+const props = defineProps<{
    order: Order;
-}
-
-const props = defineProps<Props>();
+}>();
 
 const emit = defineEmits<{
    click: [order: Order];
 }>();
-
-const getStatusText = (status: string): string => {
-   const statusMap: Record<string, string> = {
-      pending: '待处理',
-      preparing: '正在制作中...',
-      ready: '待取餐',
-      completed: '已完成',
-   };
-   return statusMap[status] || '未知';
-};
-
-const getStatusClass = (status: string): string => {
-   return `status-${status}`;
-};
 
 const handleCardClick = () => {
    emit('click', props.order);

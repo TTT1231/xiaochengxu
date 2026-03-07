@@ -10,9 +10,9 @@
                </view>
             </view>
             <view class="price-info">
-               <text class="cart-amount">¥{{ amount.toFixed(2) }}</text>
+               <text class="cart-amount">{{ formatPriceDisplay(amount) }}</text>
                <text class="discount-text"
-                  >已优惠 ¥{{ discount.toFixed(2) }}</text
+                  >已优惠 {{ formatPriceDisplay(discount) }}</text
                >
             </view>
          </view>
@@ -25,6 +25,7 @@
 
 <script setup lang="ts">
 import { commonIcons } from '@/data/imgPaths';
+import { formatPriceDisplay } from '@/utils/format';
 
 interface Props {
    count: number;

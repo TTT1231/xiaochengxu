@@ -12,27 +12,31 @@ const orderList = ref<Order[]>([]);
 // 是否显示当前订单
 const showActive = ref(true);
 
+/**
+ * 订单状态文本映射
+ */
+export const ORDER_STATUS_TEXT: Record<OrderStatus, string> = {
+   pending: '待处理',
+   preparing: '正在制作中...',
+   ready: '待取餐',
+   completed: '已完成',
+};
+
+/**
+ * 获取订单状态文本
+ */
+export const getStatusText = (status: OrderStatus): string => {
+   return ORDER_STATUS_TEXT[status];
+};
+
+/**
+ * 获取订单状态样式类名
+ */
+export const getStatusClass = (status: OrderStatus): string => {
+   return `status-${status}`;
+};
+
 export function useOrder() {
-   /**
-    * 获取订单状态文本
-    */
-   const getStatusText = (status: OrderStatus): string => {
-      const statusMap: Record<OrderStatus, string> = {
-         pending: '待处理',
-         preparing: '制作中',
-         ready: '待取餐',
-         completed: '已完成',
-      };
-      return statusMap[status];
-   };
-
-   /**
-    * 获取订单状态样式类名
-    */
-   const getStatusClass = (status: OrderStatus): string => {
-      return `status-${status}`;
-   };
-
    /**
     * 切换显示当前/历史订单
     */

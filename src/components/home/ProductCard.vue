@@ -9,7 +9,9 @@
             <text class="product-description">{{ product.description }}</text>
          </view>
          <view class="product-bottom">
-            <text class="product-price">¥{{ product.price.toFixed(2) }}</text>
+            <text class="product-price">{{
+               formatPriceDisplay(product.price)
+            }}</text>
             <view class="add-btn" @click.stop="handleAdd">
                <image class="add-icon" :src="addIconSrc" mode="aspectFit" />
             </view>
@@ -21,6 +23,7 @@
 <script setup lang="ts">
 import type { Product } from '@/types';
 import { commonIcons } from '@/data/imgPaths';
+import { formatPriceDisplay } from '@/utils/format';
 
 interface Props {
    product: Product;

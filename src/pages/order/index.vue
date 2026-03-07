@@ -106,7 +106,6 @@ const handleReorder = (order: Order) => {
       title: '已加入购物车',
       icon: 'success',
    });
-   console.log('Reorder:', order);
 };
 </script>
 

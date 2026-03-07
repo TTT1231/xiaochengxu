@@ -102,14 +102,25 @@ const currentScrollTop = ref(0);
 const { totalCount, totalAmount, addItem, removeItem, getItemQuantity } =
    useCart();
 
-// 按分类获取产品
+// 预计算：按分类分组产品（避免在模板中重复 filter）
+const productsByCategory = computed(() => {
+   const map = new Map<string, Product[]>();
+   for (const product of products) {
+      const list = map.get(product.categoryId) || [];
+      list.push(product);
+      map.set(product.categoryId, list);
+   }
+   return map;
+});
+
+// 获取指定分类的产品
 const getProductsByCategory = (categoryId: string): Product[] => {
-   return products.filter(p => p.categoryId === categoryId);
+   return productsByCategory.value.get(categoryId) || [];
 };
 
 onReady(() => {
-   const systemInfo = uni.getSystemInfoSync();
-   const statusBarHeight = systemInfo.statusBarHeight || 0;
+   const windowInfo = uni.getWindowInfo();
+   const statusBarHeight = windowInfo.statusBarHeight || 0;
    // 顶部各部分高度(rpx)：
    // padding-top(32) + top-bar(80) + gap(32) + search-bar(60) + padding-bottom(16) = 220rpx
    // 根据屏幕宽度将 220rpx 动态转换为 px，防止 iPad 和非标准手机上计算高度错误导致被压盖

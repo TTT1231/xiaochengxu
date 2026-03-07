@@ -26,9 +26,9 @@
                />
                <view class="item-info">
                   <text class="item-name">{{ item.product.name }}</text>
-                  <text class="item-price"
-                     >¥{{ item.product.price.toFixed(2) }}</text
-                  >
+                  <text class="item-price">{{
+                     formatPriceDisplay(item.product.price)
+                  }}</text>
                </view>
                <view class="quantity-control">
                   <view
@@ -52,7 +52,9 @@
       <view v-if="cartItems.length > 0" class="bottom-bar">
          <view class="total-info">
             <text class="total-label">合计</text>
-            <text class="total-amount">¥{{ totalAmount.toFixed(2) }}</text>
+            <text class="total-amount">{{
+               formatPriceDisplay(totalAmount)
+            }}</text>
          </view>
          <view class="checkout-btn" @click="handleCheckout">
             <text class="checkout-text">去结算</text>
@@ -66,14 +68,16 @@ import { ref } from 'vue';
 import { onReady } from '@dcloudio/uni-app';
 import Header from '@/components/common/Header.vue';
 import { useCart } from '@/composables/useCart';
+import { formatPriceDisplay } from '@/utils/format';
+import type { Product } from '@/types';
 
 const headerHeight = ref(0);
 
 const { items: cartItems, totalAmount, removeItem, addItem } = useCart();
 
 onReady(() => {
-   const systemInfo = uni.getSystemInfoSync();
-   const statusBarHeight = systemInfo.statusBarHeight || 0;
+   const windowInfo = uni.getWindowInfo();
+   const statusBarHeight = windowInfo.statusBarHeight || 0;
    headerHeight.value = statusBarHeight + 44;
 });
 
@@ -81,7 +85,7 @@ const handleRemove = (productId: string) => {
    removeItem(productId);
 };
 
-const handleAdd = (product: any) => {
+const handleAdd = (product: Product) => {
    addItem(product);
 };
 
