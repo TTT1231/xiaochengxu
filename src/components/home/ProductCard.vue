@@ -5,12 +5,14 @@ import { formatPriceDisplay } from '@/utils/format';
 
 interface Props {
    product: Product;
+   quantity?: number;
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
 
 interface Emits {
    (e: 'add'): void;
+   (e: 'click'): void;
 }
 
 const emit = defineEmits<Emits>();
@@ -18,12 +20,16 @@ const emit = defineEmits<Emits>();
 const addIconSrc = commonIcons.add;
 
 const handleAdd = (): void => {
-   emit('add');
+   emit('click');
+};
+
+const handleClick = (): void => {
+   emit('click');
 };
 </script>
 
 <template>
-   <view class="product-card">
+   <view class="product-card" @click="handleClick">
       <view class="image-container">
          <image class="product-image" :src="product.image" mode="aspectFill" />
       </view>
@@ -36,8 +42,13 @@ const handleAdd = (): void => {
             <text class="product-price">{{
                formatPriceDisplay(product.price)
             }}</text>
-            <view class="add-btn" @click.stop="handleAdd">
-               <image class="add-icon" :src="addIconSrc" mode="aspectFit" />
+            <view class="add-btn-wrapper">
+               <view class="add-btn" @click.stop="handleAdd">
+                  <image class="add-icon" :src="addIconSrc" mode="aspectFit" />
+               </view>
+               <view v-if="quantity && quantity > 0" class="quantity-badge">
+                  <text class="badge-text">{{ quantity }}</text>
+               </view>
             </view>
          </view>
       </view>
@@ -123,5 +134,34 @@ const handleAdd = (): void => {
 .add-icon {
    width: 21rpx;
    height: 21rpx;
+}
+
+.add-btn-wrapper {
+   position: relative;
+}
+
+.quantity-badge {
+   position: absolute;
+   top: -12rpx;
+   right: -12rpx;
+   min-width: 32rpx;
+   height: 32rpx;
+   padding: 0 8rpx;
+   background-color: #ff3b30;
+   border: 2rpx solid #ffffff;
+   border-radius: 16rpx;
+   box-sizing: border-box;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   box-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.1);
+}
+
+.badge-text {
+   font-size: 18rpx;
+   font-weight: 700;
+   color: #ffffff;
+   line-height: 1;
+   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 </style>

@@ -113,6 +113,12 @@ const handleRemoveFromCart = (productId: string): void => {
 const handleCartClick = (): void => {
    uni.navigateTo({ url: '/pages/cart/index' });
 };
+
+const handleProductClick = (productId: string): void => {
+   uni.navigateTo({
+      url: `/pages/show-product-details/show-product-details?id=${productId}`,
+   });
+};
 </script>
 
 <template>
@@ -172,7 +178,7 @@ const handleCartClick = (): void => {
                         :product="product"
                         :quantity="getItemQuantity(product.id)"
                         @add="handleAddToCart(product)"
-                        @remove="handleRemoveFromCart(product.id)"
+                        @click="handleProductClick(product.id)"
                      />
                   </view>
                </view>
