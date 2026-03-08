@@ -1,87 +1,3 @@
-<template>
-   <view class="page">
-      <Header mode="home" />
-
-      <!-- 主内容区域 -->
-      <view class="main-content" :style="{ paddingTop: headerHeight + 'px' }">
-         <!-- Banner -->
-         <Banner />
-
-         <!-- 内容区域：sidebar + products -->
-         <view class="content-wrapper">
-            <!-- 左侧分类栏 - sticky 吸顶效果 -->
-            <view
-               class="category-sidebar"
-               :style="{ top: headerHeight + 'px' }"
-            >
-               <view
-                  v-for="category in categories"
-                  :key="category.id"
-                  class="category-item"
-                  :class="{ active: activeCategoryId === category.id }"
-                  @click="handleCategorySelect(category.id)"
-               >
-                  <image
-                     class="category-icon"
-                     :src="
-                        activeCategoryId === category.id
-                           ? category.activeIcon || category.icon
-                           : category.icon
-                     "
-                     mode="aspectFit"
-                  />
-                  <text class="category-name">{{ category.name }}</text>
-               </view>
-            </view>
-
-            <!-- 产品列表区域 -->
-            <view class="product-area">
-               <!-- 每个分类一个区块 -->
-               <view
-                  v-for="category in categories"
-                  :key="category.id"
-                  :id="'section-' + category.id"
-                  class="category-section"
-               >
-                  <!-- 分类标题 -->
-                  <view class="section-header">
-                     <text class="section-title">{{ category.name }}</text>
-                  </view>
-                  <!-- 产品列表 -->
-                  <view class="product-list">
-                     <ProductCard
-                        v-for="product in getProductsByCategory(category.id)"
-                        :key="product.id"
-                        :product="product"
-                        :quantity="getItemQuantity(product.id)"
-                        @add="handleAddToCart(product)"
-                        @remove="handleRemoveFromCart(product.id)"
-                     />
-                  </view>
-               </view>
-               <!-- 底部留白 -->
-               <view
-                  class="bottom-spacer"
-                  :class="{ 'has-cart': totalCount > 0 }"
-               ></view>
-            </view>
-         </view>
-      </view>
-
-      <!-- 悬浮购物车 -->
-      <FloatingCart
-         v-if="totalCount > 0"
-         :count="totalCount"
-         :amount="totalAmount"
-         :discount="5"
-         @click="handleCartClick"
-      />
-
-      <!-- 底部导航 -->
-      <TabBar :current="0" />
-   </view>
-</template>
-
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import type { Product } from '@/types';
@@ -198,6 +114,90 @@ const handleCartClick = (): void => {
    uni.navigateTo({ url: '/pages/cart/index' });
 };
 </script>
+
+<template>
+   <view class="page">
+      <Header mode="home" />
+
+      <!-- 主内容区域 -->
+      <view class="main-content" :style="{ paddingTop: headerHeight + 'px' }">
+         <!-- Banner -->
+         <Banner />
+
+         <!-- 内容区域：sidebar + products -->
+         <view class="content-wrapper">
+            <!-- 左侧分类栏 - sticky 吸顶效果 -->
+            <view
+               class="category-sidebar"
+               :style="{ top: headerHeight + 'px' }"
+            >
+               <view
+                  v-for="category in categories"
+                  :key="category.id"
+                  class="category-item"
+                  :class="{ active: activeCategoryId === category.id }"
+                  @click="handleCategorySelect(category.id)"
+               >
+                  <image
+                     class="category-icon"
+                     :src="
+                        activeCategoryId === category.id
+                           ? category.activeIcon || category.icon
+                           : category.icon
+                     "
+                     mode="aspectFit"
+                  />
+                  <text class="category-name">{{ category.name }}</text>
+               </view>
+            </view>
+
+            <!-- 产品列表区域 -->
+            <view class="product-area">
+               <!-- 每个分类一个区块 -->
+               <view
+                  v-for="category in categories"
+                  :key="category.id"
+                  :id="'section-' + category.id"
+                  class="category-section"
+               >
+                  <!-- 分类标题 -->
+                  <view class="section-header">
+                     <text class="section-title">{{ category.name }}</text>
+                  </view>
+                  <!-- 产品列表 -->
+                  <view class="product-list">
+                     <ProductCard
+                        v-for="product in getProductsByCategory(category.id)"
+                        :key="product.id"
+                        :product="product"
+                        :quantity="getItemQuantity(product.id)"
+                        @add="handleAddToCart(product)"
+                        @remove="handleRemoveFromCart(product.id)"
+                     />
+                  </view>
+               </view>
+               <!-- 底部留白 -->
+               <view
+                  class="bottom-spacer"
+                  :class="{ 'has-cart': totalCount > 0 }"
+               ></view>
+            </view>
+         </view>
+      </view>
+
+      <!-- 悬浮购物车 -->
+      <FloatingCart
+         v-if="totalCount > 0"
+         :count="totalCount"
+         :amount="totalAmount"
+         :discount="5"
+         @click="handleCartClick"
+      />
+
+      <!-- 底部导航 -->
+      <TabBar :current="0" />
+   </view>
+</template>
 
 <style lang="scss" scoped>
 .page {
