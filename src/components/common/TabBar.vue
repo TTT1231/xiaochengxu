@@ -1,3 +1,25 @@
+<script setup lang="ts">
+import type { TabBarItem } from '@/data/imgPaths';
+import { tabBarImgPaths } from '@/data/imgPaths';
+
+interface Props {
+   current?: number;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+   current: 0,
+});
+
+const tabs: TabBarItem[] = tabBarImgPaths;
+
+const handleTabClick = (index: number, pagePath: string) => {
+   if (index === props.current) return;
+   uni.switchTab({
+      url: pagePath,
+   });
+};
+</script>
+
 <template>
    <view class="tab-bar">
       <view
@@ -20,28 +42,6 @@
       </view>
    </view>
 </template>
-
-<script setup lang="ts">
-import type { TabBarItem } from '@/data/imgPaths';
-import { tabBarImgPaths } from '@/data/imgPaths';
-
-interface Props {
-   current?: number;
-}
-
-const props = withDefaults(defineProps<Props>(), {
-   current: 0,
-});
-
-const tabs: TabBarItem[] = tabBarImgPaths;
-
-const handleTabClick = (index: number, pagePath: string) => {
-   if (index === props.current) return;
-   uni.switchTab({
-      url: pagePath,
-   });
-};
-</script>
 
 <style lang="scss" scoped>
 .tab-bar {

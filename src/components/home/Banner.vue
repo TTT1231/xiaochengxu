@@ -1,3 +1,5 @@
+<script setup lang="ts"></script>
+
 <template>
    <view class="banner-section">
       <view class="banner-box">
@@ -20,8 +22,6 @@
       </view>
    </view>
 </template>
-
-<script setup lang="ts"></script>
 
 <style lang="scss" scoped>
 .banner-section {

@@ -1,23 +1,3 @@
-<template>
-   <view class="menu-list">
-      <view
-         v-for="(item, index) in menuItems"
-         :key="item.key"
-         class="menu-item"
-         :class="{ 'has-divider': index < menuItems.length - 1 }"
-         @click="handleMenuClick(item.key)"
-      >
-         <view class="menu-icon">
-            <image :src="item.icon" class="icon" />
-         </view>
-         <text class="menu-label">{{ item.label }}</text>
-         <view class="menu-arrow">
-            <text class="arrow">›</text>
-         </view>
-      </view>
-   </view>
-</template>
-
 <script setup lang="ts">
 import { menuIcons } from '@/data/imgPaths';
 
@@ -37,6 +17,26 @@ const handleMenuClick = (key: string) => {
    emit('click', key);
 };
 </script>
+
+<template>
+   <view class="menu-list">
+      <view
+         v-for="(item, index) in menuItems"
+         :key="item.key"
+         class="menu-item"
+         :class="{ 'has-divider': index < menuItems.length - 1 }"
+         @click="handleMenuClick(item.key)"
+      >
+         <view class="menu-icon">
+            <image :src="item.icon" class="icon" />
+         </view>
+         <text class="menu-label">{{ item.label }}</text>
+         <view class="menu-arrow">
+            <text class="arrow">›</text>
+         </view>
+      </view>
+   </view>
+</template>
 
 <style lang="scss" scoped>
 .menu-list {

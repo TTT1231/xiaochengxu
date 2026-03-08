@@ -1,3 +1,13 @@
+<script setup lang="ts">
+import type { User } from '@/types';
+
+interface Props {
+   user: User;
+}
+
+defineProps<Props>();
+</script>
+
 <template>
    <view class="user-card">
       <image :src="user.avatar" class="avatar" mode="aspectFill" />
@@ -10,16 +20,6 @@
       </view>
    </view>
 </template>
-
-<script setup lang="ts">
-import type { User } from '@/types';
-
-interface Props {
-   user: User;
-}
-
-defineProps<Props>();
-</script>
 
 <style lang="scss" scoped>
 .user-card {

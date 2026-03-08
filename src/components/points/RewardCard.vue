@@ -1,16 +1,3 @@
-<template>
-   <view class="reward-card" @click="handleClick">
-      <image class="reward-image" :src="reward.image" mode="aspectFill" />
-      <view class="reward-content">
-         <text class="reward-name">{{ reward.name }}</text>
-         <view class="reward-points">
-            <text class="points-value">{{ reward.points }}</text>
-            <text class="points-unit">积分</text>
-         </view>
-      </view>
-   </view>
-</template>
-
 <script setup lang="ts">
 import type { Reward } from '@/types';
 
@@ -28,6 +15,19 @@ const handleClick = () => {
    emit('click');
 };
 </script>
+
+<template>
+   <view class="reward-card" @click="handleClick">
+      <image class="reward-image" :src="reward.image" mode="aspectFill" />
+      <view class="reward-content">
+         <text class="reward-name">{{ reward.name }}</text>
+         <view class="reward-points">
+            <text class="points-value">{{ reward.points }}</text>
+            <text class="points-unit">积分</text>
+         </view>
+      </view>
+   </view>
+</template>
 
 <style lang="scss" scoped>
 .reward-card {

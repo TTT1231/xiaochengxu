@@ -1,3 +1,20 @@
+<script setup lang="ts">
+import type { Order } from '@/types';
+import { getStatusText, getStatusClass } from '@/composables/useOrder';
+
+const props = defineProps<{
+   order: Order;
+}>();
+
+const emit = defineEmits<{
+   click: [order: Order];
+}>();
+
+const handleCardClick = () => {
+   emit('click', props.order);
+};
+</script>
+
 <template>
    <view class="order-card" @click="handleCardClick">
       <view class="card-top">
@@ -32,23 +49,6 @@
       </view>
    </view>
 </template>
-
-<script setup lang="ts">
-import type { Order } from '@/types';
-import { getStatusText, getStatusClass } from '@/composables/useOrder';
-
-const props = defineProps<{
-   order: Order;
-}>();
-
-const emit = defineEmits<{
-   click: [order: Order];
-}>();
-
-const handleCardClick = () => {
-   emit('click', props.order);
-};
-</script>
 
 <style lang="scss" scoped>
 .order-card {

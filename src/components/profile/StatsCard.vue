@@ -1,22 +1,3 @@
-<template>
-   <view class="stats-container">
-      <view class="stat-item" @click="handlePointsClick">
-         <text class="stat-label">我的积分</text>
-         <view class="stat-value-row">
-            <text class="stat-value">{{ formatNumber(points) }}</text>
-            <text class="stat-unit">分</text>
-         </view>
-      </view>
-      <view class="stat-item" @click="handleCouponsClick">
-         <text class="stat-label">优惠券</text>
-         <view class="stat-value-row">
-            <text class="stat-value">{{ coupons }}</text>
-            <text class="stat-unit">张</text>
-         </view>
-      </view>
-   </view>
-</template>
-
 <script setup lang="ts">
 interface Props {
    points: number;
@@ -42,6 +23,25 @@ const handleCouponsClick = () => {
    emit('click:coupons');
 };
 </script>
+
+<template>
+   <view class="stats-container">
+      <view class="stat-item" @click="handlePointsClick">
+         <text class="stat-label">我的积分</text>
+         <view class="stat-value-row">
+            <text class="stat-value">{{ formatNumber(points) }}</text>
+            <text class="stat-unit">分</text>
+         </view>
+      </view>
+      <view class="stat-item" @click="handleCouponsClick">
+         <text class="stat-label">优惠券</text>
+         <view class="stat-value-row">
+            <text class="stat-value">{{ coupons }}</text>
+            <text class="stat-unit">张</text>
+         </view>
+      </view>
+   </view>
+</template>
 
 <style lang="scss" scoped>
 .stats-container {

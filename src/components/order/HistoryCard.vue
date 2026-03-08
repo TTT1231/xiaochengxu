@@ -1,3 +1,37 @@
+<script setup lang="ts">
+import { computed } from 'vue';
+import type { Order } from '@/types';
+import { commonIcons } from '@/data/imgPaths';
+import { formatPriceDisplay, formatDateTime } from '@/utils/format';
+
+interface Props {
+   order: Order;
+}
+
+const props = defineProps<Props>();
+
+const emit = defineEmits<{
+   click: [order: Order];
+   reorder: [order: Order];
+}>();
+
+const refreshIconSrc = commonIcons.refresh;
+
+const getItemsSummary = computed(() => {
+   const items = props.order.items;
+   if (items.length === 0) return '';
+   return items.map(item => `${item.productName} x${item.quantity}`).join(', ');
+});
+
+const handleCardClick = () => {
+   emit('click', props.order);
+};
+
+const handleReorder = () => {
+   emit('reorder', props.order);
+};
+</script>
+
 <template>
    <view class="history-card" @click="handleCardClick">
       <view class="content-header">
@@ -32,40 +66,6 @@
       </view>
    </view>
 </template>
-
-<script setup lang="ts">
-import { computed } from 'vue';
-import type { Order } from '@/types';
-import { commonIcons } from '@/data/imgPaths';
-import { formatPriceDisplay, formatDateTime } from '@/utils/format';
-
-interface Props {
-   order: Order;
-}
-
-const props = defineProps<Props>();
-
-const emit = defineEmits<{
-   click: [order: Order];
-   reorder: [order: Order];
-}>();
-
-const refreshIconSrc = commonIcons.refresh;
-
-const getItemsSummary = computed(() => {
-   const items = props.order.items;
-   if (items.length === 0) return '';
-   return items.map(item => `${item.productName} x${item.quantity}`).join(', ');
-});
-
-const handleCardClick = () => {
-   emit('click', props.order);
-};
-
-const handleReorder = () => {
-   emit('reorder', props.order);
-};
-</script>
 
 <style lang="scss" scoped>
 .history-card {

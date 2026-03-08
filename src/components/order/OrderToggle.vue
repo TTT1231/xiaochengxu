@@ -1,3 +1,21 @@
+<script setup lang="ts">
+interface Props {
+   active: boolean;
+}
+
+const props = defineProps<Props>();
+
+const emit = defineEmits<{
+   change: [value: boolean];
+}>();
+
+const handleToggle = (value: boolean) => {
+   if (value !== props.active) {
+      emit('change', value);
+   }
+};
+</script>
+
 <template>
    <view class="order-toggle">
       <view
@@ -16,24 +34,6 @@
       </view>
    </view>
 </template>
-
-<script setup lang="ts">
-interface Props {
-   active: boolean;
-}
-
-const props = defineProps<Props>();
-
-const emit = defineEmits<{
-   change: [value: boolean];
-}>();
-
-const handleToggle = (value: boolean) => {
-   if (value !== props.active) {
-      emit('change', value);
-   }
-};
-</script>
 
 <style lang="scss" scoped>
 .order-toggle {

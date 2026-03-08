@@ -1,21 +1,3 @@
-<template>
-   <view class="search-bar" @click="handleClick">
-      <view class="search-input">
-         <text class="search-icon">🔍</text>
-         <input
-            v-if="!props.readonly"
-            class="input"
-            type="text"
-            :placeholder="props.placeholder"
-            :value="props.modelValue"
-            @input="handleInput"
-            @confirm="handleConfirm"
-         />
-         <text v-else class="placeholder">{{ props.placeholder }}</text>
-      </view>
-   </view>
-</template>
-
 <script setup lang="ts">
 interface Props {
    placeholder?: string;
@@ -52,6 +34,24 @@ const handleClick = () => {
    }
 };
 </script>
+
+<template>
+   <view class="search-bar" @click="handleClick">
+      <view class="search-input">
+         <text class="search-icon">🔍</text>
+         <input
+            v-if="!props.readonly"
+            class="input"
+            type="text"
+            :placeholder="props.placeholder"
+            :value="props.modelValue"
+            @input="handleInput"
+            @confirm="handleConfirm"
+         />
+         <text v-else class="placeholder">{{ props.placeholder }}</text>
+      </view>
+   </view>
+</template>
 
 <style lang="scss" scoped>
 .search-bar {

@@ -1,3 +1,27 @@
+<script setup lang="ts">
+import { ref, computed } from 'vue';
+import type { Reward } from '@/types';
+import Header from '@/components/common/Header.vue';
+import PointsCard from '@/components/points/PointsCard.vue';
+import CategoryTabs from '@/components/points/CategoryTabs.vue';
+import RewardCard from '@/components/points/RewardCard.vue';
+import { currentUser, rewardCategories, getRewardsByCategory } from '@/mock';
+
+const activeCategory = ref('全部');
+
+const filteredRewards = computed(() => {
+   return getRewardsByCategory(activeCategory.value);
+});
+
+const handleCategoryChange = (category: string) => {
+   activeCategory.value = category;
+};
+
+const handleRewardClick = (reward: Reward) => {
+   // TODO: Implement reward redemption
+};
+</script>
+
 <template>
    <view class="points-page">
       <Header title="积分商城" :show-back="true" />
@@ -37,30 +61,6 @@
       </view>
    </view>
 </template>
-
-<script setup lang="ts">
-import { ref, computed } from 'vue';
-import type { Reward } from '@/types';
-import Header from '@/components/common/Header.vue';
-import PointsCard from '@/components/points/PointsCard.vue';
-import CategoryTabs from '@/components/points/CategoryTabs.vue';
-import RewardCard from '@/components/points/RewardCard.vue';
-import { currentUser, rewardCategories, getRewardsByCategory } from '@/mock';
-
-const activeCategory = ref('全部');
-
-const filteredRewards = computed(() => {
-   return getRewardsByCategory(activeCategory.value);
-});
-
-const handleCategoryChange = (category: string) => {
-   activeCategory.value = category;
-};
-
-const handleRewardClick = (reward: Reward) => {
-   // TODO: Implement reward redemption
-};
-</script>
 
 <style lang="scss" scoped>
 .points-page {

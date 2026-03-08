@@ -1,3 +1,45 @@
+<script setup lang="ts">
+import { ref, computed } from 'vue';
+import Header from '@/components/common/Header.vue';
+import TabBar from '@/components/common/TabBar.vue';
+import OrderToggle from '@/components/order/OrderToggle.vue';
+import OrderCard from '@/components/order/OrderCard.vue';
+import HistoryCard from '@/components/order/HistoryCard.vue';
+import { orders } from '@/mock';
+import type { Order } from '@/types';
+
+const showActive = ref(true);
+const scrollTarget = ref('active-orders');
+
+const handleToggleChange = (active: boolean) => {
+   showActive.value = active;
+   scrollTarget.value = active ? 'active-orders' : 'history-orders';
+};
+
+// 进行中的订单
+const activeOrders = computed(() =>
+   orders.filter(order => order.status !== 'completed'),
+);
+
+// 历史订单
+const historyOrders = computed(() =>
+   orders.filter(order => order.status === 'completed'),
+);
+
+const handleOrderClick = (order: Order) => {
+   uni.navigateTo({
+      url: `/pages/order/detail?id=${order.id}`,
+   });
+};
+
+const handleReorder = (order: Order) => {
+   uni.showToast({
+      title: '已加入购物车',
+      icon: 'success',
+   });
+};
+</script>
+
 <template>
    <view class="order-page">
       <Header title="订单中心" :show-back="true" />
@@ -66,48 +108,6 @@
       <TabBar :current="1" />
    </view>
 </template>
-
-<script setup lang="ts">
-import { ref, computed } from 'vue';
-import Header from '@/components/common/Header.vue';
-import TabBar from '@/components/common/TabBar.vue';
-import OrderToggle from '@/components/order/OrderToggle.vue';
-import OrderCard from '@/components/order/OrderCard.vue';
-import HistoryCard from '@/components/order/HistoryCard.vue';
-import { orders } from '@/mock';
-import type { Order } from '@/types';
-
-const showActive = ref(true);
-const scrollTarget = ref('active-orders');
-
-const handleToggleChange = (active: boolean) => {
-   showActive.value = active;
-   scrollTarget.value = active ? 'active-orders' : 'history-orders';
-};
-
-// 进行中的订单
-const activeOrders = computed(() =>
-   orders.filter(order => order.status !== 'completed'),
-);
-
-// 历史订单
-const historyOrders = computed(() =>
-   orders.filter(order => order.status === 'completed'),
-);
-
-const handleOrderClick = (order: Order) => {
-   uni.navigateTo({
-      url: `/pages/order/detail?id=${order.id}`,
-   });
-};
-
-const handleReorder = (order: Order) => {
-   uni.showToast({
-      title: '已加入购物车',
-      icon: 'success',
-   });
-};
-</script>
 
 <style lang="scss" scoped>
 .order-page {

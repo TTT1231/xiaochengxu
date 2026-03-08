@@ -1,3 +1,49 @@
+<script setup lang="ts">
+import { currentUser } from '@/mock';
+import { commonIcons } from '@/data/imgPaths';
+import Header from '@/components/common/Header.vue';
+import TabBar from '@/components/common/TabBar.vue';
+import UserCard from '@/components/profile/UserCard.vue';
+import StatsCard from '@/components/profile/StatsCard.vue';
+import MenuList from '@/components/profile/MenuList.vue';
+
+const serviceIconSrc = commonIcons.customerService;
+
+const handlePointsClick = () => {
+   uni.navigateTo({ url: '/pages/points/index' });
+};
+
+const handleCouponsClick = () => {
+   // TODO: Navigate to coupons page
+};
+
+const handleMenuClick = (key: string) => {
+   // TODO: Implement menu navigation
+};
+
+const handleServiceClick = () => {
+   uni.showToast({
+      title: '正在连接客服...',
+      icon: 'loading',
+   });
+};
+
+const handleLogout = () => {
+   uni.showModal({
+      title: '提示',
+      content: '确定要退出登录吗？',
+      success: res => {
+         if (res.confirm) {
+            uni.showToast({
+               title: '已退出登录',
+               icon: 'success',
+            });
+         }
+      },
+   });
+};
+</script>
+
 <template>
    <view class="profile-page">
       <Header title="个人中心" :show-back="false" />
@@ -46,52 +92,6 @@
       <TabBar :current="2" />
    </view>
 </template>
-
-<script setup lang="ts">
-import { currentUser } from '@/mock';
-import { commonIcons } from '@/data/imgPaths';
-import Header from '@/components/common/Header.vue';
-import TabBar from '@/components/common/TabBar.vue';
-import UserCard from '@/components/profile/UserCard.vue';
-import StatsCard from '@/components/profile/StatsCard.vue';
-import MenuList from '@/components/profile/MenuList.vue';
-
-const serviceIconSrc = commonIcons.customerService;
-
-const handlePointsClick = () => {
-   uni.navigateTo({ url: '/pages/points/index' });
-};
-
-const handleCouponsClick = () => {
-   // TODO: Navigate to coupons page
-};
-
-const handleMenuClick = (key: string) => {
-   // TODO: Implement menu navigation
-};
-
-const handleServiceClick = () => {
-   uni.showToast({
-      title: '正在连接客服...',
-      icon: 'loading',
-   });
-};
-
-const handleLogout = () => {
-   uni.showModal({
-      title: '提示',
-      content: '确定要退出登录吗？',
-      success: res => {
-         if (res.confirm) {
-            uni.showToast({
-               title: '已退出登录',
-               icon: 'success',
-            });
-         }
-      },
-   });
-};
-</script>
 
 <style lang="scss" scoped>
 .profile-page {

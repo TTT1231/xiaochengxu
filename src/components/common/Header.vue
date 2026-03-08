@@ -1,3 +1,46 @@
+<script setup lang="ts">
+import { ref, onMounted } from 'vue';
+
+interface Props {
+   mode?: 'home' | 'simple';
+   title?: string;
+   showBack?: boolean;
+   storeName?: string;
+}
+
+withDefaults(defineProps<Props>(), {
+   mode: 'simple',
+   title: '',
+   showBack: true,
+   storeName: '上海静安嘉里中心店',
+});
+
+const statusBarHeight = ref(0);
+
+onMounted(() => {
+   const windowInfo = uni.getWindowInfo();
+   statusBarHeight.value = windowInfo.statusBarHeight || 0;
+});
+
+const handleBack = () => {
+   uni.navigateBack({
+      delta: 1,
+   });
+};
+
+const handleLocationClick = () => {
+   // TODO: Implement location selector
+};
+
+const handleNotificationClick = () => {
+   // TODO: Navigate to notifications
+};
+
+const handleScanClick = () => {
+   // TODO: Implement QR scan
+};
+</script>
+
 <template>
    <view class="header" :style="{ paddingTop: statusBarHeight + 'px' }">
       <!-- 首页模式：门店 + 图标 + 搜索栏 -->
@@ -63,49 +106,6 @@
       </template>
    </view>
 </template>
-
-<script setup lang="ts">
-import { ref, onMounted } from 'vue';
-
-interface Props {
-   mode?: 'home' | 'simple';
-   title?: string;
-   showBack?: boolean;
-   storeName?: string;
-}
-
-withDefaults(defineProps<Props>(), {
-   mode: 'simple',
-   title: '',
-   showBack: true,
-   storeName: '上海静安嘉里中心店',
-});
-
-const statusBarHeight = ref(0);
-
-onMounted(() => {
-   const windowInfo = uni.getWindowInfo();
-   statusBarHeight.value = windowInfo.statusBarHeight || 0;
-});
-
-const handleBack = () => {
-   uni.navigateBack({
-      delta: 1,
-   });
-};
-
-const handleLocationClick = () => {
-   // TODO: Implement location selector
-};
-
-const handleNotificationClick = () => {
-   // TODO: Navigate to notifications
-};
-
-const handleScanClick = () => {
-   // TODO: Implement QR scan
-};
-</script>
 
 <style lang="scss" scoped>
 .header {

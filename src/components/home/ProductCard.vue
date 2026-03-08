@@ -1,25 +1,3 @@
-<template>
-   <view class="product-card">
-      <view class="image-container">
-         <image class="product-image" :src="product.image" mode="aspectFill" />
-      </view>
-      <view class="product-info">
-         <view class="info-top">
-            <text class="product-name">{{ product.name }}</text>
-            <text class="product-description">{{ product.description }}</text>
-         </view>
-         <view class="product-bottom">
-            <text class="product-price">{{
-               formatPriceDisplay(product.price)
-            }}</text>
-            <view class="add-btn" @click.stop="handleAdd">
-               <image class="add-icon" :src="addIconSrc" mode="aspectFit" />
-            </view>
-         </view>
-      </view>
-   </view>
-</template>
-
 <script setup lang="ts">
 import type { Product } from '@/types';
 import { commonIcons } from '@/data/imgPaths';
@@ -43,6 +21,28 @@ const handleAdd = (): void => {
    emit('add');
 };
 </script>
+
+<template>
+   <view class="product-card">
+      <view class="image-container">
+         <image class="product-image" :src="product.image" mode="aspectFill" />
+      </view>
+      <view class="product-info">
+         <view class="info-top">
+            <text class="product-name">{{ product.name }}</text>
+            <text class="product-description">{{ product.description }}</text>
+         </view>
+         <view class="product-bottom">
+            <text class="product-price">{{
+               formatPriceDisplay(product.price)
+            }}</text>
+            <view class="add-btn" @click.stop="handleAdd">
+               <image class="add-icon" :src="addIconSrc" mode="aspectFit" />
+            </view>
+         </view>
+      </view>
+   </view>
+</template>
 
 <style lang="scss" scoped>
 .product-card {

@@ -1,28 +1,3 @@
-<template>
-   <view class="floating-cart" @click="handleClick">
-      <view class="cart-bg"></view>
-      <view class="cart-content">
-         <view class="cart-left">
-            <view class="cart-icon-wrapper">
-               <image class="cart-icon" :src="cartIconSrc" mode="aspectFit" />
-               <view v-if="count > 0" class="cart-badge">
-                  <text class="badge-text">{{ count }}</text>
-               </view>
-            </view>
-            <view class="price-info">
-               <text class="cart-amount">{{ formatPriceDisplay(amount) }}</text>
-               <text class="discount-text"
-                  >已优惠 {{ formatPriceDisplay(discount) }}</text
-               >
-            </view>
-         </view>
-         <view class="checkout-btn">
-            <text class="checkout-text">去结算</text>
-         </view>
-      </view>
-   </view>
-</template>
-
 <script setup lang="ts">
 import { commonIcons } from '@/data/imgPaths';
 import { formatPriceDisplay } from '@/utils/format';
@@ -49,6 +24,31 @@ const handleClick = (): void => {
    emit('click');
 };
 </script>
+
+<template>
+   <view class="floating-cart" @click="handleClick">
+      <view class="cart-bg"></view>
+      <view class="cart-content">
+         <view class="cart-left">
+            <view class="cart-icon-wrapper">
+               <image class="cart-icon" :src="cartIconSrc" mode="aspectFit" />
+               <view v-if="count > 0" class="cart-badge">
+                  <text class="badge-text">{{ count }}</text>
+               </view>
+            </view>
+            <view class="price-info">
+               <text class="cart-amount">{{ formatPriceDisplay(amount) }}</text>
+               <text class="discount-text"
+                  >已优惠 {{ formatPriceDisplay(discount) }}</text
+               >
+            </view>
+         </view>
+         <view class="checkout-btn">
+            <text class="checkout-text">去结算</text>
+         </view>
+      </view>
+   </view>
+</template>
 
 <style lang="scss" scoped>
 .floating-cart {

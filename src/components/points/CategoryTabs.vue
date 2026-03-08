@@ -1,19 +1,3 @@
-<template>
-   <scroll-view class="category-tabs" scroll-x :show-scrollbar="false">
-      <view class="tabs-container">
-         <view
-            v-for="category in categories"
-            :key="category"
-            class="tab-item"
-            :class="{ active: category === active }"
-            @click="handleTabClick(category)"
-         >
-            <text class="tab-text">{{ category }}</text>
-         </view>
-      </view>
-   </scroll-view>
-</template>
-
 <script setup lang="ts">
 interface Props {
    categories: string[];
@@ -30,6 +14,22 @@ const handleTabClick = (category: string) => {
    emit('change', category);
 };
 </script>
+
+<template>
+   <scroll-view class="category-tabs" scroll-x :show-scrollbar="false">
+      <view class="tabs-container">
+         <view
+            v-for="category in categories"
+            :key="category"
+            class="tab-item"
+            :class="{ active: category === active }"
+            @click="handleTabClick(category)"
+         >
+            <text class="tab-text">{{ category }}</text>
+         </view>
+      </view>
+   </scroll-view>
+</template>
 
 <style lang="scss" scoped>
 .category-tabs {

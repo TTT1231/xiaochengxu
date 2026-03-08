@@ -1,3 +1,24 @@
+<script setup lang="ts">
+import type { Category } from '@/types';
+
+interface Props {
+   categories: Category[];
+   activeId: string;
+}
+
+defineProps<Props>();
+
+interface Emits {
+   (e: 'select', id: string): void;
+}
+
+const emit = defineEmits<Emits>();
+
+const handleSelect = (id: string): void => {
+   emit('select', id);
+};
+</script>
+
 <template>
    <scroll-view class="category-sidebar" scroll-y>
       <view
@@ -20,27 +41,6 @@
       </view>
    </scroll-view>
 </template>
-
-<script setup lang="ts">
-import type { Category } from '@/types';
-
-interface Props {
-   categories: Category[];
-   activeId: string;
-}
-
-defineProps<Props>();
-
-interface Emits {
-   (e: 'select', id: string): void;
-}
-
-const emit = defineEmits<Emits>();
-
-const handleSelect = (id: string): void => {
-   emit('select', id);
-};
-</script>
 
 <style lang="scss" scoped>
 .category-sidebar {

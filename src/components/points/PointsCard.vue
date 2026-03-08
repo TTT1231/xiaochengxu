@@ -1,3 +1,11 @@
+<script setup lang="ts">
+interface Props {
+   points: number;
+}
+
+defineProps<Props>();
+</script>
+
 <template>
    <view class="points-card">
       <view class="card-content">
@@ -6,14 +14,6 @@
       </view>
    </view>
 </template>
-
-<script setup lang="ts">
-interface Props {
-   points: number;
-}
-
-defineProps<Props>();
-</script>
 
 <style lang="scss" scoped>
 .points-card {

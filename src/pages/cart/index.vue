@@ -1,3 +1,38 @@
+<script setup lang="ts">
+import { ref } from 'vue';
+import { onReady } from '@dcloudio/uni-app';
+import Header from '@/components/common/Header.vue';
+import { useCart } from '@/composables/useCart';
+import { formatPriceDisplay } from '@/utils/format';
+import type { Product } from '@/types';
+
+const headerHeight = ref(0);
+
+const { items: cartItems, totalAmount, removeItem, addItem } = useCart();
+
+onReady(() => {
+   const windowInfo = uni.getWindowInfo();
+   const statusBarHeight = windowInfo.statusBarHeight || 0;
+   headerHeight.value = statusBarHeight + 44;
+});
+
+const handleRemove = (productId: string) => {
+   removeItem(productId);
+};
+
+const handleAdd = (product: Product) => {
+   addItem(product);
+};
+
+const handleCheckout = () => {
+   // TODO: Navigate to checkout page
+   uni.showToast({
+      title: '结算功能开发中',
+      icon: 'none',
+   });
+};
+</script>
+
 <template>
    <view class="cart-page">
       <Header title="购物车" :show-back="true" />
@@ -62,41 +97,6 @@
       </view>
    </view>
 </template>
-
-<script setup lang="ts">
-import { ref } from 'vue';
-import { onReady } from '@dcloudio/uni-app';
-import Header from '@/components/common/Header.vue';
-import { useCart } from '@/composables/useCart';
-import { formatPriceDisplay } from '@/utils/format';
-import type { Product } from '@/types';
-
-const headerHeight = ref(0);
-
-const { items: cartItems, totalAmount, removeItem, addItem } = useCart();
-
-onReady(() => {
-   const windowInfo = uni.getWindowInfo();
-   const statusBarHeight = windowInfo.statusBarHeight || 0;
-   headerHeight.value = statusBarHeight + 44;
-});
-
-const handleRemove = (productId: string) => {
-   removeItem(productId);
-};
-
-const handleAdd = (product: Product) => {
-   addItem(product);
-};
-
-const handleCheckout = () => {
-   // TODO: Navigate to checkout page
-   uni.showToast({
-      title: '结算功能开发中',
-      icon: 'none',
-   });
-};
-</script>
 
 <style lang="scss" scoped>
 .cart-page {
