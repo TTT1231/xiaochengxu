@@ -21,17 +21,24 @@ const packagingOptions = [
 
 const carouselImages = computed(() => {
    if (!product.value) return [];
-   return [product.value.image, product.value.image, product.value.image, product.value.image];
+   return [
+      product.value.image,
+      product.value.image,
+      product.value.image,
+      product.value.image,
+   ];
 });
 
 const totalPrice = computed(() => {
    if (!product.value) return 0;
-   const packaging = packagingOptions.find(p => p.value === selectedPackaging.value);
+   const packaging = packagingOptions.find(
+      p => p.value === selectedPackaging.value,
+   );
    const extraPrice = packaging?.extraPrice || 0;
    return product.value.price + extraPrice;
 });
 
-onLoad((options) => {
+onLoad(options => {
    const productId = options?.id;
    if (productId) {
       const found = products.find(p => p.id === productId);
@@ -66,7 +73,12 @@ const handleAddToCart = () => {
    <view class="page" v-if="product">
       <!-- 轮播图区域 -->
       <view class="carousel-section">
-         <swiper class="carousel" :indicator-dots="false" :autoplay="false" @change="handleSwiperChange">
+         <swiper
+            class="carousel"
+            :indicator-dots="false"
+            :autoplay="false"
+            @change="handleSwiperChange"
+         >
             <swiper-item v-for="(img, index) in carouselImages" :key="index">
                <image class="carousel-image" :src="img" mode="aspectFill" />
             </swiper-item>
@@ -363,7 +375,9 @@ const handleAddToCart = () => {
    display: flex;
    align-items: center;
    justify-content: center;
-   box-shadow: 0 20rpx 30rpx -6rpx rgba(238, 134, 43, 0.3), 0 8rpx 12rpx -8rpx rgba(238, 134, 43, 0.3);
+   box-shadow:
+      0 20rpx 30rpx -6rpx rgba(238, 134, 43, 0.3),
+      0 8rpx 12rpx -8rpx rgba(238, 134, 43, 0.3);
 }
 
 .btn-text {

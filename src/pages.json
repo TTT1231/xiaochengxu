@@ -41,13 +41,13 @@
             "navigationStyle": "custom",
             "navigationBarTitleText": "购物车"
          }
-	},
-	{
-		"path": "pages/show-product-details/show-product-details",
-		"style": {
-			"navigationBarTitleText": ""
-		}
-	}
+      },
+      {
+         "path": "pages/show-product-details/show-product-details",
+         "style": {
+            "navigationBarTitleText": ""
+         }
+      }
    ],
    "globalStyle": {
       "navigationBarTextStyle": "black",
