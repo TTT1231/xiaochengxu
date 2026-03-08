@@ -49,15 +49,17 @@ src/
 │   ├── order.ts            # Order, OrderItem, OrderStatus
 │   └── user.ts             # User, Reward
 ├── mock/                    # Mock data for development
+│   ├── index.ts            # Re-export all mock data
 │   ├── products.ts         # Product catalog
 │   ├── categories.ts       # Product categories
 │   ├── orders.ts           # Sample orders
 │   ├── user.ts             # User profile data
-│   └── rewards.ts          # Points rewards
+│   ├── rewards.ts          # Points rewards
+│   └── readme.md           # Mock data structure documentation
+├── data/                    # Static data & constants
+│   └── imgPaths.ts         # Image path constants (icons, tabbar, etc.)
 ├── utils/                   # Utility functions
-│   └── format.ts           # Formatting helpers
-├── data/                    # Static data
-│   └── imgPaths.ts         # Image path constants
+│   └── format.ts           # Formatting helpers (price, date, number)
 ├── static/                  # Static assets (images, icons)
 ├── pages.json               # Page routing configuration
 ├── manifest.json            # App metadata & platform configs
@@ -121,19 +123,40 @@ import { ref } from 'vue';  // Runtime imports separate
 
 ### Vue Component Structure
 
+Follow the **script-first** pattern for consistency:
+
 ```vue
 <script setup lang="ts">
-// Composition API with <script setup>
+// 1. Logic first - imports, types, props, emits, state, methods
+import type { Product } from '@/types';
+import { ref } from 'vue';
+
+interface Props {
+   product: Product;
+}
+
+defineProps<Props>();
 </script>
 
 <template>
-<!-- uni-app uses native components: view, text, image (not div, span, img) -->
+   <!-- 2. Template second - uni-app native components -->
+   <view class="product-card">
+      <text>{{ product.name }}</text>
+   </view>
 </template>
 
 <style lang="scss" scoped>
-/* Use rpx units for responsive sizing */
+/* 3. Styles last - use rpx units for responsive sizing */
+.product-card {
+   padding: 24rpx;
+}
 </style>
 ```
+
+**Rules:**
+- **Always** include `<script setup lang="ts">` even if empty (for consistency)
+- uni-app uses native components: `view`, `text`, `image` (not `div`, `span`, `img`)
+- Size units: `rpx` (750rpx = screen width)
 
 ### Path Aliases
 
@@ -221,6 +244,15 @@ interface Order {
 - Size units: `rpx` (responsive pixel, 750rpx = screen width)
 - Some CSS features unavailable on Mini Programs
 - Custom navigation style enabled (`navigationStyle: "custom"`)
+- Custom TabBar enabled (`tabBar.custom: true` in `pages.json`)
+
+### WeChat Mini Program Gotchas
+
+- **Empty script tag**: `<script setup lang="ts"></script>` is compiled away by uni-app, no bundle size impact
+- **rpx units**: Always use `rpx` for responsive layouts, never `px` for spacing/sizing
+- **Image paths**: Use absolute paths from `/static/` or `@/static/`
+- **v-for with :key**: Always required for list rendering performance
+- **Page lifecycle**: Use `onReady`, `onPageScroll` from `@dcloudio/uni-app`, not Vue's `onMounted`
 
 ## Dependencies
 
@@ -228,6 +260,53 @@ interface Order {
 |---------|---------|
 | `vue` | Core framework |
 | `vue-i18n` | Internationalization |
-| `@dcloudio/uni-*` | uni-app platform modules |
+| `@dcloudio/uni-*` | uni-app platform modules (WeChat, H5, etc.) |
 | `sass` | SCSS preprocessing |
-| `canvas` | Canvas operations |
+
+## Development Workflow
+
+### Adding a New Page
+
+1. Create Vue file in `src/pages/<feature>/index.vue`
+2. Add entry to `src/pages.json`:
+   ```json
+   {
+     "path": "pages/<feature>/index",
+     "style": { "navigationBarTitleText": "<Title>" }
+   }
+   ```
+3. Follow script-first Vue structure
+
+### Adding a New Component
+
+1. Determine scope: `common/` (shared) or `<feature>/` (page-specific)
+2. Create in `src/components/<scope>/<Name>.vue`
+3. easycom auto-imports components matching patterns
+
+### Development Commands
+
+```bash
+# Start development
+pnpm dev:mp-weixin    # WeChat Mini Program (primary)
+pnpm dev:h5           # H5 web (secondary)
+
+# Before committing
+pnpm lint:fix         # Fix ESLint issues
+pnpm format           # Format with Prettier
+pnpm type-check       # Verify TypeScript types
+```
+
+## Platform-Specific Gotchas
+
+### WeChat Mini Program
+
+- **Empty `<script setup>`**: Compiled away by uni-app, no bundle impact - keep for consistency
+- **TabBar**: Custom TabBar enabled, managed via `src/components/common/TabBar.vue`
+- **Navigation**: Custom style (`navigationStyle: "custom"`), Header component handles it
+- **Safe areas**: Use `env(safe-area-inset-bottom)` for bottom spacing
+
+### TypeScript Configuration
+
+- **Deprecated options**: `importsNotUsedAsValues` and `preserveValueImports` are inherited from `@vue/tsconfig`
+- **Do NOT "fix"** TypeScript warnings about these options - they're framework-level
+- See `.claude/rules/tsconfig-deprecated-options.md` for details
