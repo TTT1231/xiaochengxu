@@ -1,24 +1,24 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import type { Reward } from '@/types';
 import Header from '@/components/common/Header.vue';
 import PointsCard from '@/components/points/PointsCard.vue';
-import CategoryTabs from '@/components/points/CategoryTabs.vue';
 import RewardCard from '@/components/points/RewardCard.vue';
-import { currentUser, rewardCategories, getRewardsByCategory } from '@/mock';
+import { currentUser, hotRewards } from '@/mock';
 
-const activeCategory = ref('全部');
+const rewards = ref<Reward[]>(hotRewards);
 
-const filteredRewards = computed(() => {
-   return getRewardsByCategory(activeCategory.value);
-});
-
-const handleCategoryChange = (category: string) => {
-   activeCategory.value = category;
+const handleDetailClick = () => {
+   // TODO: Navigate to points detail page
 };
 
-const handleRewardClick = (reward: Reward) => {
+const handleExchange = (reward: Reward) => {
    // TODO: Implement reward redemption
+   console.log('Exchange reward:', reward);
+};
+
+const handleViewMore = () => {
+   // TODO: Navigate to all rewards page
 };
 </script>
 
@@ -27,32 +27,25 @@ const handleRewardClick = (reward: Reward) => {
       <Header title="积分商城" :show-back="true" />
 
       <view class="page-content">
-         <PointsCard :points="currentUser.points" />
+         <!-- 积分卡片 -->
+         <PointsCard :points="currentUser.points" @detail="handleDetailClick" />
 
-         <view class="category-section">
-            <CategoryTabs
-               :categories="rewardCategories"
-               :active="activeCategory"
-               @change="handleCategoryChange"
-            />
+         <!-- 热门兑换标题 -->
+         <view class="section-header">
+            <text class="section-title">热门兑换</text>
+            <text class="view-more" @click="handleViewMore">查看更多</text>
          </view>
 
+         <!-- 商品网格 -->
          <scroll-view class="rewards-scroll" scroll-y>
-            <view class="rewards-list">
+            <view class="rewards-grid">
                <view
-                  v-for="reward in filteredRewards"
+                  v-for="reward in rewards"
                   :key="reward.id"
                   class="reward-item"
                >
-                  <RewardCard
-                     :reward="reward"
-                     @click="handleRewardClick(reward)"
-                  />
+                  <RewardCard :reward="reward" @exchange="handleExchange" />
                </view>
-            </view>
-
-            <view v-if="filteredRewards.length === 0" class="empty-state">
-               <text class="empty-text">暂无该分类商品</text>
             </view>
 
             <!-- 底部占位 -->
@@ -66,7 +59,6 @@ const handleRewardClick = (reward: Reward) => {
 .points-page {
    min-height: 100vh;
    background-color: $bg-page;
-   /* 为 Header 留出空间 */
    padding-top: 176rpx;
    box-sizing: border-box;
 }
@@ -75,43 +67,48 @@ const handleRewardClick = (reward: Reward) => {
    height: calc(100vh - 176rpx);
    display: flex;
    flex-direction: column;
-   /* 额外的顶部间距 */
-   padding-top: 24rpx;
+   padding-top: 32rpx;
 }
 
-.category-section {
-   margin: 24rpx 24rpx 20rpx;
-   flex-shrink: 0;
+.section-header {
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   margin: 32rpx 32rpx 24rpx;
+}
+
+.section-title {
+   font-size: 36rpx;
+   font-weight: 600;
+   color: $text-primary;
+   line-height: 46rpx;
+}
+
+.view-more {
+   font-size: 24rpx;
+   color: $brand-primary;
+   line-height: 32rpx;
 }
 
 .rewards-scroll {
    flex: 1;
-   height: calc(
-      100vh - 176rpx - 200rpx
-   ); /* 减去 Header 和 PointsCard+分类的高度 */
+   height: calc(100vh - 176rpx - 340rpx);
 }
 
-.rewards-list {
+.rewards-grid {
    display: flex;
-   flex-direction: column;
-   gap: 16rpx;
-   padding: 0 24rpx;
+   flex-wrap: wrap;
+   padding: 0 32rpx;
+   /* 使用 gap 控制间距，兼容不同设备 */
+   gap: 24rpx;
 }
 
 .reward-item {
-   width: 100%;
-}
-
-.empty-state {
-   display: flex;
-   align-items: center;
-   justify-content: center;
-   padding: 80rpx 0;
-}
-
-.empty-text {
-   font-size: 28rpx;
-   color: $text-muted;
+   /* 两列布局，考虑间距 */
+   width: calc((100% - 24rpx) / 2);
+   /* 限制最大宽度，防止在大屏设备上过宽 */
+   max-width: 400rpx;
+   flex-shrink: 0;
 }
 
 .bottom-spacer {
