@@ -1,0 +1,33 @@
+{
+   "$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
+   "version": "0.2",
+   "language": "en,en-US",
+   "allowCompoundWords": true,
+   "words": [
+      "dcloudio",
+      "supabase",
+      "weixin",
+      "rpx",
+      "nvue",
+      "kuaishou",
+      "toutiao",
+      "automator",
+      "categoried"
+   ],
+   "ignorePaths": [
+      "**/node_modules/**",
+      "**/dist/**",
+      "pnpm-lock.yaml",
+      "**/*.log",
+      "**/*.test.ts",
+      "**/*.spec.ts",
+      "**/__tests__/**",
+      "**/*.svg",
+      "**/*.png",
+      "**/*.jpg",
+      "**/*.ico",
+      "**/*.woff",
+      "**/*.woff2",
+      "**/*.ttf"
+   ]
+}

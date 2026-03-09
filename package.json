@@ -37,7 +37,9 @@
       "type-check": "vue-tsc --noEmit",
       "lint": "eslint \"src/**/*.{js,ts,vue}\"",
       "lint:fix": "eslint \"src/**/*.{js,ts,vue}\" --fix",
-      "format": "prettier --write \"src/**/*.{js,ts,vue,json,css,scss}\""
+      "format": "prettier --write \"src/**/*.{js,ts,vue,json,css,scss}\"",
+      "spell:check": "cspell \"**\"",
+      "spell:check-staged": "git diff --cached --name-only | cspell --file-list stdin"
    },
    "dependencies": {
       "@dcloudio/uni-app": "3.0.0-4080420251103001",
@@ -71,6 +73,7 @@
       "@typescript-eslint/parser": "^8.56.1",
       "@vue/runtime-core": "^3.4.21",
       "@vue/tsconfig": "^0.1.3",
+      "cspell": "^9.7.0",
       "eslint": "^10.0.2",
       "eslint-config-prettier": "^10.1.8",
       "eslint-plugin-prettier": "^5.5.5",
