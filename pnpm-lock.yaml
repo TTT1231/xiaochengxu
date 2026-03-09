@@ -59,6 +59,9 @@ importers:
       canvas:
         specifier: ^3.2.1
         version: 3.2.1
+      supabase-wechat-stable-v2:
+        specifier: ^2.2.0
+        version: 2.2.0
       vue:
         specifier: ^3.4.21
         version: 3.5.29(typescript@4.9.5)
@@ -3344,6 +3347,9 @@ packages:
     engines: {node: '>= 8'}
     deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
 
+  phoenix@1.8.5:
+    resolution: {integrity: sha512-Oj5nlRV/NKXkjBx8uMgCMmgMf1twd/B2qOcO30cHLH1PCGR8149o4T1lRIaqN4nq2KQJAeMqPiLdh1Asd0wQFg==}
+
   picocolors@1.1.0:
     resolution: {integrity: sha512-TQ92mBOW0l3LeMeyLV6mzy/kWr8lkd/hp3mTg7wYK7zJhuBStmGMBG0BdeDZS/dZx1IukaX6Bk11zcln25o1Aw==}
 
@@ -3769,6 +3775,9 @@ packages:
 
   strip-literal@3.1.0:
     resolution: {integrity: sha512-8r3mkIM/2+PpjHoOtiAW8Rg3jJLHaV7xPwG+YRGrv6FP0wwk/toTpATxWYOW0BKdWwl82VT2tFYi5DlROa0Mxg==}
+
+  supabase-wechat-stable-v2@2.2.0:
+    resolution: {integrity: sha512-vxDoMD5D451xpvDiqUDOzny7R0zuqKzHJ7GJu6doFxhs6DrmPvv24asLTh/NnjREuGqtrlhYdvLpQFPjMGR0+w==}
 
   supports-color@5.5.0:
     resolution: {integrity: sha512-QjVjwdXIt408MIiAqCX4oUKsgU2EqAGzs2Ppkm4aQYbjm+ZEWEcW4SfFNTr4uMNZma0ey4f5lgLrkB0aX0QMow==}
@@ -8470,6 +8479,8 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
+  phoenix@1.8.5: {}
+
   picocolors@1.1.0: {}
 
   picocolors@1.1.1: {}
@@ -8941,6 +8952,10 @@ snapshots:
   strip-literal@3.1.0:
     dependencies:
       js-tokens: 9.0.1
+
+  supabase-wechat-stable-v2@2.2.0:
+    dependencies:
+      phoenix: 1.8.5
 
   supports-color@5.5.0:
     dependencies:
