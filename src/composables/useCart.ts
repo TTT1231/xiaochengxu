@@ -25,19 +25,14 @@ export function useCart() {
     * 购物车总金额
     */
    const totalAmount = computed(() => {
-      return cartItems.value.reduce(
-         (sum, item) => sum + item.product.price * item.quantity,
-         0,
-      );
+      return cartItems.value.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
    });
 
    /**
     * 添加商品到购物车
     */
    const addItem = (product: Product): void => {
-      const existingItem = cartItems.value.find(
-         item => item.product.id === product.id,
-      );
+      const existingItem = cartItems.value.find(item => item.product.id === product.id);
       if (existingItem) {
          existingItem.quantity += 1;
       } else {
@@ -49,16 +44,12 @@ export function useCart() {
     * 减少购物车中的商品数量
     */
    const removeItem = (productId: string): void => {
-      const existingItem = cartItems.value.find(
-         item => item.product.id === productId,
-      );
+      const existingItem = cartItems.value.find(item => item.product.id === productId);
       if (existingItem) {
          if (existingItem.quantity > 1) {
             existingItem.quantity -= 1;
          } else {
-            cartItems.value = cartItems.value.filter(
-               item => item.product.id !== productId,
-            );
+            cartItems.value = cartItems.value.filter(item => item.product.id !== productId);
          }
       }
    };

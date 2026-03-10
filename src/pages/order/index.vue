@@ -17,14 +17,10 @@ const handleToggleChange = (active: boolean) => {
 };
 
 // 进行中的订单
-const activeOrders = computed(() =>
-   orders.filter(order => order.status !== 'completed'),
-);
+const activeOrders = computed(() => orders.filter(order => order.status !== 'completed'));
 
 // 历史订单
-const historyOrders = computed(() =>
-   orders.filter(order => order.status === 'completed'),
-);
+const historyOrders = computed(() => orders.filter(order => order.status === 'completed'));
 
 const handleOrderClick = (order: Order) => {
    uni.navigateTo({
@@ -59,13 +55,8 @@ const handleReorder = (order: Order) => {
             <view class="order-section" id="active-orders">
                <view class="section-header">
                   <text class="section-title">进行中的订单</text>
-                  <view
-                     class="section-count-pill"
-                     v-if="activeOrders.length > 0"
-                  >
-                     <text class="section-count"
-                        >{{ activeOrders.length }}个进行中</text
-                     >
+                  <view class="section-count-pill" v-if="activeOrders.length > 0">
+                     <text class="section-count">{{ activeOrders.length }}个进行中</text>
                   </view>
                </view>
 

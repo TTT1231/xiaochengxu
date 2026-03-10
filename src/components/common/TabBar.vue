@@ -31,9 +31,7 @@ const handleTabClick = (index: number, pagePath: string) => {
       >
          <view class="tab-icon">
             <image
-               :src="
-                  props.current === index ? tab.selectedIconPath : tab.iconPath
-               "
+               :src="props.current === index ? tab.selectedIconPath : tab.iconPath"
                class="icon"
                mode="aspectFit"
             />

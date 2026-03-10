@@ -21,19 +21,12 @@ const packagingOptions = [
 
 const carouselImages = computed(() => {
    if (!product.value) return [];
-   return [
-      product.value.image,
-      product.value.image,
-      product.value.image,
-      product.value.image,
-   ];
+   return [product.value.image, product.value.image, product.value.image, product.value.image];
 });
 
 const totalPrice = computed(() => {
    if (!product.value) return 0;
-   const packaging = packagingOptions.find(
-      p => p.value === selectedPackaging.value,
-   );
+   const packaging = packagingOptions.find(p => p.value === selectedPackaging.value);
    const extraPrice = packaging?.extraPrice || 0;
    return product.value.price + extraPrice;
 });

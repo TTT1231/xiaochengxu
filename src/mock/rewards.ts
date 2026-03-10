@@ -84,13 +84,7 @@ export const rewards: Reward[] = [
 /**
  * 获取积分商品分类
  */
-export const rewardCategories = [
-   '全部',
-   '饮品类',
-   '甜品类',
-   '实物类',
-   '会员类',
-];
+export const rewardCategories = ['全部', '饮品类', '甜品类', '实物类', '会员类'];
 
 /**
  * 根据分类筛选积分商品

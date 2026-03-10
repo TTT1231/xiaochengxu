@@ -39,11 +39,7 @@ const handleViewMore = () => {
          <!-- 商品网格 -->
          <scroll-view class="rewards-scroll" scroll-y>
             <view class="rewards-grid">
-               <view
-                  v-for="reward in rewards"
-                  :key="reward.id"
-                  class="reward-item"
-               >
+               <view v-for="reward in rewards" :key="reward.id" class="reward-item">
                   <RewardCard :reward="reward" @exchange="handleExchange" />
                </view>
             </view>

@@ -39,9 +39,7 @@ const handleClick = (): void => {
             <text class="product-description">{{ product.description }}</text>
          </view>
          <view class="product-bottom">
-            <text class="product-price">{{
-               formatPriceDisplay(product.price)
-            }}</text>
+            <text class="product-price">{{ formatPriceDisplay(product.price) }}</text>
             <view class="add-btn-wrapper">
                <view class="add-btn" @click.stop="handleAdd">
                   <image class="add-icon" :src="addIconSrc" mode="aspectFit" />

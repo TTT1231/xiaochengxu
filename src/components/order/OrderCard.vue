@@ -26,10 +26,7 @@ const handleCardClick = () => {
             </view>
             <text class="order-no">订单号: {{ order.orderNo }}</text>
             <view class="status-row">
-               <view
-                  class="status-dot"
-                  :class="getStatusClass(order.status)"
-               ></view>
+               <view class="status-dot" :class="getStatusClass(order.status)"></view>
                <text class="status-text" :class="getStatusClass(order.status)">
                   {{ getStatusText(order.status) }}
                </text>
@@ -40,9 +37,7 @@ const handleCardClick = () => {
       <view class="card-divider" />
 
       <view class="card-footer">
-         <text class="time-text"
-            >预计 {{ order.estimatedTime || '15 分钟' }}后可取</text
-         >
+         <text class="time-text">预计 {{ order.estimatedTime || '15 分钟' }}后可取</text>
          <view class="detail-btn">
             <text class="detail-text">查看详情</text>
          </view>

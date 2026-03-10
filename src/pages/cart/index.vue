@@ -39,44 +39,24 @@ const handleCheckout = () => {
 
       <view class="page-content" :style="{ paddingTop: headerHeight + 'px' }">
          <view v-if="cartItems.length === 0" class="empty-state">
-            <image
-               class="empty-icon"
-               src="/static/images/empty-order.png"
-               mode="aspectFit"
-            />
+            <image class="empty-icon" src="/static/images/empty-order.png" mode="aspectFit" />
             <text class="empty-text">购物车是空的</text>
             <text class="empty-hint">去添加一些美味的商品吧</text>
          </view>
 
          <view v-else class="cart-list">
-            <view
-               v-for="item in cartItems"
-               :key="item.product.id"
-               class="cart-item"
-            >
-               <image
-                  class="item-image"
-                  :src="item.product.image"
-                  mode="aspectFill"
-               />
+            <view v-for="item in cartItems" :key="item.product.id" class="cart-item">
+               <image class="item-image" :src="item.product.image" mode="aspectFill" />
                <view class="item-info">
                   <text class="item-name">{{ item.product.name }}</text>
-                  <text class="item-price">{{
-                     formatPriceDisplay(item.product.price)
-                  }}</text>
+                  <text class="item-price">{{ formatPriceDisplay(item.product.price) }}</text>
                </view>
                <view class="quantity-control">
-                  <view
-                     class="control-btn minus"
-                     @click="handleRemove(item.product.id)"
-                  >
+                  <view class="control-btn minus" @click="handleRemove(item.product.id)">
                      <text class="minus-text">−</text>
                   </view>
                   <text class="quantity-text">{{ item.quantity }}</text>
-                  <view
-                     class="control-btn plus"
-                     @click="handleAdd(item.product)"
-                  >
+                  <view class="control-btn plus" @click="handleAdd(item.product)">
                      <text class="plus-text">+</text>
                   </view>
                </view>
@@ -87,9 +67,7 @@ const handleCheckout = () => {
       <view v-if="cartItems.length > 0" class="bottom-bar">
          <view class="total-info">
             <text class="total-label">合计</text>
-            <text class="total-amount">{{
-               formatPriceDisplay(totalAmount)
-            }}</text>
+            <text class="total-amount">{{ formatPriceDisplay(totalAmount) }}</text>
          </view>
          <view class="checkout-btn" @click="handleCheckout">
             <text class="checkout-text">去结算</text>

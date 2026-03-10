@@ -35,16 +35,10 @@ const handleReorder = () => {
 <template>
    <view class="history-card" @click="handleCardClick">
       <view class="content-header">
-         <image
-            class="store-avatar"
-            :src="order.storeImage"
-            mode="aspectFill"
-         />
+         <image class="store-avatar" :src="order.storeImage" mode="aspectFill" />
          <view class="store-info">
             <text class="store-name">{{ order.storeName }}</text>
-            <text class="order-time">{{
-               formatDateTime(order.createdAt)
-            }}</text>
+            <text class="order-time">{{ formatDateTime(order.createdAt) }}</text>
          </view>
          <text class="status-num">已完成</text>
       </view>
@@ -56,11 +50,7 @@ const handleReorder = () => {
       <view class="card-footer">
          <text class="price">{{ formatPriceDisplay(order.totalAmount) }}</text>
          <view class="reorder-btn" @click.stop="handleReorder">
-            <image
-               class="refresh-icon"
-               :src="refreshIconSrc"
-               mode="aspectFit"
-            />
+            <image class="refresh-icon" :src="refreshIconSrc" mode="aspectFit" />
             <text class="reorder-text">再来一单</text>
          </view>
       </view>

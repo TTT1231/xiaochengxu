@@ -20,11 +20,7 @@ const handleDetailClick = () => {
       <view class="decorative-circle"></view>
       <!-- 积分图标 -->
       <view class="points-icon">
-         <image
-            class="icon-image"
-            src="/static/icons/points/star.svg"
-            mode="aspectFit"
-         />
+         <image class="icon-image" src="/static/icons/points/star.svg" mode="aspectFit" />
       </view>
 
       <view class="card-content">

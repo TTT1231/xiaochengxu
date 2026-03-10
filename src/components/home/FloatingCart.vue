@@ -38,9 +38,7 @@ const handleClick = (): void => {
             </view>
             <view class="price-info">
                <text class="cart-amount">{{ formatPriceDisplay(amount) }}</text>
-               <text class="discount-text"
-                  >已优惠 {{ formatPriceDisplay(discount) }}</text
-               >
+               <text class="discount-text">已优惠 {{ formatPriceDisplay(discount) }}</text>
             </view>
          </view>
          <view class="checkout-btn">

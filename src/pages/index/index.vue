@@ -15,8 +15,7 @@ const headerHeight = ref(0);
 const isScrolling = ref(false);
 const currentScrollTop = ref(0);
 
-const { totalCount, totalAmount, addItem, removeItem, getItemQuantity } =
-   useCart();
+const { totalCount, totalAmount, addItem, removeItem, getItemQuantity } = useCart();
 
 // 预计算：按分类分组产品（避免在模板中重复 filter）
 const productsByCategory = computed(() => {
@@ -61,8 +60,7 @@ const handleCategorySelect = (id: string): void => {
       if (res && res[0]) {
          const sectionRect = res[0];
          // 计算目标滚动位置：当前滚动位置 + 元素距视口顶部的距离 - header高度 - 一些偏移
-         const targetScrollTop =
-            currentScrollTop.value + sectionRect.top - headerHeight.value - 10;
+         const targetScrollTop = currentScrollTop.value + sectionRect.top - headerHeight.value - 10;
          uni.pageScrollTo({
             scrollTop: targetScrollTop,
             duration: 300,
@@ -133,10 +131,7 @@ const handleProductClick = (productId: string): void => {
          <!-- 内容区域：sidebar + products -->
          <view class="content-wrapper">
             <!-- 左侧分类栏 - sticky 吸顶效果 -->
-            <view
-               class="category-sidebar"
-               :style="{ top: headerHeight + 'px' }"
-            >
+            <view class="category-sidebar" :style="{ top: headerHeight + 'px' }">
                <view
                   v-for="category in categories"
                   :key="category.id"
@@ -183,10 +178,7 @@ const handleProductClick = (productId: string): void => {
                   </view>
                </view>
                <!-- 底部留白 -->
-               <view
-                  class="bottom-spacer"
-                  :class="{ 'has-cart': totalCount > 0 }"
-               ></view>
+               <view class="bottom-spacer" :class="{ 'has-cart': totalCount > 0 }"></view>
             </view>
          </view>
       </view>

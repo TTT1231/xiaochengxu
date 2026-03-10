@@ -13,11 +13,7 @@
          </view>
          <!-- 右侧图片 -->
          <view class="img-wrapper">
-            <image
-               class="banner-image"
-               src="/static/images/banner-food.png"
-               mode="aspectFill"
-            />
+            <image class="banner-image" src="/static/images/banner-food.png" mode="aspectFill" />
          </view>
       </view>
    </view>

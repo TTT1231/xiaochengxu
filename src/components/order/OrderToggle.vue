@@ -18,18 +18,10 @@ const handleToggle = (value: boolean) => {
 
 <template>
    <view class="order-toggle">
-      <view
-         class="toggle-btn"
-         :class="{ active: active }"
-         @click="handleToggle(true)"
-      >
+      <view class="toggle-btn" :class="{ active: active }" @click="handleToggle(true)">
          <text class="btn-text">当前订单</text>
       </view>
-      <view
-         class="toggle-btn"
-         :class="{ active: !active }"
-         @click="handleToggle(false)"
-      >
+      <view class="toggle-btn" :class="{ active: !active }" @click="handleToggle(false)">
          <text class="btn-text">历史订单</text>
       </view>
    </view>

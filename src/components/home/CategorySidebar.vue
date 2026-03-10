@@ -30,11 +30,7 @@ const handleSelect = (id: string): void => {
       >
          <image
             class="category-icon"
-            :src="
-               category.id === activeId
-                  ? category.activeIcon || category.icon
-                  : category.icon
-            "
+            :src="category.id === activeId ? category.activeIcon || category.icon : category.icon"
             mode="aspectFit"
          />
          <text class="category-name">{{ category.name }}</text>

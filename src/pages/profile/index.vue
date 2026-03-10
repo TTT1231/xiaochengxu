@@ -67,11 +67,7 @@ const handleLogout = () => {
          <!-- 联系客服按钮 -->
          <view class="card-spacing">
             <view class="service-btn" @click="handleServiceClick">
-               <image
-                  class="service-icon"
-                  :src="serviceIconSrc"
-                  mode="aspectFit"
-               />
+               <image class="service-icon" :src="serviceIconSrc" mode="aspectFit" />
                <view class="service-text">
                   <text class="service-title">联系客服</text>
                   <text class="service-subtitle">解答您的任何疑问</text>

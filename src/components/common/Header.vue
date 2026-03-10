@@ -78,11 +78,7 @@ const handleScanClick = () => {
                </view>
             </view>
             <view class="search-bar">
-               <image
-                  class="search-icon"
-                  src="/static/icons/common/search.svg"
-                  mode="aspectFit"
-               />
+               <image class="search-icon" src="/static/icons/common/search.svg" mode="aspectFit" />
                <text class="search-placeholder">搜索美味点心或饮品</text>
             </view>
          </view>
@@ -92,11 +88,7 @@ const handleScanClick = () => {
       <template v-else>
          <view class="simple-header">
             <view v-if="showBack" class="back-btn" @click="handleBack">
-               <image
-                  class="back-icon"
-                  src="/static/icons/common/back.svg"
-                  mode="aspectFit"
-               />
+               <image class="back-icon" src="/static/icons/common/back.svg" mode="aspectFit" />
             </view>
             <text class="header-title">{{ title }}</text>
             <view class="right-slot">
