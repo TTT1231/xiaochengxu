@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { onLaunch, onShow, onHide } from '@dcloudio/uni-app';
 
-import { getLeftMenuData } from './api/test';
+import { getLeftMenuData, getRightProductData } from './api/homeDataApi';
 
 onLaunch(async () => {
    console.log('App Launch');
 
-   const data = await getLeftMenuData();
-   console.log('查询结果:', data);
+   const { data: leftData } = await getLeftMenuData();
+   const rightData = await getRightProductData();
+
+   console.log('查询结果:', { leftData, rightData });
 });
 onShow(() => {
    console.log('App Show');
