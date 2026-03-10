@@ -2,13 +2,14 @@
 import { ref } from 'vue';
 import { onReady } from '@dcloudio/uni-app';
 import Header from '@/components/common/Header.vue';
-import { useCart } from '@/composables/useCart';
+import { useCartStore } from '@/stores/cartStore';
 import { formatPriceDisplay } from '@/utils/format';
 import type { Product } from '@/types';
 
 const headerHeight = ref(0);
 
-const { items: cartItems, totalAmount, removeItem, addItem } = useCart();
+const cartStore = useCartStore();
+const { items: cartItems, totalAmount, removeItem, addItem } = cartStore;
 
 onReady(() => {
    const windowInfo = uni.getWindowInfo();

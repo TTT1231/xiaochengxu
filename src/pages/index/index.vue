@@ -1,37 +1,46 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import type { Product } from '@/types';
-import { categories, products } from '@/mock';
-import { useCart } from '@/composables/useCart';
-import { onReady, onPageScroll } from '@dcloudio/uni-app';
+import { ref, watch } from 'vue';
+import { storeToRefs } from 'pinia';
+import { useHomeStore } from '@/stores/homeStore';
+import { useCartStore } from '@/stores/cartStore';
+import { onReady, onPageScroll, onLoad } from '@dcloudio/uni-app';
 import Header from '@/components/common/Header.vue';
 import TabBar from '@/components/common/TabBar.vue';
 import Banner from '@/components/home/Banner.vue';
 import ProductCard from '@/components/home/ProductCard.vue';
 import FloatingCart from '@/components/home/FloatingCart.vue';
 
-const activeCategoryId = ref<string>(categories[0]?.id || '');
+const homeStore = useHomeStore();
+const cartStore = useCartStore();
+
+const activeCategoryId = ref<string>('');
 const headerHeight = ref(0);
 const isScrolling = ref(false);
 const currentScrollTop = ref(0);
 
-const { totalCount, totalAmount, addItem, removeItem, getItemQuantity } = useCart();
-
-// 预计算：按分类分组产品（避免在模板中重复 filter）
-const productsByCategory = computed(() => {
-   const map = new Map<string, Product[]>();
-   for (const product of products) {
-      const list = map.get(product.categoryId) || [];
-      list.push(product);
-      map.set(product.categoryId, list);
-   }
-   return map;
-});
+// storeToRefs 保持 computed 的响应性，addItem/getItemQuantity 是函数直接解构
+const { totalCount, totalAmount } = storeToRefs(cartStore);
+const { addItem, getItemQuantity } = cartStore;
 
 // 获取指定分类的产品
-const getProductsByCategory = (categoryId: string): Product[] => {
-   return productsByCategory.value.get(categoryId) || [];
-};
+const getProductsByCategory = homeStore.getProductsByCategory;
+
+onLoad(async () => {
+   await homeStore.fetchData();
+   if (!activeCategoryId.value && homeStore.categories.length > 0) {
+      activeCategoryId.value = homeStore.categories[0].id;
+   }
+});
+
+// 数据加载完后初始化激活分类
+watch(
+   () => homeStore.categories,
+   cats => {
+      if (cats.length > 0 && !activeCategoryId.value) {
+         activeCategoryId.value = cats[0].id;
+      }
+   },
+);
 
 onReady(() => {
    const windowInfo = uni.getWindowInfo();
@@ -77,7 +86,7 @@ const handleCategorySelect = (id: string): void => {
 const updateActiveCategory = (): void => {
    const query = uni.createSelectorQuery();
 
-   categories.forEach(cat => {
+   homeStore.categories.forEach(cat => {
       query.select('#section-' + cat.id).boundingClientRect();
    });
 
@@ -90,7 +99,7 @@ const updateActiveCategory = (): void => {
       for (let i = rects.length - 1; i >= 0; i--) {
          const rect = rects[i];
          if (rect && rect.top <= threshold) {
-            const cat = categories[i];
+            const cat = homeStore.categories[i];
             if (cat && activeCategoryId.value !== cat.id) {
                activeCategoryId.value = cat.id;
             }
@@ -100,12 +109,8 @@ const updateActiveCategory = (): void => {
    });
 };
 
-const handleAddToCart = (product: Product): void => {
+const handleAddToCart = (product: import('@/types').Product): void => {
    addItem(product);
-};
-
-const handleRemoveFromCart = (productId: string): void => {
-   removeItem(productId);
 };
 
 const handleCartClick = (): void => {
@@ -133,7 +138,7 @@ const handleProductClick = (productId: string): void => {
             <!-- 左侧分类栏 - sticky 吸顶效果 -->
             <view class="category-sidebar" :style="{ top: headerHeight + 'px' }">
                <view
-                  v-for="category in categories"
+                  v-for="category in homeStore.categories"
                   :key="category.id"
                   class="category-item"
                   :class="{ active: activeCategoryId === category.id }"
@@ -156,7 +161,7 @@ const handleProductClick = (productId: string): void => {
             <view class="product-area">
                <!-- 每个分类一个区块 -->
                <view
-                  v-for="category in categories"
+                  v-for="category in homeStore.categories"
                   :key="category.id"
                   :id="'section-' + category.id"
                   class="category-section"

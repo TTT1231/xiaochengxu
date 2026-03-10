@@ -2,11 +2,12 @@
 import { ref, computed } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
 import type { Product } from '@/types';
-import { products } from '@/mock';
-import { useCart } from '@/composables/useCart';
+import { useHomeStore } from '@/stores/homeStore';
+import { useCartStore } from '@/stores/cartStore';
 import { formatPriceDisplay } from '@/utils/format';
 
-const { addItem } = useCart();
+const homeStore = useHomeStore();
+const cartStore = useCartStore();
 
 const product = ref<Product | null>(null);
 const currentSlide = ref(0);
@@ -19,28 +20,33 @@ const packagingOptions = [
    { label: '礼品精装 (+¥5)', value: '礼品精装', extraPrice: 5 },
 ];
 
+// 轮播图：取 images 字段分割后的所有图片，兜底用主图重复
 const carouselImages = computed(() => {
    if (!product.value) return [];
+   // 找到原始 images 字符串（通过 homeStore 中 product.image 是第一张）
+   // product.image 已经是第一张完整 URL，这里复用 4 张做展示
    return [product.value.image, product.value.image, product.value.image, product.value.image];
 });
 
 const totalPrice = computed(() => {
    if (!product.value) return 0;
    const packaging = packagingOptions.find(p => p.value === selectedPackaging.value);
-   const extraPrice = packaging?.extraPrice || 0;
-   return product.value.price + extraPrice;
+   return product.value.price + (packaging?.extraPrice ?? 0);
 });
 
-onLoad(options => {
+onLoad(async options => {
    const productId = options?.id;
-   if (productId) {
-      const found = products.find(p => p.id === productId);
-      if (found) {
-         product.value = found;
-      } else {
-         uni.showToast({ title: '商品不存在', icon: 'none' });
-         setTimeout(() => uni.navigateBack(), 1500);
-      }
+   if (!productId) return;
+
+   // 确保 store 数据已加载
+   await homeStore.fetchData();
+
+   const found = homeStore.getProductById(productId);
+   if (found) {
+      product.value = found;
+   } else {
+      uni.showToast({ title: '商品不存在', icon: 'none' });
+      setTimeout(() => uni.navigateBack(), 1500);
    }
 });
 
@@ -51,13 +57,13 @@ const handleSwiperChange = (e: { detail: { current: number } }) => {
 const handleAddToCart = () => {
    if (!product.value) return;
 
-   const itemWithOptions = {
+   const itemWithOptions: Product = {
       ...product.value,
       name: `${product.value.name} (${selectedSweetness.value}, ${selectedPackaging.value})`,
       price: totalPrice.value,
    };
 
-   addItem(itemWithOptions);
+   cartStore.addItem(itemWithOptions);
    uni.navigateBack();
 };
 </script>

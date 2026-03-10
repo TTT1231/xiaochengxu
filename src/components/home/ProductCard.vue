@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Product } from '@/types';
-import { commonIcons } from '@/data/imgPaths';
 import { formatPriceDisplay } from '@/utils/format';
 
 interface Props {
@@ -17,10 +16,8 @@ interface Emits {
 
 const emit = defineEmits<Emits>();
 
-const addIconSrc = commonIcons.add;
-
 const handleAdd = (): void => {
-   emit('click');
+   emit('add');
 };
 
 const handleClick = (): void => {
@@ -29,23 +26,21 @@ const handleClick = (): void => {
 </script>
 
 <template>
-   <view class="product-card" @click="handleClick">
-      <view class="image-container">
-         <image class="product-image" :src="product.image" mode="aspectFill" />
-      </view>
-      <view class="product-info">
-         <view class="info-top">
-            <text class="product-name">{{ product.name }}</text>
-            <text class="product-description">{{ product.description }}</text>
+   <view class="card-container" @click="handleClick">
+      <image class="card-cover" :src="product.image" mode="aspectFill" />
+
+      <view class="card-content">
+         <view class="text-group">
+            <view class="title">{{ product.name }}</view>
+            <view class="desc" v-if="product.description">{{ product.description }}</view>
          </view>
-         <view class="product-bottom">
-            <text class="product-price">{{ formatPriceDisplay(product.price) }}</text>
-            <view class="add-btn-wrapper">
-               <view class="add-btn" @click.stop="handleAdd">
-                  <image class="add-icon" :src="addIconSrc" mode="aspectFit" />
-               </view>
-               <view v-if="quantity && quantity > 0" class="quantity-badge">
-                  <text class="badge-text">{{ quantity }}</text>
+
+         <view class="bottom-group">
+            <view class="price">{{ formatPriceDisplay(product.price) }}</view>
+            <view class="action-btn" @click.stop="handleAdd">
+               <!-- 移除文字加号，完全使用 CSS 伪元素绘制完美居中的加号 -->
+               <view v-if="quantity && quantity > 0" class="badge">
+                  <text class="badge-num">{{ quantity }}</text>
                </view>
             </view>
          </view>
@@ -54,111 +49,154 @@ const handleClick = (): void => {
 </template>
 
 <style lang="scss" scoped>
-.product-card {
+/* 容器：纯净的弹性盒子，严格控制100%宽度 */
+.card-container {
    display: flex;
-   gap: 24rpx;
+   width: 100%;
    padding: 0;
+   box-sizing: border-box;
 }
 
-.image-container {
+/* 左侧图片：定死大小和圆角，绝对不缩放 */
+.card-cover {
    width: 192rpx;
    height: 192rpx;
    border-radius: 32rpx;
-   overflow: hidden;
-   background-color: $bg-input;
+   background-color: #f8fafc;
    flex-shrink: 0;
 }
 
-.product-image {
-   width: 100%;
-   height: 100%;
-}
-
-.product-info {
+/* 右侧内容：神级防御！通过绝对限制最大宽度来防止任何弹性延伸 */
+.card-content {
    flex: 1;
-   display: flex;
-   flex-direction: column;
-   justify-content: space-between;
-   padding: 2rpx 0 4rpx;
    min-width: 0;
-}
-
-.info-top {
+   /* 给右侧留出充足的留白空间：192(图片) + 24(左距) + 32(右距) = 248 */
+   max-width: calc(100% - 248rpx);
+   margin-left: 24rpx;
+   margin-right: 32rpx; /* UI核心：加大右侧留白！建立一堵隐形的墙，消除“冲出去”的错觉 */
    display: flex;
    flex-direction: column;
-   gap: 8rpx;
+   justify-content: space-between; /* 拉开上下间距 */
+   padding: 10rpx 0; /* 上下向中心收拢一点点，视觉上与左侧图片的圆角形成更好的呼应 */
+   box-sizing: border-box;
 }
 
-.product-name {
+/* 顶部文字区域：严格锁定宽度，再次上锁防止 view 的默认块级撑开打乱 Flex */
+.text-group {
+   width: 100%;
+   min-width: 0;
+   display: flex;
+   flex-direction: column;
+}
+
+.title {
    font-size: 28rpx;
-   font-weight: 500;
-   color: $text-primary;
-   line-height: 35rpx;
+   font-weight: bold;
+   color: #1e293b;
+   line-height: 40rpx;
+   display: block;
+   width: 100%;
+   /* 真正生效的单行文本省略号三件套（缺一不可） */
+   overflow: hidden;
+   white-space: nowrap;
+   text-overflow: ellipsis;
 }
 
-.product-description {
-   font-size: 20rpx;
-   color: $text-muted;
-   line-height: 30rpx;
+.desc {
+   font-size: 22rpx;
+   color: #64748b; /* 加深一点点灰，提升可读性 */
+   line-height: 32rpx;
+   margin-top: 6rpx;
+   display: block;
+   width: 100%;
+   /* 对抗小程序 <view> 不响应单行截断的备用方案：两行截断 */
+   display: -webkit-box;
+   -webkit-box-orient: vertical;
+   -webkit-line-clamp: 2; /* 改为2行截断 */
+   overflow: hidden;
+   word-break: break-all;
+}
+
+/* 底部价格与按钮：两端对齐 */
+.bottom-group {
+   display: flex;
+   align-items: center;
+   justify-content: space-between; /* 按钮在最右侧，价格在最左侧 */
+   width: 100%;
+   /* 移除 padding-right，恢复右侧所有元素的完美垂直对齐 */
+   box-sizing: border-box;
+}
+
+.price {
+   font-size: 32rpx;
+   font-weight: 700; /* 把 800 调成 700，视觉上更稳重且不显臃肿 */
+   color: #ee862b; /* 主题橙色 */
+   line-height: 1;
+   font-family: 'Plus Jakarta Sans', sans-serif;
+   flex: 1;
+   min-width: 0; /* 为左侧动态价格也加上严格约束 */
    overflow: hidden;
    text-overflow: ellipsis;
    white-space: nowrap;
+   margin-right: 20rpx;
 }
 
-.product-bottom {
-   display: flex;
-   align-items: center;
-   justify-content: space-between;
-}
-
-.product-price {
-   font-size: 32rpx;
-   font-weight: 700;
-   color: $brand-primary;
-   line-height: 48rpx;
-   font-family: 'Plus Jakarta Sans', sans-serif;
-}
-
-.add-btn {
-   width: 56rpx;
-   height: 56rpx;
+/* 加号按钮：写死物理大小，不再受任何祖先节点脸色 */
+.action-btn {
+   width: 48rpx; /* 适当调小，56有些抢占文字视觉中心 */
+   height: 48rpx;
+   background-color: #ee862b; /* 主题橙色 */
    border-radius: 50%;
-   background-color: $brand-primary;
    display: flex;
    align-items: center;
    justify-content: center;
-}
-
-.add-icon {
-   width: 21rpx;
-   height: 21rpx;
-}
-
-.add-btn-wrapper {
    position: relative;
+   flex-shrink: 0;
 }
 
-.quantity-badge {
+/* 完美像素居中的加号符号 */
+.action-btn::before,
+.action-btn::after {
+   content: '';
+   position: absolute;
+   background-color: #ffffff;
+   border-radius: 4rpx;
+   top: 50%;
+   left: 50%;
+   transform: translate(-50%, -50%);
+}
+
+.action-btn::before {
+   width: 22rpx; /* 横向长度 */
+   height: 4rpx; /* 横向粗细 */
+}
+
+.action-btn::after {
+   width: 4rpx; /* 纵向粗细 */
+   height: 22rpx; /* 纵向长度 */
+}
+
+/* 数量红点角标 */
+.badge {
    position: absolute;
    top: -12rpx;
    right: -12rpx;
-   min-width: 32rpx;
-   height: 32rpx;
-   padding: 0 8rpx;
    background-color: #ff3b30;
    border: 2rpx solid #ffffff;
    border-radius: 16rpx;
-   box-sizing: border-box;
+   min-width: 32rpx;
+   height: 32rpx;
    display: flex;
    align-items: center;
    justify-content: center;
-   box-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.1);
+   padding: 0 8rpx;
+   box-sizing: border-box;
 }
 
-.badge-text {
+.badge-num {
    font-size: 18rpx;
-   font-weight: 700;
    color: #ffffff;
+   font-weight: bold;
    line-height: 1;
    font-family: 'Plus Jakarta Sans', sans-serif;
 }

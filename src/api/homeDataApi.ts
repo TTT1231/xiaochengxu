@@ -13,14 +13,16 @@ export async function getRightProductData() {
 
    if (error) throw error;
 
+   const storagePrefix = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/products-img/`;
+
    /**
     * 将images 的数据 xx1.png&xx1_des_1.png&xx1_des_2.png 加上前缀
+    * 支持两种格式：完整 URL 或相对路径
     */
    data.forEach(product => {
       const imageList = product.images.split('&');
-      const fullImageList = imageList.map(
-         image =>
-            `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/product-images/${image}`,
+      const fullImageList = imageList.map(image =>
+         image.startsWith('http') ? image : `${storagePrefix}${image}`,
       );
       product.images = fullImageList.join('&');
    });

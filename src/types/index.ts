@@ -12,4 +12,10 @@ export type { User, Reward } from './user';
  * 数据库scheme统一导出
  */
 
-export type * from './db-scheme';
+export type {
+   Categoried,
+   ProductSpecOption,
+   ProductSpecGroup,
+   ProductSpecs,
+   Products,
+} from './db-scheme';
