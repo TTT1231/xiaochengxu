@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { menuIcons } from '@/data/imgPaths';
+/** 菜单配置数据（内联定义） */
+const MENU_ICONS = '/static/icons/menu';
 
 interface MenuItem {
    key: string;
@@ -7,11 +8,27 @@ interface MenuItem {
    label: string;
 }
 
+const menuItems: MenuItem[] = [
+   {
+      key: 'coupons',
+      icon: `${MENU_ICONS}/menu-coupons.svg`,
+      label: '我的优惠券',
+   },
+   {
+      key: 'address',
+      icon: `${MENU_ICONS}/menu-address.svg`,
+      label: '地址管理',
+   },
+   {
+      key: 'settings',
+      icon: `${MENU_ICONS}/menu-settings.svg`,
+      label: '系统设置',
+   },
+];
+
 const emit = defineEmits<{
    (e: 'click', key: string): void;
 }>();
-
-const menuItems: MenuItem[] = menuIcons;
 
 const handleMenuClick = (key: string) => {
    emit('click', key);

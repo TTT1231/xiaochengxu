@@ -13,7 +13,7 @@ withDefaults(defineProps<Props>(), {
    mode: 'simple',
    title: '',
    showBack: true,
-   storeName: '上海静安嘉里中心店',
+   storeName: '南昌红谷滩店',
 });
 
 const statusBarHeight = ref(0);
@@ -21,10 +21,7 @@ const statusBarHeight = ref(0);
 // 使用 commonIcons 中的图标路径
 const icons = {
    location: commonIcons.location,
-   chevronDown: commonIcons.chevronDown,
-   notification: commonIcons.notification,
-   scan: commonIcons.scan,
-   search: commonIcons.search,
+   qrcode: commonIcons.qrcode,
    back: commonIcons.back,
 };
 
@@ -43,11 +40,7 @@ const handleLocationClick = () => {
    // TODO: Implement location selector
 };
 
-const handleNotificationClick = () => {
-   // TODO: Navigate to notifications
-};
-
-const handleScanClick = () => {
+const handleQrcodeClick = () => {
    // TODO: Implement QR scan
 };
 </script>
@@ -59,38 +52,14 @@ const handleScanClick = () => {
          <view class="home-header-content">
             <view class="top-bar">
                <view class="location-selector" @click="handleLocationClick">
-                  <image
-                     class="location-icon"
-                     :src="icons.location"
-                     mode="aspectFit"
-                  />
+                  <image class="location-icon" :src="icons.location" mode="aspectFit" />
                   <text class="location-text">{{ storeName }}</text>
-                  <image
-                     class="arrow-icon"
-                     :src="icons.chevronDown"
-                     mode="aspectFit"
-                  />
                </view>
                <view class="top-icons">
-                  <view class="icon-btn" @click="handleNotificationClick">
-                     <image
-                        class="notification-icon"
-                        :src="icons.notification"
-                        mode="aspectFit"
-                     />
-                  </view>
-                  <view class="icon-btn" @click="handleScanClick">
-                     <image
-                        class="scan-icon"
-                        :src="icons.scan"
-                        mode="aspectFit"
-                     />
+                  <view class="icon-btn" @click="handleQrcodeClick">
+                     <image class="qrcode-icon" :src="icons.qrcode" mode="aspectFit" />
                   </view>
                </view>
-            </view>
-            <view class="search-bar">
-               <image class="search-icon" :src="icons.search" mode="aspectFit" />
-               <text class="search-placeholder">搜索美味点心或饮品</text>
             </view>
          </view>
       </template>
@@ -156,11 +125,6 @@ const handleScanClick = () => {
    line-height: 40rpx;
 }
 
-.arrow-icon {
-   width: 12rpx;
-   height: 7.4rpx;
-}
-
 .top-icons {
    display: flex;
    align-items: center;
@@ -177,36 +141,9 @@ const handleScanClick = () => {
    border-radius: 50%;
 }
 
-.notification-icon {
-   width: 32rpx;
-   height: 40rpx;
-}
-
-.scan-icon {
+.qrcode-icon {
    width: 40rpx;
    height: 40rpx;
-}
-
-.search-bar {
-   display: flex;
-   align-items: center;
-   padding: 16rpx 24rpx 16rpx 80rpx;
-   background-color: $bg-input;
-   border-radius: 48rpx;
-   position: relative;
-}
-
-.search-icon {
-   position: absolute;
-   left: 24rpx;
-   width: 21rpx;
-   height: 21rpx;
-}
-
-.search-placeholder {
-   font-size: 28rpx;
-   color: $text-muted;
-   line-height: 1;
 }
 
 // ========== 普通模式 ==========

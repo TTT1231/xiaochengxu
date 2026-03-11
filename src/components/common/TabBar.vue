@@ -1,6 +1,34 @@
 <script setup lang="ts">
-import type { TabBarItem } from '@/data/imgPaths';
-import { tabBarImgPaths } from '@/data/imgPaths';
+/** TabBar 配置数据（内联定义） */
+interface TabItem {
+   text: string;
+   pagePath: string;
+   iconPath: string;
+   selectedIconPath: string;
+}
+
+const TABBAR_ICONS = '/static/icons/tabbar';
+
+const tabs: TabItem[] = [
+   {
+      text: '首页',
+      pagePath: '/pages/index/index',
+      iconPath: `${TABBAR_ICONS}/tab-home.png`,
+      selectedIconPath: `${TABBAR_ICONS}/tab-home-active.png`,
+   },
+   {
+      text: '订单',
+      pagePath: '/pages/order/index',
+      iconPath: `${TABBAR_ICONS}/tab-order.png`,
+      selectedIconPath: `${TABBAR_ICONS}/tab-order-active.png`,
+   },
+   {
+      text: '我的',
+      pagePath: '/pages/profile/index',
+      iconPath: `${TABBAR_ICONS}/tab-profile.png`,
+      selectedIconPath: `${TABBAR_ICONS}/tab-profile-active.png`,
+   },
+];
 
 interface Props {
    current?: number;
@@ -9,8 +37,6 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
    current: 0,
 });
-
-const tabs: TabBarItem[] = tabBarImgPaths;
 
 const handleTabClick = (index: number, pagePath: string) => {
    if (index === props.current) return;
