@@ -72,15 +72,15 @@ const handleImageError = () => {
 .reward-content {
    display: flex;
    flex-direction: column;
-   gap: 8rpx;
-   padding: 20rpx;
+   gap: 12rpx;
+   padding: 16rpx;
 }
 
 .reward-name {
    font-size: 28rpx;
    color: $text-primary;
    font-weight: 500;
-   line-height: 40rpx;
+   line-height: 44rpx;
    overflow: hidden;
    text-overflow: ellipsis;
    white-space: nowrap;

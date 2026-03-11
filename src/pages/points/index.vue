@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import { onReady } from '@dcloudio/uni-app';
 import type { Reward } from '@/types';
 import Header from '@/components/common/Header.vue';
 import PointsCard from '@/components/points/PointsCard.vue';
@@ -7,6 +8,28 @@ import RewardCard from '@/components/points/RewardCard.vue';
 import { currentUser, hotRewards } from '@/mock';
 
 const rewards = ref<Reward[]>(hotRewards);
+const headerHeight = ref(
+   (() => {
+      const windowInfo = uni.getSystemInfoSync();
+      const statusBarHeight = windowInfo.statusBarHeight || 0;
+      let menuTop = statusBarHeight;
+      let menuHeight = 32;
+
+      // #ifdef MP-WEIXIN
+      try {
+         const menuButtonInfo = uni.getMenuButtonBoundingClientRect();
+         menuTop = menuButtonInfo.top;
+         menuHeight = menuButtonInfo.height;
+      } catch (e) {}
+      // #endif
+
+      return menuTop + menuHeight + Math.ceil(uni.upx2px(20));
+   })(),
+);
+
+onReady(() => {
+   // Height is now calculated synchronously in setup
+});
 
 const handleDetailClick = () => {
    // TODO: Navigate to points detail page
@@ -23,10 +46,10 @@ const handleViewMore = () => {
 </script>
 
 <template>
-   <view class="points-page">
+   <view class="points-page" :style="{ paddingTop: headerHeight + 'px' }">
       <Header title="积分商城" :show-back="true" />
 
-      <view class="page-content">
+      <view class="page-content" :style="{ height: `calc(100vh - ${headerHeight}px)` }">
          <!-- 积分卡片 -->
          <PointsCard :points="currentUser.points" @detail="handleDetailClick" />
 
@@ -55,12 +78,10 @@ const handleViewMore = () => {
 .points-page {
    min-height: 100vh;
    background-color: $bg-page;
-   padding-top: 176rpx;
    box-sizing: border-box;
 }
 
 .page-content {
-   height: calc(100vh - 176rpx);
    display: flex;
    flex-direction: column;
    padding-top: 32rpx;
@@ -88,7 +109,7 @@ const handleViewMore = () => {
 
 .rewards-scroll {
    flex: 1;
-   height: calc(100vh - 176rpx - 340rpx);
+   min-height: 0;
 }
 
 .rewards-grid {

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import { onReady } from '@dcloudio/uni-app';
 import Header from '@/components/common/Header.vue';
 import TabBar from '@/components/common/TabBar.vue';
 import OrderToggle from '@/components/order/OrderToggle.vue';
@@ -10,6 +11,24 @@ import type { Order } from '@/types';
 
 const showActive = ref(true);
 const scrollTarget = ref('active-orders');
+const headerHeight = ref(0);
+
+onReady(() => {
+   const windowInfo = uni.getWindowInfo();
+   const statusBarHeight = windowInfo.statusBarHeight || 0;
+
+   let menuTop = statusBarHeight;
+   let menuHeight = 32;
+
+   // #ifdef MP-WEIXIN
+   const menuButtonInfo = uni.getMenuButtonBoundingClientRect();
+   menuTop = menuButtonInfo.top;
+   menuHeight = menuButtonInfo.height;
+   // #endif
+
+   // 计算 Header 高度: paddingTop(menuTop) + menuHeight + padding-bottom(20rpx)
+   headerHeight.value = menuTop + menuHeight + Math.ceil(uni.upx2px(20));
+});
 
 const handleToggleChange = (active: boolean) => {
    showActive.value = active;
@@ -37,7 +56,17 @@ const handleReorder = (order: Order) => {
 </script>
 
 <template>
-   <view class="order-page">
+   <view
+      class="order-page"
+      :style="
+         headerHeight > 0
+            ? {
+                 paddingTop: headerHeight + 'px',
+                 '--header-height': headerHeight + 'px',
+              }
+            : {}
+      "
+   >
       <Header title="订单中心" :show-back="true" />
 
       <view class="page-content">
@@ -105,7 +134,7 @@ const handleReorder = (order: Order) => {
    min-height: 100vh;
    background-color: $bg-page;
    /* 使用 padding 为 Header 和 TabBar 留出空间 */
-   padding-top: 176rpx; /* 状态栏(约44px) + Header内容(44px) ≈ 88px = 176rpx */
+   padding-top: var(--header-height, 176rpx); /* 使用动态计算的头部高度，默认176rpx */
    padding-bottom: 128rpx; /* TabBar 高度 */
    box-sizing: border-box;
 }
@@ -122,7 +151,9 @@ const handleReorder = (order: Order) => {
 }
 
 .order-list {
-   height: calc(100vh - 176rpx - 128rpx - 120rpx); /* 添加 toggle 的高度减去 */
+   height: calc(
+      100vh - var(--header-height, 176rpx) - 128rpx - 120rpx
+   ); /* 添加 toggle 的高度减去 */
 }
 
 .order-section {

@@ -44,10 +44,18 @@ watch(
 onReady(() => {
    const windowInfo = uni.getWindowInfo();
    const statusBarHeight = windowInfo.statusBarHeight || 0;
-   // 顶部各部分高度(rpx)：
-   // padding-top(32) + top-bar(80) + gap(32) + search-bar(60) + padding-bottom(16) = 220rpx
-   // 根据屏幕宽度将 220rpx 动态转换为 px，防止 iPad 和非标准手机上计算高度错误导致被压盖
-   headerHeight.value = statusBarHeight + Math.ceil(uni.upx2px(220));
+
+   let menuTop = statusBarHeight;
+   let menuHeight = 32;
+
+   // #ifdef MP-WEIXIN
+   const menuButtonInfo = uni.getMenuButtonBoundingClientRect();
+   menuTop = menuButtonInfo.top;
+   menuHeight = menuButtonInfo.height;
+   // #endif
+
+   // 计算 Header 高度: paddingTop(menuTop) + menuHeight + padding-bottom(20rpx)
+   headerHeight.value = menuTop + menuHeight + Math.ceil(uni.upx2px(20));
 });
 
 // 监听页面滚动

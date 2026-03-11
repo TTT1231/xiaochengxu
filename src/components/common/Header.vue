@@ -16,7 +16,31 @@ withDefaults(defineProps<Props>(), {
    storeName: '南昌红谷滩店',
 });
 
-const statusBarHeight = ref(0);
+const { statusBarHeight, menuTop, menuHeight, menuRight } = (() => {
+   const windowInfo = uni.getSystemInfoSync();
+   let sbHeight = windowInfo.statusBarHeight || 0;
+   let mTop = sbHeight;
+   let mHeight = 32;
+   let mRight = 0;
+
+   // #ifdef MP-WEIXIN
+   try {
+      const menuButtonInfo = uni.getMenuButtonBoundingClientRect();
+      mTop = menuButtonInfo.top;
+      mHeight = menuButtonInfo.height;
+      mRight = windowInfo.windowWidth - menuButtonInfo.left;
+   } catch (error) {
+      console.error('getMenuButtonBoundingClientRect error', error);
+   }
+   // #endif
+
+   return {
+      statusBarHeight: ref(sbHeight),
+      menuTop: ref(mTop),
+      menuHeight: ref(mHeight),
+      menuRight: ref(mRight),
+   };
+})();
 
 // 使用 commonIcons 中的图标路径
 const icons = {
@@ -26,8 +50,7 @@ const icons = {
 };
 
 onMounted(() => {
-   const windowInfo = uni.getWindowInfo();
-   statusBarHeight.value = windowInfo.statusBarHeight || 0;
+   // Initial heights already computed in setup
 });
 
 const handleBack = () => {
@@ -46,17 +69,24 @@ const handleQrcodeClick = () => {
 </script>
 
 <template>
-   <view class="header" :style="{ paddingTop: statusBarHeight + 'px' }">
+   <view class="header" :style="{ paddingTop: menuTop + 'px' }">
       <!-- 首页模式：门店 + 图标 + 搜索栏 -->
       <template v-if="mode === 'home'">
          <view class="home-header-content">
-            <view class="top-bar">
+            <view
+               class="top-bar"
+               :style="{ height: menuHeight + 'px', paddingRight: menuRight + 'px' }"
+            >
                <view class="location-selector" @click="handleLocationClick">
                   <image class="location-icon" :src="icons.location" mode="aspectFit" />
                   <text class="location-text">{{ storeName }}</text>
                </view>
                <view class="top-icons">
-                  <view class="icon-btn" @click="handleQrcodeClick">
+                  <view
+                     class="icon-btn"
+                     @click="handleQrcodeClick"
+                     :style="{ width: menuHeight + 'px', height: menuHeight + 'px' }"
+                  >
                      <image class="qrcode-icon" :src="icons.qrcode" mode="aspectFit" />
                   </view>
                </view>
@@ -66,7 +96,7 @@ const handleQrcodeClick = () => {
 
       <!-- 普通页面模式：返回按钮 + 标题 -->
       <template v-else>
-         <view class="simple-header">
+         <view class="simple-header" :style="{ height: menuHeight + 'px' }">
             <view v-if="showBack" class="back-btn" @click="handleBack">
                <image class="back-icon" :src="icons.back" mode="aspectFit" />
             </view>
@@ -87,42 +117,48 @@ const handleQrcodeClick = () => {
    right: 0;
    background-color: $bg-card;
    z-index: 999;
+   padding-bottom: 20rpx;
+   box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
+   border-bottom-left-radius: 32rpx;
+   border-bottom-right-radius: 32rpx;
 }
 
 // ========== 首页模式 ==========
 .home-header-content {
-   padding: 32rpx 32rpx 16rpx;
+   padding: 0 32rpx;
    display: flex;
    flex-direction: column;
-   gap: 32rpx;
+   gap: 0;
 }
 
 .top-bar {
    display: flex;
    align-items: center;
    justify-content: space-between;
+   gap: 24rpx;
 }
 
 .location-selector {
    display: flex;
    align-items: center;
-   gap: 16rpx;
+   gap: 12rpx;
+   padding: 8rpx 16rpx 8rpx 0;
 }
 
 .location-icon {
-   width: 32rpx;
-   height: 40rpx;
+   width: 36rpx;
+   height: 36rpx;
 }
 
 .location-text {
-   font-size: 28rpx;
-   font-weight: 500;
+   font-size: 32rpx;
+   font-weight: 600;
    color: $text-primary;
-   max-width: 300rpx;
+   max-width: 320rpx;
    overflow: hidden;
    text-overflow: ellipsis;
    white-space: nowrap;
-   line-height: 40rpx;
+   line-height: 44rpx;
 }
 
 .top-icons {
@@ -132,18 +168,25 @@ const handleQrcodeClick = () => {
 }
 
 .icon-btn {
-   width: 80rpx;
-   height: 80rpx;
    display: flex;
    align-items: center;
    justify-content: center;
-   background-color: $bg-input;
+   background-color: #ffffff;
+   border: 2rpx solid #e2e8f0;
    border-radius: 50%;
+   box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.03);
+   transition: all 0.2s ease;
+
+   &:active {
+      background-color: #f8fafc;
+      transform: scale(0.96);
+   }
 }
 
 .qrcode-icon {
-   width: 40rpx;
-   height: 40rpx;
+   width: 32rpx;
+   height: 32rpx;
+   opacity: 0.85;
 }
 
 // ========== 普通模式 ==========
@@ -151,7 +194,6 @@ const handleQrcodeClick = () => {
    display: flex;
    align-items: center;
    justify-content: center;
-   height: 88rpx;
    padding: 0 24rpx;
    position: relative;
 }
@@ -159,8 +201,7 @@ const handleQrcodeClick = () => {
 .back-btn {
    position: absolute;
    left: 24rpx;
-   width: 64rpx;
-   height: 64rpx;
+   height: 100%;
    display: flex;
    align-items: center;
    justify-content: center;
