@@ -16,10 +16,6 @@ interface Emits {
 
 const emit = defineEmits<Emits>();
 
-const handleAdd = (): void => {
-   emit('add');
-};
-
 const handleClick = (): void => {
    emit('click');
 };
@@ -37,7 +33,7 @@ const handleClick = (): void => {
 
          <view class="bottom-group">
             <view class="price">{{ formatPriceDisplay(product.price) }}</view>
-            <view class="action-btn" @click.stop="handleAdd">
+            <view class="action-btn">
                <!-- 移除文字加号，完全使用 CSS 伪元素绘制完美居中的加号 -->
                <view v-if="quantity && quantity > 0" class="badge">
                   <text class="badge-num">{{ quantity }}</text>

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
-import type { Product } from '@/types';
 import { useHomeStore, useCartStore } from '@/stores';
 import { onReady, onPageScroll, onLoad } from '@dcloudio/uni-app';
 import Header from '@/components/common/Header.vue';
@@ -20,7 +19,7 @@ const currentScrollTop = ref(0);
 
 // storeToRefs 保持 computed 的响应性，addItem/getItemQuantity 是函数直接解构
 const { totalCount, totalAmount } = storeToRefs(cartStore);
-const { addItem, getItemQuantity } = cartStore;
+const { getItemQuantity } = cartStore;
 
 // 获取指定分类的产品
 const getProductsByCategory = homeStore.getProductsByCategory;
@@ -109,10 +108,6 @@ const updateActiveCategory = (): void => {
    });
 };
 
-const handleAddToCart = (product: Product): void => {
-   addItem(product);
-};
-
 const handleCartClick = (): void => {
    uni.navigateTo({ url: '/pages/cart/index' });
 };
@@ -177,7 +172,6 @@ const handleProductClick = (productId: string): void => {
                         :key="product.id"
                         :product="product"
                         :quantity="getItemQuantity(product.id)"
-                        @add="handleAddToCart(product)"
                         @click="handleProductClick(product.id)"
                      />
                   </view>
