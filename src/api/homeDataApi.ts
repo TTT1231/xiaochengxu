@@ -1,3 +1,4 @@
+import { useEnvConfig } from '../hooks/useEnvConfig';
 import type { Products } from '../types';
 import type { Categoried } from '../types/db-scheme/categoried';
 import { supabaseClient } from '../utils/supabaseClient';
@@ -7,13 +8,15 @@ export async function getLeftMenuData() {
    return supabaseClient.query<Categoried>('categoried');
 }
 
+const envConfig = useEnvConfig();
+
 //首页右侧产品数据
 export async function getRightProductData() {
    const { data, error } = await supabaseClient.query<Products>('products');
 
    if (error) throw error;
 
-   const storagePrefix = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/products-img/`;
+   const storagePrefix = `${envConfig.supabaseUrl}/storage/v1/object/public/products-img/`;
 
    /**
     * 将images 的数据 xx1.png&xx1_des_1.png&xx1_des_2.png 加上前缀

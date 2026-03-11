@@ -1,5 +1,8 @@
 import { createClient } from 'supabase-wechat-stable-v2';
 import type { PostgrestResponse } from 'supabase-wechat-stable-v2';
+import { useEnvConfig } from '../hooks/useEnvConfig';
+
+const envConfig = useEnvConfig();
 
 class SupabaseClient {
    private supabaseUrl: string;
@@ -26,6 +29,6 @@ class SupabaseClient {
 }
 
 export const supabaseClient = new SupabaseClient(
-   import.meta.env.VITE_SUPABASE_URL,
-   import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+   envConfig.supabaseUrl,
+   envConfig.supabasePublishableKey,
 );

@@ -12,7 +12,7 @@ import FloatingCart from '@/components/home/FloatingCart.vue';
 const homeStore = useHomeStore();
 const cartStore = useCartStore();
 
-const activeCategoryId = ref<string>('');
+const activeCategoryId = ref<number>(0);
 const headerHeight = ref(0);
 const isScrolling = ref(false);
 const currentScrollTop = ref(0);
@@ -27,7 +27,7 @@ const getProductsByCategory = homeStore.getProductsByCategory;
 onLoad(async () => {
    await homeStore.fetchData();
    if (!activeCategoryId.value && homeStore.categories.length > 0) {
-      activeCategoryId.value = homeStore.categories[0].id;
+      activeCategoryId.value = homeStore.categories[0]._id;
    }
 });
 
@@ -36,7 +36,7 @@ watch(
    () => homeStore.categories,
    cats => {
       if (cats.length > 0 && !activeCategoryId.value) {
-         activeCategoryId.value = cats[0].id;
+         activeCategoryId.value = cats[0]._id;
       }
    },
 );
@@ -58,7 +58,7 @@ onPageScroll(e => {
 });
 
 // 点击分类 - 滚动到对应位置
-const handleCategorySelect = (id: string): void => {
+const handleCategorySelect = (id: number): void => {
    activeCategoryId.value = id;
    isScrolling.value = true;
 
@@ -86,7 +86,7 @@ const updateActiveCategory = (): void => {
    const query = uni.createSelectorQuery();
 
    homeStore.categories.forEach(cat => {
-      query.select('#section-' + cat.id).boundingClientRect();
+      query.select('#section-' + cat._id).boundingClientRect();
    });
 
    query.exec(rects => {
@@ -99,8 +99,8 @@ const updateActiveCategory = (): void => {
          const rect = rects[i];
          if (rect && rect.top <= threshold) {
             const cat = homeStore.categories[i];
-            if (cat && activeCategoryId.value !== cat.id) {
-               activeCategoryId.value = cat.id;
+            if (cat && activeCategoryId.value !== cat._id) {
+               activeCategoryId.value = cat._id;
             }
             break;
          }
@@ -134,16 +134,16 @@ const handleProductClick = (productId: string): void => {
             <view class="category-sidebar" :style="{ top: headerHeight + 'px' }">
                <view
                   v-for="category in homeStore.categories"
-                  :key="category.id"
+                  :key="category._id"
                   class="category-item"
-                  :class="{ active: activeCategoryId === category.id }"
-                  @click="handleCategorySelect(category.id)"
+                  :class="{ active: activeCategoryId === category._id }"
+                  @click="handleCategorySelect(category._id)"
                >
                   <image
                      class="category-icon"
                      :src="
-                        activeCategoryId === category.id
-                           ? category.activeIcon || category.icon
+                        activeCategoryId === category._id
+                           ? category.active_icon || category.icon
                            : category.icon
                      "
                      mode="aspectFit"
@@ -157,8 +157,8 @@ const handleProductClick = (productId: string): void => {
                <!-- 每个分类一个区块 -->
                <view
                   v-for="category in homeStore.categories"
-                  :key="category.id"
-                  :id="'section-' + category.id"
+                  :key="category._id"
+                  :id="'section-' + category._id"
                   class="category-section"
                >
                   <!-- 分类标题 -->
@@ -168,11 +168,11 @@ const handleProductClick = (productId: string): void => {
                   <!-- 产品列表 -->
                   <view class="product-list">
                      <ProductCard
-                        v-for="product in getProductsByCategory(category.id)"
-                        :key="product.id"
+                        v-for="product in getProductsByCategory(category._id)"
+                        :key="product._id"
                         :product="product"
-                        :quantity="getItemQuantity(product.id)"
-                        @click="handleProductClick(product.id)"
+                        :quantity="getItemQuantity(product._id)"
+                        @click="handleProductClick(product._id)"
                      />
                   </view>
                </view>

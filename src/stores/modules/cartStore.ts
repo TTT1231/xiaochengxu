@@ -1,5 +1,11 @@
 import { defineStore } from 'pinia';
-import type { Product, CartItem } from '@/types';
+import type { Products } from '@/types';
+
+/** 购物车商品项 */
+interface CartItem {
+   product: Products;
+   quantity: number;
+}
 
 interface CartState {
    items: CartItem[];
@@ -22,14 +28,14 @@ export const useCartStore = defineStore('cart', {
       getItemQuantity:
          state =>
          (productId: string): number => {
-            return state.items.find(item => item.product.id === productId)?.quantity ?? 0;
+            return state.items.find(item => item.product._id === productId)?.quantity ?? 0;
          },
    },
 
    actions: {
       /** 添加商品到购物车 */
-      addItem(product: Product): void {
-         const index = this.items.findIndex(item => item.product.id === product.id);
+      addItem(product: Products): void {
+         const index = this.items.findIndex(item => item.product._id === product._id);
          if (index > -1) {
             this.items[index].quantity += 1;
          } else {
@@ -39,7 +45,7 @@ export const useCartStore = defineStore('cart', {
 
       /** 从购物车移除商品（数量-1） */
       removeItem(productId: string): void {
-         const index = this.items.findIndex(item => item.product.id === productId);
+         const index = this.items.findIndex(item => item.product._id === productId);
          if (index === -1) return;
          if (this.items[index].quantity > 1) {
             this.items[index].quantity -= 1;

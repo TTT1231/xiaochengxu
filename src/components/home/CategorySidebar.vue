@@ -1,20 +1,20 @@
 <script setup lang="ts">
-import type { Category } from '@/types';
+import type { Categoried } from '@/types';
 
 interface Props {
-   categories: Category[];
-   activeId: string;
+   categories: Categoried[];
+   activeId: number;
 }
 
 defineProps<Props>();
 
 interface Emits {
-   (e: 'select', id: string): void;
+   (e: 'select', id: number): void;
 }
 
 const emit = defineEmits<Emits>();
 
-const handleSelect = (id: string): void => {
+const handleSelect = (id: number): void => {
    emit('select', id);
 };
 </script>
@@ -23,14 +23,14 @@ const handleSelect = (id: string): void => {
    <scroll-view class="category-sidebar" scroll-y>
       <view
          v-for="category in categories"
-         :key="category.id"
+         :key="category._id"
          class="category-item"
-         :class="{ active: category.id === activeId }"
-         @click="handleSelect(category.id)"
+         :class="{ active: category._id === activeId }"
+         @click="handleSelect(category._id)"
       >
          <image
             class="category-icon"
-            :src="category.id === activeId ? category.activeIcon || category.icon : category.icon"
+            :src="category._id === activeId ? category.active_icon || category.icon : category.icon"
             mode="aspectFit"
          />
          <text class="category-name">{{ category.name }}</text>

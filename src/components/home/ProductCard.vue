@@ -1,13 +1,16 @@
 <script setup lang="ts">
-import type { Product } from '@/types';
+import type { Products } from '@/types';
 import { formatPriceDisplay } from '@/utils/format';
 
 interface Props {
-   product: Product;
+   product: Products;
    quantity?: number;
 }
 
 const props = defineProps<Props>();
+
+/** 获取产品主图（第一张） */
+const mainImage = props.product.images ? props.product.images.split('&')[0] : '';
 
 interface Emits {
    (e: 'add'): void;
@@ -23,7 +26,7 @@ const handleClick = (): void => {
 
 <template>
    <view class="card-container" @click="handleClick">
-      <image class="card-cover" :src="product.image" mode="aspectFill" />
+      <image class="card-cover" :src="mainImage" mode="aspectFill" />
 
       <view class="card-content">
          <view class="text-group">

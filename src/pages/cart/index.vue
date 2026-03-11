@@ -4,7 +4,7 @@ import { onReady } from '@dcloudio/uni-app';
 import Header from '@/components/common/Header.vue';
 import { useCartStore } from '@/stores';
 import { formatPriceDisplay } from '@/utils/format';
-import type { Product } from '@/types';
+import type { Products } from '@/types';
 
 const headerHeight = ref(0);
 
@@ -21,7 +21,7 @@ const handleRemove = (productId: string) => {
    removeItem(productId);
 };
 
-const handleAdd = (product: Product) => {
+const handleAdd = (product: Products) => {
    addItem(product);
 };
 
@@ -31,6 +31,11 @@ const handleCheckout = () => {
       title: '结算功能开发中',
       icon: 'none',
    });
+};
+
+/** 获取产品主图 */
+const getMainImage = (images: string): string => {
+   return images ? images.split('&')[0] : '';
 };
 </script>
 
@@ -46,14 +51,14 @@ const handleCheckout = () => {
          </view>
 
          <view v-else class="cart-list">
-            <view v-for="item in cartItems" :key="item.product.id" class="cart-item">
-               <image class="item-image" :src="item.product.image" mode="aspectFill" />
+            <view v-for="item in cartItems" :key="item.product._id" class="cart-item">
+               <image class="item-image" :src="getMainImage(item.product.images)" mode="aspectFill" />
                <view class="item-info">
                   <text class="item-name">{{ item.product.name }}</text>
                   <text class="item-price">{{ formatPriceDisplay(item.product.price) }}</text>
                </view>
                <view class="quantity-control">
-                  <view class="control-btn minus" @click="handleRemove(item.product.id)">
+                  <view class="control-btn minus" @click="handleRemove(item.product._id)">
                      <text class="minus-text">−</text>
                   </view>
                   <text class="quantity-text">{{ item.quantity }}</text>

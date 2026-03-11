@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
-import type { Product } from '@/types';
+import type { Products } from '@/types';
 import { useHomeStore, useCartStore } from '@/stores';
-import { formatPriceDisplay } from '@/utils/format';
 
 const homeStore = useHomeStore();
 const cartStore = useCartStore();
 
-const product = ref<Product | null>(null);
+const product = ref<Products | null>(null);
 const currentSlide = ref(0);
 const selectedSweetness = ref('标准甜');
 const selectedPackaging = ref('环保纸袋');
@@ -19,13 +18,14 @@ const packagingOptions = [
    { label: '礼品精装 (+¥5)', value: '礼品精装', extraPrice: 5 },
 ];
 
-// 轮播图：取 images 字段分割后的所有图片，兜底用主图重复
+/** 轮播图图片列表：解析 images 字段（用 & 分隔） */
 const carouselImages = computed(() => {
-   if (!product.value) return [];
-   // 找到原始 images 字符串（通过 homeStore 中 product.image 是第一张）
-   // product.image 已经是第一张完整 URL，这里复用 4 张做展示
-   return [product.value.image, product.value.image, product.value.image, product.value.image];
+   if (!product.value?.images) return [];
+   return product.value.images.split('&').filter(Boolean);
 });
+
+/** 是否有多张图片（需要轮播） */
+const hasMultipleImages = computed(() => carouselImages.value.length > 1);
 
 const totalPrice = computed(() => {
    if (!product.value) return 0;
@@ -56,7 +56,8 @@ const handleSwiperChange = (e: { detail: { current: number } }) => {
 const handleAddToCart = () => {
    if (!product.value) return;
 
-   const itemWithOptions: Product = {
+   // 创建带选项的商品副本
+   const itemWithOptions: Products = {
       ...product.value,
       name: `${product.value.name} (${selectedSweetness.value}, ${selectedPackaging.value})`,
       price: totalPrice.value,
@@ -71,7 +72,9 @@ const handleAddToCart = () => {
    <view class="page" v-if="product">
       <!-- 轮播图区域 -->
       <view class="carousel-section">
+         <!-- 多张图片：使用轮播 -->
          <swiper
+            v-if="hasMultipleImages"
             class="carousel"
             :indicator-dots="false"
             :autoplay="false"
@@ -82,8 +85,16 @@ const handleAddToCart = () => {
             </swiper-item>
          </swiper>
 
-         <!-- 指示器 -->
-         <view class="carousel-indicators">
+         <!-- 单张图片：直接显示 -->
+         <image
+            v-else
+            class="carousel-image single-image"
+            :src="carouselImages[0]"
+            mode="aspectFill"
+         />
+
+         <!-- 指示器（仅多张图片时显示） -->
+         <view v-if="hasMultipleImages" class="carousel-indicators">
             <view
                v-for="(_, index) in carouselImages"
                :key="index"
