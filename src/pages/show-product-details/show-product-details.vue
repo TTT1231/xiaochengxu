@@ -2,8 +2,7 @@
 import { ref, computed } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
 import type { Product } from '@/types';
-import { useHomeStore } from '@/stores/homeStore';
-import { useCartStore } from '@/stores/cartStore';
+import { useHomeStore, useCartStore } from '@/stores';
 import { formatPriceDisplay } from '@/utils/format';
 
 const homeStore = useHomeStore();

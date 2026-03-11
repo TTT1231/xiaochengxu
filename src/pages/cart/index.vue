@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import { onReady } from '@dcloudio/uni-app';
 import Header from '@/components/common/Header.vue';
-import { useCartStore } from '@/stores/cartStore';
+import { useCartStore } from '@/stores';
 import { formatPriceDisplay } from '@/utils/format';
 import type { Product } from '@/types';
 

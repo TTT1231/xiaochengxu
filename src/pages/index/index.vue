@@ -2,8 +2,7 @@
 import { ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import type { Product } from '@/types';
-import { useHomeStore } from '@/stores/homeStore';
-import { useCartStore } from '@/stores/cartStore';
+import { useHomeStore, useCartStore } from '@/stores';
 import { onReady, onPageScroll, onLoad } from '@dcloudio/uni-app';
 import Header from '@/components/common/Header.vue';
 import TabBar from '@/components/common/TabBar.vue';
