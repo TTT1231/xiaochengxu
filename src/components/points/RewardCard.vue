@@ -17,7 +17,6 @@ const handleExchange = () => {
 
 const handleImageError = () => {
    // 图片加载失败时使用默认背景色
-   console.log('Image load error:', props.reward.image);
 };
 </script>
 

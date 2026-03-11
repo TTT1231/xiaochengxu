@@ -14,7 +14,7 @@ const handleDetailClick = () => {
 
 const handleExchange = (reward: Reward) => {
    // TODO: Implement reward redemption
-   console.log('Exchange reward:', reward);
+   uni.showToast({ title: '兑换功能开发中', icon: 'none' });
 };
 
 const handleViewMore = () => {

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { commonIcons } from '@/data/imgPaths';
 
 interface Props {
    mode?: 'home' | 'simple';
@@ -16,6 +17,16 @@ withDefaults(defineProps<Props>(), {
 });
 
 const statusBarHeight = ref(0);
+
+// 使用 commonIcons 中的图标路径
+const icons = {
+   location: commonIcons.location,
+   chevronDown: commonIcons.chevronDown,
+   notification: commonIcons.notification,
+   scan: commonIcons.scan,
+   search: commonIcons.search,
+   back: commonIcons.back,
+};
 
 onMounted(() => {
    const windowInfo = uni.getWindowInfo();
@@ -50,13 +61,13 @@ const handleScanClick = () => {
                <view class="location-selector" @click="handleLocationClick">
                   <image
                      class="location-icon"
-                     src="/static/icons/common/location.svg"
+                     :src="icons.location"
                      mode="aspectFit"
                   />
                   <text class="location-text">{{ storeName }}</text>
                   <image
                      class="arrow-icon"
-                     src="/static/icons/common/chevron-down.svg"
+                     :src="icons.chevronDown"
                      mode="aspectFit"
                   />
                </view>
@@ -64,21 +75,21 @@ const handleScanClick = () => {
                   <view class="icon-btn" @click="handleNotificationClick">
                      <image
                         class="notification-icon"
-                        src="/static/icons/common/notification.svg"
+                        :src="icons.notification"
                         mode="aspectFit"
                      />
                   </view>
                   <view class="icon-btn" @click="handleScanClick">
                      <image
                         class="scan-icon"
-                        src="/static/icons/common/scan.svg"
+                        :src="icons.scan"
                         mode="aspectFit"
                      />
                   </view>
                </view>
             </view>
             <view class="search-bar">
-               <image class="search-icon" src="/static/icons/common/search.svg" mode="aspectFit" />
+               <image class="search-icon" :src="icons.search" mode="aspectFit" />
                <text class="search-placeholder">搜索美味点心或饮品</text>
             </view>
          </view>
@@ -88,7 +99,7 @@ const handleScanClick = () => {
       <template v-else>
          <view class="simple-header">
             <view v-if="showBack" class="back-btn" @click="handleBack">
-               <image class="back-icon" src="/static/icons/common/back.svg" mode="aspectFit" />
+               <image class="back-icon" :src="icons.back" mode="aspectFit" />
             </view>
             <text class="header-title">{{ title }}</text>
             <view class="right-slot">

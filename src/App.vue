@@ -2,13 +2,13 @@
 import { onLaunch, onShow, onHide } from '@dcloudio/uni-app';
 
 onLaunch(() => {
-   console.log('App Launch');
+   // App lifecycle: initialize global resources
 });
 onShow(() => {
-   console.log('App Show');
+   // App visible again
 });
 onHide(() => {
-   console.log('App Hide');
+   // App hidden/backgrounded
 });
 </script>
 <style></style>

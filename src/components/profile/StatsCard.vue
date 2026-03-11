@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { formatPoints } from '@/utils/format';
+
 interface Props {
    points: number;
    coupons: number;
@@ -10,10 +12,6 @@ const emit = defineEmits<{
    (e: 'click:points'): void;
    (e: 'click:coupons'): void;
 }>();
-
-const formatNumber = (num: number): string => {
-   return num.toLocaleString();
-};
 
 const handlePointsClick = () => {
    emit('click:points');
@@ -29,14 +27,14 @@ const handleCouponsClick = () => {
       <view class="stat-item" @click="handlePointsClick">
          <text class="stat-label">我的积分</text>
          <view class="stat-value-row">
-            <text class="stat-value">{{ formatNumber(points) }}</text>
+            <text class="stat-value">{{ formatPoints(points) }}</text>
             <text class="stat-unit">分</text>
          </view>
       </view>
       <view class="stat-item" @click="handleCouponsClick">
          <text class="stat-label">优惠券</text>
          <view class="stat-value-row">
-            <text class="stat-value">{{ coupons }}</text>
+            <text class="stat-value">{{ coupons.toLocaleString() }}</text>
             <text class="stat-unit">张</text>
          </view>
       </view>

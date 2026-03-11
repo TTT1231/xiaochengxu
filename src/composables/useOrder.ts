@@ -2,7 +2,7 @@
  * 订单管理 composable
  */
 
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import type { Order, OrderStatus } from '@/types';
 import { getActiveOrders, getHistoryOrders } from '@/mock';
 
@@ -52,19 +52,10 @@ export function useOrder() {
       orderList.value = getActiveOrders();
    };
 
-   /**
-    * 当前显示的订单列表
-    */
-   const displayOrders = computed(() => orderList.value);
-
-   /**
-    * 是否显示当前订单
-    */
-   const isShowActive = computed(() => showActive.value);
-
    return {
-      displayOrders,
-      isShowActive,
+      // 直接返回 ref，避免冗余 computed
+      displayOrders: orderList,
+      isShowActive: showActive,
       getStatusText,
       getStatusClass,
       toggleOrderType,

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
+import type { Product } from '@/types';
 import { useHomeStore } from '@/stores/homeStore';
 import { useCartStore } from '@/stores/cartStore';
 import { onReady, onPageScroll, onLoad } from '@dcloudio/uni-app';
@@ -109,7 +110,7 @@ const updateActiveCategory = (): void => {
    });
 };
 
-const handleAddToCart = (product: import('@/types').Product): void => {
+const handleAddToCart = (product: Product): void => {
    addItem(product);
 };
 
