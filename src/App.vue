@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { onLaunch, onShow, onHide } from '@dcloudio/uni-app';
-import { getRightProductData } from './api/homeDataApi';
+import { useUserStore } from '@/stores';
 
-onLaunch(async () => {
-   // App lifecycle: initialize global resources
-   await getRightProductData();
+onLaunch(() => {
+   // 初始化用户状态，登录等
+   useUserStore().init();
 });
+
 onShow(() => {
-   // App visible again
+   useUserStore().refreshTokenIfNeeded();
 });
-onHide(() => {
-   // App hidden/backgrounded
-});
+
+onHide(() => {});
 </script>
 <style></style>

@@ -8,15 +8,29 @@ class SupabaseClient {
    private supabaseUrl: string;
    private supabaseKey: string;
    private client: ReturnType<typeof createClient>;
+   private accessToken: string;
 
-   constructor(supabaseUrl: string, supabaseKey: string) {
+   constructor(supabaseUrl: string, supabaseKey: string, accessToken: string = '') {
       this.supabaseUrl = supabaseUrl;
       this.supabaseKey = supabaseKey;
+      this.accessToken = accessToken;
       this.client = createClient(this.supabaseUrl, this.supabaseKey);
    }
 
    getClient(): ReturnType<typeof createClient> {
-      return this.client;
+      if (!this.accessToken) return this.client;
+      return createClient(this.supabaseUrl, this.supabaseKey, {
+         global: { headers: { Authorization: `Bearer ${this.accessToken}` } },
+      });
+   }
+   setAccessToken(token: string) {
+      this.accessToken = token;
+   }
+   clearAccessToken() {
+      this.accessToken = '';
+   }
+   getAccessToken(): string {
+      return this.accessToken;
    }
 
    /**
