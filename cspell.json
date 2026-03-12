@@ -12,7 +12,8 @@
       "kuaishou",
       "toutiao",
       "automator",
-      "categoried"
+      "categoried",
+      "qrcode"
    ],
    "ignorePaths": [
       "**/node_modules/**",
