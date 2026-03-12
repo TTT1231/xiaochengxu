@@ -48,13 +48,12 @@ export const useHomeStore = defineStore('home', {
          this.loading = true;
          this.error = null;
          try {
-            const [catRes, prodData] = await Promise.all([
+            const [categories, products] = await Promise.all([
                getLeftMenuData(),
                getRightProductData(),
             ]);
-            if (catRes.error) throw catRes.error;
-            this.categories = catRes.data ?? [];
-            this.products = prodData ?? [];
+            this.categories = categories;
+            this.products = products;
          } catch (err) {
             this.error = err instanceof Error ? err.message : '数据加载失败';
          } finally {

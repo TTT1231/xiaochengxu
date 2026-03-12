@@ -14,6 +14,7 @@ export const commonIcons = {
    back: `${commonIconsPath}/back.svg`,
    qrcode: `${commonIconsPath}/qrcode.svg`,
    refresh: `${commonIconsPath}/refresh.svg`,
+   search: `${commonIconsPath}/search.svg`,
    customerService: `${commonIconsPath}/customer-service.svg`,
 } as const;
 

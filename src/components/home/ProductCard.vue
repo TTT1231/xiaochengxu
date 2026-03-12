@@ -91,7 +91,7 @@ const handleClick = (): void => {
 .title {
    font-size: 28rpx;
    font-weight: bold;
-   color: #1e293b;
+   color: $text-primary;
    line-height: 40rpx;
    display: block;
    width: 100%;
@@ -103,10 +103,9 @@ const handleClick = (): void => {
 
 .desc {
    font-size: 22rpx;
-   color: #64748b; /* 加深一点点灰，提升可读性 */
+   color: $text-tertiary;
    line-height: 32rpx;
    margin-top: 6rpx;
-   display: block;
    width: 100%;
    /* 对抗小程序 <view> 不响应单行截断的备用方案：两行截断 */
    display: -webkit-box;
@@ -128,12 +127,12 @@ const handleClick = (): void => {
 
 .price {
    font-size: 32rpx;
-   font-weight: 700; /* 把 800 调成 700，视觉上更稳重且不显臃肿 */
-   color: #ee862b; /* 主题橙色 */
+   font-weight: 700;
+   color: $brand-primary;
    line-height: 1;
    font-family: 'Plus Jakarta Sans', sans-serif;
    flex: 1;
-   min-width: 0; /* 为左侧动态价格也加上严格约束 */
+   min-width: 0;
    overflow: hidden;
    text-overflow: ellipsis;
    white-space: nowrap;
@@ -142,9 +141,9 @@ const handleClick = (): void => {
 
 /* 加号按钮：写死物理大小，不再受任何祖先节点脸色 */
 .action-btn {
-   width: 48rpx; /* 适当调小，56有些抢占文字视觉中心 */
+   width: 48rpx;
    height: 48rpx;
-   background-color: #ee862b; /* 主题橙色 */
+   background-color: $brand-primary;
    border-radius: 50%;
    display: flex;
    align-items: center;
@@ -158,7 +157,7 @@ const handleClick = (): void => {
 .action-btn::after {
    content: '';
    position: absolute;
-   background-color: #ffffff;
+   background-color: $uni-text-color-inverse;
    border-radius: 4rpx;
    top: 50%;
    left: 50%;
@@ -166,13 +165,13 @@ const handleClick = (): void => {
 }
 
 .action-btn::before {
-   width: 22rpx; /* 横向长度 */
-   height: 4rpx; /* 横向粗细 */
+   width: 22rpx;
+   height: 4rpx;
 }
 
 .action-btn::after {
-   width: 4rpx; /* 纵向粗细 */
-   height: 22rpx; /* 纵向长度 */
+   width: 4rpx;
+   height: 22rpx;
 }
 
 /* 数量红点角标 */
@@ -180,8 +179,8 @@ const handleClick = (): void => {
    position: absolute;
    top: -12rpx;
    right: -12rpx;
-   background-color: #ff3b30;
-   border: 2rpx solid #ffffff;
+   background-color: $badge-count;
+   border: 2rpx solid $uni-text-color-inverse;
    border-radius: 16rpx;
    min-width: 32rpx;
    height: 32rpx;
@@ -194,7 +193,7 @@ const handleClick = (): void => {
 
 .badge-num {
    font-size: 18rpx;
-   color: #ffffff;
+   color: $uni-text-color-inverse;
    font-weight: bold;
    line-height: 1;
    font-family: 'Plus Jakarta Sans', sans-serif;

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import { commonIcons } from '@/data/imgPaths';
 
 interface Props {
@@ -48,10 +48,6 @@ const icons = {
    qrcode: commonIcons.qrcode,
    back: commonIcons.back,
 };
-
-onMounted(() => {
-   // Initial heights already computed in setup
-});
 
 const handleBack = () => {
    uni.navigateBack({

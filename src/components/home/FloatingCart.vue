@@ -51,23 +51,20 @@ const handleClick = (): void => {
 <style lang="scss" scoped>
 .floating-cart {
    position: fixed;
-   /* Figma: bottom-[80px] = 160rpx, but need extra space to show gap above TabBar */
-   /* TabBar ~136rpx + visual gap ~32rpx = ~168rpx minimum, using 200rpx for clear spacing */
    bottom: 200rpx;
-   left: 32rpx; /* Figma: left-[16px] = 32rpx */
-   right: 32rpx; /* Figma: right-[16px] = 32rpx */
-   height: 112rpx; /* Figma: h-[56px] = 112rpx */
-   border-radius: 9999rpx;
+   left: 32rpx;
+   right: 32rpx;
+   height: 112rpx;
+   border-radius: $radius-full;
    z-index: 100;
-   /* No overflow: hidden - cart icon extends above */
 }
 
 .cart-bg {
    position: absolute;
    inset: 0;
-   background-color: rgba(15, 23, 42, 0.9);
+   background-color: rgba($text-primary, 0.9);
    backdrop-filter: blur(12rpx);
-   border-radius: 9999rpx;
+   border-radius: $radius-full;
    box-shadow:
       0px 40rpx 50rpx -10rpx rgba(0, 0, 0, 0.1),
       0px 16rpx 20rpx -12rpx rgba(0, 0, 0, 0.1);
@@ -111,20 +108,20 @@ const handleClick = (): void => {
    position: absolute;
    top: -8rpx;
    right: -8rpx;
-   min-width: 40rpx; /* size-[20px] in Figma */
+   min-width: 40rpx;
    height: 40rpx;
-   background-color: #ef4444;
+   background-color: $badge-error;
    border-radius: 50%;
    display: flex;
    align-items: center;
    justify-content: center;
-   border: 4rpx solid #0f172a; /* border-2 in Figma */
+   border: 4rpx solid $text-primary;
 }
 
 .badge-text {
    font-size: 20rpx;
    font-weight: 700;
-   color: #ffffff;
+   color: $uni-text-color-inverse;
    line-height: 30rpx;
 }
 
@@ -137,7 +134,7 @@ const handleClick = (): void => {
 .cart-amount {
    font-size: 28rpx;
    font-weight: 700;
-   color: #ffffff;
+   color: $uni-text-color-inverse;
    line-height: 40rpx;
 }
 
@@ -150,13 +147,13 @@ const handleClick = (): void => {
 .checkout-btn {
    background-color: $brand-primary;
    padding: 20rpx 48rpx;
-   border-radius: 9999rpx;
+   border-radius: $radius-full;
 }
 
 .checkout-text {
    font-size: 28rpx;
    font-weight: 500;
-   color: #ffffff;
+   color: $uni-text-color-inverse;
    line-height: 40rpx;
    text-align: center;
 }

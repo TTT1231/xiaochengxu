@@ -1,14 +1,10 @@
 <script setup lang="ts">
+import { commonIcons } from '@/data/imgPaths';
+
 interface Props {
    placeholder?: string;
    modelValue?: string;
    readonly?: boolean;
-}
-
-interface Emits {
-   (e: 'update:modelValue', value: string): void;
-   (e: 'search', value: string): void;
-   (e: 'click'): void;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -17,15 +13,19 @@ const props = withDefaults(defineProps<Props>(), {
    readonly: false,
 });
 
-const emit = defineEmits<Emits>();
+const emit = defineEmits<{
+   'update:modelValue': [value: string];
+   search: [value: string];
+   click: [];
+}>();
 
-const handleInput = (e: Event) => {
+const handleInput = (e: any) => {
    const target = e.target as HTMLInputElement;
    emit('update:modelValue', target.value);
 };
 
 const handleConfirm = () => {
-   emit('search', props.modelValue || '');
+   emit('search', props.modelValue);
 };
 
 const handleClick = () => {
@@ -38,7 +38,7 @@ const handleClick = () => {
 <template>
    <view class="search-bar" @click="handleClick">
       <view class="search-input">
-         <text class="search-icon">🔍</text>
+         <image class="search-icon" :src="commonIcons.search" mode="aspectFit" />
          <input
             v-if="!props.readonly"
             class="input"
@@ -68,8 +68,10 @@ const handleClick = () => {
 }
 
 .search-icon {
-   font-size: 32rpx;
+   width: 32rpx;
+   height: 32rpx;
    margin-right: 12rpx;
+   opacity: 0.6;
 }
 
 .input {

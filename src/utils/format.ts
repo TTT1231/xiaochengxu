@@ -2,6 +2,36 @@
  * 格式化工具函数
  */
 
+/** 默认占位图 */
+export const PLACEHOLDER_IMAGE = '/static/images/placeholder.png';
+
+/**
+ * 解析产品图片字符串，获取主图（第一张）
+ * @param images 图片字符串，多张图片用 & 分隔
+ * @param fallback 默认图片路径
+ */
+export const getMainImage = (images: string | undefined, fallback = PLACEHOLDER_IMAGE): string => {
+   if (!images) return fallback;
+   return images.split('&')[0] || fallback;
+};
+
+/**
+ * 解析产品图片字符串，返回所有图片数组
+ * @param images 图片字符串，多张图片用 & 分隔
+ */
+export const parseImages = (images: string | undefined): string[] => {
+   if (!images) return [];
+   return images.split('&').filter(Boolean);
+};
+
+/**
+ * 格式化数字（添加千分位）
+ * @param num 数字
+ */
+export const formatNumber = (num: number): string => {
+   return num.toLocaleString();
+};
+
 /**
  * 格式化价格（分转元，保留两位小数）
  */

@@ -1,17 +1,27 @@
 import { useEnvConfig } from '../hooks/useEnvConfig';
-import type { Products } from '../types';
 import type { Categoried } from '../types/db-scheme/categoried';
+import type { Products } from '../types';
 import { supabaseClient } from '../utils/supabaseClient';
-
-//首页左侧菜单数据
-export async function getLeftMenuData() {
-   return supabaseClient.query<Categoried>('categoried');
-}
 
 const envConfig = useEnvConfig();
 
-//首页右侧产品数据
-export async function getRightProductData() {
+/**
+ * 获取首页左侧分类菜单
+ * @returns 分类列表
+ * @throws {Error} 数据库查询失败时抛出
+ */
+export async function getLeftMenuData(): Promise<Categoried[]> {
+   const { data, error } = await supabaseClient.query<Categoried>('categoried');
+   if (error) throw error;
+   return data;
+}
+
+/**
+ * 获取首页右侧产品数据
+ * @returns 产品列表（图片路径已转换为完整URL）
+ * @throws {Error} 数据库查询失败时抛出
+ */
+export async function getRightProductData(): Promise<Products[]> {
    const { data, error } = await supabaseClient.query<Products>('products');
 
    if (error) throw error;
@@ -21,14 +31,13 @@ export async function getRightProductData() {
    /**
     * 将images 的数据 xx1.png&xx1_des_1.png&xx1_des_2.png 加上前缀
     * 支持两种格式：完整 URL 或相对路径
+    * 使用 map 创建新数组，避免直接变异原数据
     */
-   data.forEach(product => {
+   return data.map(product => {
       const imageList = product.images.split('&');
       const fullImageList = imageList.map(image =>
          image.startsWith('http') ? image : `${storagePrefix}${image}`,
       );
-      product.images = fullImageList.join('&');
+      return { ...product, images: fullImageList.join('&') };
    });
-
-   return data;
 }

@@ -7,7 +7,7 @@ export type { OrderStatus, OrderItem, Order } from './order';
 export type { User, Reward } from './user';
 
 /**
- * 数据库scheme统一导出
+ * 数据库 schema 统一导出
  */
 
 export type {
