@@ -9,11 +9,11 @@ const emit = defineEmits<{
    change: [value: boolean];
 }>();
 
-const handleToggle = (value: boolean) => {
+function handleToggle(value: boolean): void {
    if (value !== props.active) {
       emit('change', value);
    }
-};
+}
 </script>
 
 <template>

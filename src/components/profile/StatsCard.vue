@@ -9,29 +9,21 @@ interface Props {
 defineProps<Props>();
 
 const emit = defineEmits<{
-   (e: 'click:points'): void;
-   (e: 'click:coupons'): void;
+   'click:points': [];
+   'click:coupons': [];
 }>();
-
-const handlePointsClick = () => {
-   emit('click:points');
-};
-
-const handleCouponsClick = () => {
-   emit('click:coupons');
-};
 </script>
 
 <template>
    <view class="stats-container">
-      <view class="stat-item" @click="handlePointsClick">
+      <view class="stat-item" @click="emit('click:points')">
          <text class="stat-label">我的积分</text>
          <view class="stat-value-row">
             <text class="stat-value">{{ formatPoints(points) }}</text>
             <text class="stat-unit">分</text>
          </view>
       </view>
-      <view class="stat-item" @click="handleCouponsClick">
+      <view class="stat-item" @click="emit('click:coupons')">
          <text class="stat-label">优惠券</text>
          <view class="stat-value-row">
             <text class="stat-value">{{ coupons.toLocaleString() }}</text>

@@ -8,10 +8,6 @@ defineProps<Props>();
 const emit = defineEmits<{
    detail: [];
 }>();
-
-const handleDetailClick = () => {
-   emit('detail');
-};
 </script>
 
 <template>
@@ -29,7 +25,7 @@ const handleDetailClick = () => {
             <text class="points-value">{{ points.toLocaleString() }}</text>
             <text class="points-unit">Points</text>
          </view>
-         <view class="detail-btn" @click="handleDetailClick">
+         <view class="detail-btn" @click="emit('detail')">
             <text class="detail-text">积分明细</text>
             <image
                class="arrow-icon"

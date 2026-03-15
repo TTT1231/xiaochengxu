@@ -9,10 +9,6 @@ defineProps<Props>();
 const emit = defineEmits<{
    change: [category: string];
 }>();
-
-const handleTabClick = (category: string) => {
-   emit('change', category);
-};
 </script>
 
 <template>
@@ -23,7 +19,7 @@ const handleTabClick = (category: string) => {
             :key="category"
             class="tab-item"
             :class="{ active: category === active }"
-            @click="handleTabClick(category)"
+            @click="emit('change', category)"
          >
             <text class="tab-text">{{ category }}</text>
          </view>

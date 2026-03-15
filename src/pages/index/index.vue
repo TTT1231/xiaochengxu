@@ -2,7 +2,7 @@
 import { ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useHomeStore, useCartStore } from '@/stores';
-import { onPageScroll, onLoad } from '@dcloudio/uni-app';
+import { onLoad } from '@dcloudio/uni-app';
 import Header from '@/components/common/Header.vue';
 import TabBar from '@/components/common/TabBar.vue';
 import Banner from '@/components/home/Banner.vue';
@@ -59,31 +59,6 @@ const handleCategorySelect = (id: number): void => {
    setTimeout(() => {
       isScrolling.value = false;
    }, 400);
-};
-
-const updateActiveCategory = (): void => {
-   const query = uni.createSelectorQuery();
-
-   homeStore.categories.forEach(cat => {
-      query.select('#section-' + cat._id).boundingClientRect();
-   });
-
-   query.exec(rects => {
-      if (!rects || rects.length === 0) return;
-
-      const threshold = headerHeight.value + 50;
-
-      for (let i = rects.length - 1; i >= 0; i--) {
-         const rect = rects[i];
-         if (rect && rect.top <= threshold) {
-            const cat = homeStore.categories[i];
-            if (cat && activeCategoryId.value !== cat._id) {
-               activeCategoryId.value = cat._id;
-            }
-            break;
-         }
-      }
-   });
 };
 
 const handleCartClick = (): void => {

@@ -16,7 +16,7 @@ withDefaults(defineProps<Props>(), {
    storeName: '南昌红谷滩店',
 });
 
-const { headerHeight, menuTop, menuHeight, menuRight } = useHeaderHeight();
+const { menuTop, menuHeight, menuRight } = useHeaderHeight();
 
 const icons = {
    location: commonIcons.location,

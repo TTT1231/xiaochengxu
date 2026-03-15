@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue';
 import type { Reward } from '@/types';
 import Header from '@/components/common/Header.vue';
 import PointsCard from '@/components/points/PointsCard.vue';
@@ -7,7 +6,6 @@ import RewardCard from '@/components/points/RewardCard.vue';
 import { currentUser, hotRewards } from '@/mock';
 import { useHeaderHeight } from '@/composables/useHeaderHeight';
 
-const rewards = ref<Reward[]>(hotRewards);
 const { headerHeight } = useHeaderHeight();
 
 const handleDetailClick = () => {
@@ -41,7 +39,7 @@ const handleViewMore = () => {
          <!-- 商品网格 -->
          <scroll-view class="rewards-scroll" scroll-y>
             <view class="rewards-grid">
-               <view v-for="reward in rewards" :key="reward.id" class="reward-item">
+               <view v-for="reward in hotRewards" :key="reward.id" class="reward-item">
                   <RewardCard :reward="reward" @exchange="handleExchange" />
                </view>
             </view>

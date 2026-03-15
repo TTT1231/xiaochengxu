@@ -29,10 +29,6 @@ const menuItems: MenuItem[] = [
 const emit = defineEmits<{
    (e: 'click', key: string): void;
 }>();
-
-const handleMenuClick = (key: string) => {
-   emit('click', key);
-};
 </script>
 
 <template>
@@ -42,7 +38,7 @@ const handleMenuClick = (key: string) => {
          :key="item.key"
          class="menu-item"
          :class="{ 'has-divider': index < menuItems.length - 1 }"
-         @click="handleMenuClick(item.key)"
+         @click="emit('click', item.key)"
       >
          <view class="menu-icon">
             <image :src="item.icon" class="icon" />

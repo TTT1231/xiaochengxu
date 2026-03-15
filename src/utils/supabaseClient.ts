@@ -1,6 +1,6 @@
 import { createClient } from 'supabase-wechat-stable-v2';
 import type { PostgrestResponse } from 'supabase-wechat-stable-v2';
-import { useEnvConfig } from '../hooks/useEnvConfig';
+import { useEnvConfig } from '@/hooks/useEnvConfig';
 
 const envConfig = useEnvConfig();
 
