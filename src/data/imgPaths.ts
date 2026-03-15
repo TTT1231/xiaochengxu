@@ -1,11 +1,9 @@
-// ==================== 基础路径 ====================
-
+// 基础路径
 const BASE_PATH = '/static';
 const ICONS_BASE = `${BASE_PATH}/icons`;
 const IMAGES_BASE = `${BASE_PATH}/images`;
 
-// ==================== 通用图标路径 ====================
-
+// 通用图标
 export const commonIconsPath = `${ICONS_BASE}/common`;
 
 export const commonIcons = {
@@ -18,8 +16,7 @@ export const commonIcons = {
    customerService: `${commonIconsPath}/customer-service.svg`,
 } as const;
 
-// ==================== 通用图片路径 ====================
-
+// 通用图片
 export const commonImages = {
    avatar: `${IMAGES_BASE}/avatar.png`,
    bannerFood: `${IMAGES_BASE}/banner-food.png`,

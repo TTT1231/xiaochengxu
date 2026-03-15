@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { onReady } from '@dcloudio/uni-app';
 import Header from '@/components/common/Header.vue';
 import TabBar from '@/components/common/TabBar.vue';
 import OrderToggle from '@/components/order/OrderToggle.vue';
@@ -8,27 +7,11 @@ import OrderCard from '@/components/order/OrderCard.vue';
 import HistoryCard from '@/components/order/HistoryCard.vue';
 import { orders } from '@/mock';
 import type { Order } from '@/types';
+import { useHeaderHeight } from '@/composables/useHeaderHeight';
 
 const showActive = ref(true);
 const scrollTarget = ref('active-orders');
-const headerHeight = ref(0);
-
-onReady(() => {
-   const windowInfo = uni.getWindowInfo();
-   const statusBarHeight = windowInfo.statusBarHeight || 0;
-
-   let menuTop = statusBarHeight;
-   let menuHeight = 32;
-
-   // #ifdef MP-WEIXIN
-   const menuButtonInfo = uni.getMenuButtonBoundingClientRect();
-   menuTop = menuButtonInfo.top;
-   menuHeight = menuButtonInfo.height;
-   // #endif
-
-   // 计算 Header 高度: paddingTop(menuTop) + menuHeight + padding-bottom(20rpx)
-   headerHeight.value = menuTop + menuHeight + Math.ceil(uni.upx2px(20));
-});
+const { headerHeight } = useHeaderHeight();
 
 const handleToggleChange = (active: boolean) => {
    showActive.value = active;

@@ -55,9 +55,7 @@ export const orders: Order[] = [
       storeName: '甜品工坊·万象城店',
       storeImage: '/static/images/store.png',
       status: 'completed',
-      items: [
-         { productName: '下午茶双人套餐', quantity: 1, price: 8800 },
-      ],
+      items: [{ productName: '下午茶双人套餐', quantity: 1, price: 8800 }],
       totalAmount: 8800,
       discountAmount: 0,
       createdAt: '2024-01-13 15:00',

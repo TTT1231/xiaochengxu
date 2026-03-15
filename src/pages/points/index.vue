@@ -1,35 +1,14 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { onReady } from '@dcloudio/uni-app';
 import type { Reward } from '@/types';
 import Header from '@/components/common/Header.vue';
 import PointsCard from '@/components/points/PointsCard.vue';
 import RewardCard from '@/components/points/RewardCard.vue';
 import { currentUser, hotRewards } from '@/mock';
+import { useHeaderHeight } from '@/composables/useHeaderHeight';
 
 const rewards = ref<Reward[]>(hotRewards);
-const headerHeight = ref(
-   (() => {
-      const windowInfo = uni.getSystemInfoSync();
-      const statusBarHeight = windowInfo.statusBarHeight || 0;
-      let menuTop = statusBarHeight;
-      let menuHeight = 32;
-
-      // #ifdef MP-WEIXIN
-      try {
-         const menuButtonInfo = uni.getMenuButtonBoundingClientRect();
-         menuTop = menuButtonInfo.top;
-         menuHeight = menuButtonInfo.height;
-      } catch (e) {}
-      // #endif
-
-      return menuTop + menuHeight + Math.ceil(uni.upx2px(20));
-   })(),
-);
-
-onReady(() => {
-   // Height is now calculated synchronously in setup
-});
+const { headerHeight } = useHeaderHeight();
 
 const handleDetailClick = () => {
    // TODO: Navigate to points detail page

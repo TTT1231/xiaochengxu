@@ -42,7 +42,6 @@ const { statusBarHeight, menuTop, menuHeight, menuRight } = (() => {
    };
 })();
 
-// 使用 commonIcons 中的图标路径
 const icons = {
    location: commonIcons.location,
    qrcode: commonIcons.qrcode,
@@ -56,11 +55,11 @@ const handleBack = () => {
 };
 
 const handleLocationClick = () => {
-   // TODO: Implement location selector
+   // TODO: 门店选择
 };
 
 const handleQrcodeClick = () => {
-   // TODO: Implement QR scan
+   // TODO: 扫码功能
 };
 </script>
 
@@ -119,7 +118,7 @@ const handleQrcodeClick = () => {
    border-bottom-right-radius: 32rpx;
 }
 
-// ========== 首页模式 ==========
+// 首页模式
 .home-header-content {
    padding: 0 32rpx;
    display: flex;
@@ -185,7 +184,7 @@ const handleQrcodeClick = () => {
    opacity: 0.85;
 }
 
-// ========== 普通模式 ==========
+// 普通模式
 .simple-header {
    display: flex;
    align-items: center;

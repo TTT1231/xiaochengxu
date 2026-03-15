@@ -10,7 +10,4 @@ onLaunch(() => {
 onShow(() => {
    useUserStore().refreshTokenIfNeeded();
 });
-
-onHide(() => {});
 </script>
-<style></style>

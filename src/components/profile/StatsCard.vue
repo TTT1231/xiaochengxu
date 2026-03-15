@@ -6,7 +6,7 @@ interface Props {
    coupons: number;
 }
 
-const props = defineProps<Props>();
+defineProps<Props>();
 
 const emit = defineEmits<{
    (e: 'click:points'): void;

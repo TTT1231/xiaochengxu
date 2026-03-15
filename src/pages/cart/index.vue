@@ -1,21 +1,14 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { onReady } from '@dcloudio/uni-app';
 import Header from '@/components/common/Header.vue';
 import { useCartStore } from '@/stores';
-import { formatPriceDisplay } from '@/utils/format';
+import { formatPriceDisplay, getMainImage } from '@/utils/format';
 import type { Products } from '@/types';
+import { useHeaderHeight } from '@/composables/useHeaderHeight';
 
-const headerHeight = ref(0);
+const { headerHeight } = useHeaderHeight();
 
 const cartStore = useCartStore();
 const { items: cartItems, totalAmount, removeItem, addItem } = cartStore;
-
-onReady(() => {
-   const windowInfo = uni.getWindowInfo();
-   const statusBarHeight = windowInfo.statusBarHeight || 0;
-   headerHeight.value = statusBarHeight + 44;
-});
 
 const handleRemove = (productId: string) => {
    removeItem(productId);
@@ -32,11 +25,6 @@ const handleCheckout = () => {
       icon: 'none',
    });
 };
-
-/** 获取产品主图 */
-const getMainImage = (images: string): string => {
-   return images ? images.split('&')[0] : '';
-};
 </script>
 
 <template>
@@ -52,7 +40,11 @@ const getMainImage = (images: string): string => {
 
          <view v-else class="cart-list">
             <view v-for="item in cartItems" :key="item.product._id" class="cart-item">
-               <image class="item-image" :src="getMainImage(item.product.images)" mode="aspectFill" />
+               <image
+                  class="item-image"
+                  :src="getMainImage(item.product.images)"
+                  mode="aspectFill"
+               />
                <view class="item-info">
                   <text class="item-name">{{ item.product.name }}</text>
                   <text class="item-price">{{ formatPriceDisplay(item.product.price) }}</text>

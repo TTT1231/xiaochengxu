@@ -2,26 +2,25 @@
 import { ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useHomeStore, useCartStore } from '@/stores';
-import { onReady, onPageScroll, onLoad } from '@dcloudio/uni-app';
+import { onPageScroll, onLoad } from '@dcloudio/uni-app';
 import Header from '@/components/common/Header.vue';
 import TabBar from '@/components/common/TabBar.vue';
 import Banner from '@/components/home/Banner.vue';
 import ProductCard from '@/components/home/ProductCard.vue';
 import FloatingCart from '@/components/home/FloatingCart.vue';
+import { useHeaderHeight } from '@/composables/useHeaderHeight';
 
 const homeStore = useHomeStore();
 const cartStore = useCartStore();
 
 const activeCategoryId = ref<number>(0);
-const headerHeight = ref(0);
+const { headerHeight } = useHeaderHeight();
 const isScrolling = ref(false);
 const currentScrollTop = ref(0);
 
-// storeToRefs 保持 computed 的响应性，addItem/getItemQuantity 是函数直接解构
 const { totalCount, totalAmount } = storeToRefs(cartStore);
 const { getItemQuantity } = cartStore;
 
-// 获取指定分类的产品
 const getProductsByCategory = homeStore.getProductsByCategory;
 
 onLoad(async () => {
@@ -31,7 +30,6 @@ onLoad(async () => {
    }
 });
 
-// 数据加载完后初始化激活分类
 watch(
    () => homeStore.categories,
    cats => {
@@ -41,31 +39,6 @@ watch(
    },
 );
 
-onReady(() => {
-   const windowInfo = uni.getWindowInfo();
-   const statusBarHeight = windowInfo.statusBarHeight || 0;
-
-   let menuTop = statusBarHeight;
-   let menuHeight = 32;
-
-   // #ifdef MP-WEIXIN
-   const menuButtonInfo = uni.getMenuButtonBoundingClientRect();
-   menuTop = menuButtonInfo.top;
-   menuHeight = menuButtonInfo.height;
-   // #endif
-
-   // 计算 Header 高度: paddingTop(menuTop) + menuHeight + padding-bottom(20rpx)
-   headerHeight.value = menuTop + menuHeight + Math.ceil(uni.upx2px(20));
-});
-
-// 监听页面滚动
-onPageScroll(e => {
-   currentScrollTop.value = e.scrollTop;
-   if (isScrolling.value) return;
-   updateActiveCategory();
-});
-
-// 点击分类 - 滚动到对应位置
 const handleCategorySelect = (id: number): void => {
    activeCategoryId.value = id;
    isScrolling.value = true;
@@ -75,7 +48,6 @@ const handleCategorySelect = (id: number): void => {
    query.exec(res => {
       if (res && res[0]) {
          const sectionRect = res[0];
-         // 计算目标滚动位置：当前滚动位置 + 元素距视口顶部的距离 - header高度 - 一些偏移
          const targetScrollTop = currentScrollTop.value + sectionRect.top - headerHeight.value - 10;
          uni.pageScrollTo({
             scrollTop: targetScrollTop,
@@ -89,7 +61,6 @@ const handleCategorySelect = (id: number): void => {
    }, 400);
 };
 
-// 根据滚动位置更新激活分类
 const updateActiveCategory = (): void => {
    const query = uni.createSelectorQuery();
 
@@ -100,7 +71,6 @@ const updateActiveCategory = (): void => {
    query.exec(rects => {
       if (!rects || rects.length === 0) return;
 
-      // 使用 header 高度作为阈值，当 section 顶部到达 header 下方时激活
       const threshold = headerHeight.value + 50;
 
       for (let i = rects.length - 1; i >= 0; i--) {
@@ -208,29 +178,26 @@ const handleProductClick = (productId: string): void => {
 .page {
    min-height: 100vh;
    background-color: $bg-page;
-   /* 为 TabBar 留出空间 */
    padding-bottom: 128rpx;
    box-sizing: border-box;
 }
 
-// 内容区域容器 - 灰色背景作为左侧分类栏的延伸
 .content-wrapper {
    display: flex;
    flex-direction: row;
-   background-color: #f8fafc; // 左侧分类栏的背景色
+   background-color: #f8fafc;
 }
 
-// 左侧分类栏 - sticky 吸顶
 .category-sidebar {
    position: sticky;
    width: 192rpx;
    height: fit-content;
    flex-shrink: 0;
-   background-color: transparent; // 透明，使用父容器背景
+   background-color: transparent;
    z-index: 50;
    display: flex;
    flex-direction: column;
-   padding-bottom: 40rpx; // 去除过大留白
+   padding-bottom: 40rpx;
 }
 
 .category-item {
@@ -268,12 +235,10 @@ const handleProductClick = (productId: string): void => {
    line-height: 32rpx;
 }
 
-// 主内容区域
 .main-content {
    background-color: #ffffff;
 }
 
-// 产品区域
 .product-area {
    flex: 1;
    background-color: $bg-card;
@@ -301,15 +266,13 @@ const handleProductClick = (productId: string): void => {
    padding-bottom: 24rpx;
 }
 
-// 底部留白 - 动态高度，有购物车时才撑开大口子，平时留小口子防止界面太空旷
 .bottom-spacer {
    height: 60rpx;
    background-color: transparent;
    transition: height 0.3s;
 
    &.has-cart {
-      /* 购物车条高度 112rpx + 图标向上延伸 32rpx + 舒适间距 76rpx = 220rpx */
-      height: 220rpx;
+      height: 220rpx; // 购物车 112rpx + 延伸 32rpx + 间距 76rpx
    }
 }
 </style>
