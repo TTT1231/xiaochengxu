@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { currentUser } from '@/mock';
 import { commonIcons } from '@/data/imgPaths';
+import { useHeaderHeight } from '@/composables/useHeaderHeight';
 import Header from '@/components/common/Header.vue';
 import TabBar from '@/components/common/TabBar.vue';
 import UserCard from '@/components/profile/UserCard.vue';
 import StatsCard from '@/components/profile/StatsCard.vue';
 import MenuList from '@/components/profile/MenuList.vue';
 
+const { headerHeight } = useHeaderHeight();
 const serviceIconSrc = commonIcons.customerService;
 
 const handlePointsClick = () => {
@@ -45,7 +47,7 @@ const handleLogout = () => {
 </script>
 
 <template>
-   <view class="profile-page">
+   <view class="profile-page" :style="{ paddingTop: headerHeight + 'px' }">
       <Header title="个人中心" :show-back="false" />
 
       <view class="content">
@@ -93,8 +95,6 @@ const handleLogout = () => {
 .profile-page {
    min-height: 100vh;
    background-color: $bg-page;
-   /* 为 Header 留出空间 */
-   padding-top: 176rpx;
    box-sizing: border-box;
 }
 

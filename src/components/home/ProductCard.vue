@@ -43,7 +43,7 @@ const handleClick = (): void => {
    </view>
 </template>
 
-<style lang=”scss” scoped>
+<style lang="scss" scoped>
 .card-container {
    display: flex;
    width: 100%;

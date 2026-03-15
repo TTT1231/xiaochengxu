@@ -19,7 +19,7 @@ const emit = defineEmits<{
    click: [];
 }>();
 
-const handleInput = (e: any) => {
+const handleInput = (e: Event) => {
    const target = e.target as HTMLInputElement;
    emit('update:modelValue', target.value);
 };

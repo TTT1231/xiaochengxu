@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue';
 import { commonIcons } from '@/data/imgPaths';
+import { useHeaderHeight } from '@/composables/useHeaderHeight';
 
 interface Props {
    mode?: 'home' | 'simple';
@@ -16,31 +16,7 @@ withDefaults(defineProps<Props>(), {
    storeName: '南昌红谷滩店',
 });
 
-const { statusBarHeight, menuTop, menuHeight, menuRight } = (() => {
-   const windowInfo = uni.getSystemInfoSync();
-   let sbHeight = windowInfo.statusBarHeight || 0;
-   let mTop = sbHeight;
-   let mHeight = 32;
-   let mRight = 0;
-
-   // #ifdef MP-WEIXIN
-   try {
-      const menuButtonInfo = uni.getMenuButtonBoundingClientRect();
-      mTop = menuButtonInfo.top;
-      mHeight = menuButtonInfo.height;
-      mRight = windowInfo.windowWidth - menuButtonInfo.left;
-   } catch (error) {
-      console.error('getMenuButtonBoundingClientRect error', error);
-   }
-   // #endif
-
-   return {
-      statusBarHeight: ref(sbHeight),
-      menuTop: ref(mTop),
-      menuHeight: ref(mHeight),
-      menuRight: ref(mRight),
-   };
-})();
+const { headerHeight, menuTop, menuHeight, menuRight } = useHeaderHeight();
 
 const icons = {
    location: commonIcons.location,
@@ -48,17 +24,15 @@ const icons = {
    back: commonIcons.back,
 };
 
-const handleBack = () => {
+const handleBack = (): void => {
    uni.navigateBack({
       delta: 1,
    });
 };
-
-const handleLocationClick = () => {
+const handleLocationClick = (): void => {
    // TODO: 门店选择
 };
-
-const handleQrcodeClick = () => {
+const handleQrcodeClick = (): void => {
    // TODO: 扫码功能
 };
 </script>
