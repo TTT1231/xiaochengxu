@@ -2,7 +2,8 @@
  * 类型定义统一导出
  */
 
-export type { OrderStatus, OrderItem, Order } from './order';
+export type { OrderStatus } from './order';
+export { ORDER_STATUS_TEXT } from './order';
 
 export type { User, Reward } from './user';
 
@@ -12,6 +13,8 @@ export type { User, Reward } from './user';
 
 export type {
    Categoried,
+   OrderDetailItem,
+   Orders,
    ProductSpecOption,
    ProductSpecGroup,
    ProductSpecs,

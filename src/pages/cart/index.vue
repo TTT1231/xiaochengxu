@@ -1,14 +1,18 @@
 <script setup lang="ts">
+import { ref } from 'vue';
 import Header from '@/components/common/Header.vue';
-import { useCartStore } from '@/stores';
+import { useCartStore, useUserStore } from '@/stores';
 import { formatPriceDisplay, getMainImage } from '@/utils/format';
 import type { Products } from '@/types';
 import { useHeaderHeight } from '@/composables/useHeaderHeight';
+import { createOrder } from '@/api/orderApi';
 
 const { headerHeight } = useHeaderHeight();
 
 const cartStore = useCartStore();
+const userStore = useUserStore();
 const { items: cartItems, totalAmount, removeItem, addItem } = cartStore;
+const submitting = ref(false);
 
 const handleRemove = (productId: string) => {
    removeItem(productId);
@@ -18,12 +22,39 @@ const handleAdd = (product: Products) => {
    addItem(product);
 };
 
-const handleCheckout = () => {
-   // TODO: Navigate to checkout page
-   uni.showToast({
-      title: '结算功能开发中',
-      icon: 'none',
-   });
+const handleCheckout = async () => {
+   if (cartItems.length === 0) {
+      uni.showToast({ title: '购物车为空', icon: 'none' });
+      return;
+   }
+
+   if (!userStore.isAuthenticated || !userStore.openid) {
+      uni.showToast({ title: '请先登录', icon: 'none' });
+      return;
+   }
+
+   submitting.value = true;
+   try {
+      const order = await createOrder({
+         userId: userStore.openid,
+         items: cartItems,
+         totalAmount: totalAmount,
+      });
+
+      cartStore.clearCart();
+
+      uni.redirectTo({
+         url: `/pages/order/detail?id=${order.order_id}`,
+      });
+   } catch (err) {
+      console.error('创建订单失败:', err);
+      uni.showToast({
+         title: err instanceof Error ? err.message : '下单失败',
+         icon: 'none',
+      });
+   } finally {
+      submitting.value = false;
+   }
 };
 </script>
 
@@ -47,6 +78,11 @@ const handleCheckout = () => {
                />
                <view class="item-info">
                   <text class="item-name">{{ item.product.name }}</text>
+                  <view v-if="Object.keys(item.selectedSpecs).length > 0" class="specs-tags">
+                     <text v-for="(value, key) in item.selectedSpecs" :key="key" class="spec-tag">
+                        {{ value }}
+                     </text>
+                  </view>
                   <text class="item-price">{{ formatPriceDisplay(item.product.price) }}</text>
                </view>
                <view class="quantity-control">
@@ -67,8 +103,12 @@ const handleCheckout = () => {
             <text class="total-label">合计</text>
             <text class="total-amount">{{ formatPriceDisplay(totalAmount) }}</text>
          </view>
-         <view class="checkout-btn" @click="handleCheckout">
-            <text class="checkout-text">去结算</text>
+         <view
+            class="checkout-btn"
+            :class="{ disabled: submitting }"
+            @click="!submitting && handleCheckout()"
+         >
+            <text class="checkout-text">{{ submitting ? '下单中...' : '去结算' }}</text>
          </view>
       </view>
    </view>
@@ -139,12 +179,31 @@ const handleCheckout = () => {
    display: flex;
    flex-direction: column;
    gap: 8rpx;
+   min-width: 0;
 }
 
 .item-name {
    font-size: 28rpx;
    font-weight: 500;
    color: $text-primary;
+   overflow: hidden;
+   white-space: nowrap;
+   text-overflow: ellipsis;
+}
+
+.specs-tags {
+   display: flex;
+   flex-wrap: wrap;
+   gap: 8rpx;
+}
+
+.spec-tag {
+   font-size: 22rpx;
+   color: $brand-primary;
+   background-color: rgba(238, 134, 43, 0.1);
+   padding: 4rpx 16rpx;
+   border-radius: $radius-full;
+   line-height: 32rpx;
 }
 
 .item-price {
@@ -230,6 +289,10 @@ const handleCheckout = () => {
    background-color: $brand-primary;
    padding: 24rpx 64rpx;
    border-radius: $radius-full;
+
+   &.disabled {
+      opacity: 0.6;
+   }
 }
 
 .checkout-text {

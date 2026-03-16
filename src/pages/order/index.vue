@@ -1,41 +1,63 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import { onShow } from '@dcloudio/uni-app';
 import Header from '@/components/common/Header.vue';
 import TabBar from '@/components/common/TabBar.vue';
 import OrderToggle from '@/components/order/OrderToggle.vue';
 import OrderCard from '@/components/order/OrderCard.vue';
 import HistoryCard from '@/components/order/HistoryCard.vue';
-import { orders } from '@/mock';
-import type { Order } from '@/types';
+import type { Orders } from '@/types';
+import { useOrder } from '@/composables/useOrder';
+import { useCartStore, useHomeStore } from '@/stores';
 import { useHeaderHeight } from '@/composables/useHeaderHeight';
 
 const showActive = ref(true);
-const scrollTarget = ref('active-orders');
 const { headerHeight } = useHeaderHeight();
+
+const { activeOrders, historyOrders, loading, fetchOrders, toggleOrderType } = useOrder();
+
+const cartStore = useCartStore();
+const homeStore = useHomeStore();
 
 const handleToggleChange = (active: boolean) => {
    showActive.value = active;
-   scrollTarget.value = active ? 'active-orders' : 'history-orders';
+   toggleOrderType(active);
 };
 
-// 进行中的订单
-const activeOrders = computed(() => orders.filter(order => order.status !== 'completed'));
-
-// 历史订单
-const historyOrders = computed(() => orders.filter(order => order.status === 'completed'));
-
-const handleOrderClick = (order: Order) => {
+const handleOrderClick = (order: Orders) => {
    uni.navigateTo({
-      url: `/pages/order/detail?id=${order.id}`,
+      url: `/pages/order/detail?id=${order.order_id}`,
    });
 };
 
-const handleReorder = (order: Order) => {
-   uni.showToast({
-      title: '已加入购物车',
-      icon: 'success',
-   });
+const handleReorder = (order: Orders) => {
+   const details = order.oder_details;
+   if (!details || details.length === 0) {
+      uni.showToast({ title: '订单无商品信息', icon: 'none' });
+      return;
+   }
+
+   let addedCount = 0;
+   for (const item of details) {
+      const product = homeStore.getProductById(item.product_id);
+      if (product) {
+         cartStore.addItem(product, { ...item.specs });
+         addedCount++;
+      }
+   }
+
+   if (addedCount > 0) {
+      uni.showToast({ title: '已加入购物车', icon: 'success' });
+      uni.switchTab({ url: '/pages/cart/index' });
+   } else {
+      uni.showToast({ title: '商品已下架', icon: 'none' });
+   }
 };
+
+onShow(async () => {
+   await homeStore.fetchData();
+   await fetchOrders();
+});
 </script>
 
 <template>
@@ -60,11 +82,10 @@ const handleReorder = (order: Order) => {
          <scroll-view
             class="order-list"
             scroll-y
-            :scroll-into-view="scrollTarget"
             scroll-with-animation
          >
             <!-- 进行中的订单 -->
-            <view class="order-section" id="active-orders">
+            <view v-if="showActive" class="order-section">
                <view class="section-header">
                   <text class="section-title">进行中的订单</text>
                   <view class="section-count-pill" v-if="activeOrders.length > 0">
@@ -72,33 +93,45 @@ const handleReorder = (order: Order) => {
                   </view>
                </view>
 
-               <view v-if="activeOrders.length === 0" class="empty-hint">
+               <view v-if="loading" class="loading-hint">
+                  <text class="empty-text">加载中...</text>
+               </view>
+
+               <view v-else-if="activeOrders.length === 0" class="empty-hint">
                   <text class="empty-text">暂无进行中的订单</text>
                </view>
 
                <OrderCard
                   v-for="order in activeOrders"
-                  :key="order.id"
+                  :key="order._id"
                   :order="order"
                   @click="handleOrderClick"
                />
             </view>
 
             <!-- 历史记录 -->
-            <view class="order-section" id="history-orders">
+            <view v-else class="order-section">
                <view class="section-header">
                   <text class="section-title">历史记录</text>
                </view>
 
+               <view v-if="loading" class="loading-hint">
+                  <text class="empty-text">加载中...</text>
+               </view>
+
                <HistoryCard
                   v-for="order in historyOrders"
-                  :key="order.id"
+                  :key="order._id"
                   :order="order"
                   @click="handleOrderClick"
                   @reorder="handleReorder"
                />
 
-               <view class="no-more">
+               <view v-if="!loading && historyOrders.length === 0" class="no-more">
+                  <text class="no-more-text">暂无历史订单</text>
+               </view>
+
+               <view v-else-if="!loading" class="no-more">
                   <text class="no-more-text">没有更多订单了</text>
                </view>
             </view>
@@ -169,7 +202,8 @@ const handleReorder = (order: Order) => {
    line-height: 34rpx;
 }
 
-.empty-hint {
+.empty-hint,
+.loading-hint {
    padding: 48rpx 0;
    text-align: center;
 }

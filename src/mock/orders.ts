@@ -2,72 +2,117 @@
  * 订单 Mock 数据
  */
 
-import type { Order } from '@/types';
+import type { Orders } from '@/types';
 
-export const orders: Order[] = [
+export const orders: Orders[] = [
    {
-      id: 'order-1',
-      orderNo: '202401150001',
-      storeName: '甜品工坊·中心城店',
-      storeImage: '/static/images/store.png',
-      status: 'preparing',
-      items: [
-         { productName: '经典巧克力蛋糕', quantity: 1, price: 2800 },
-         { productName: '海盐焦糖拿铁', quantity: 2, price: 2500 },
+      _id: 'order-1',
+      order_id: '202401150001',
+      user_id: 'mock-user-1',
+      order_status: 'preparing',
+      total_amount: 7800,
+      discount_amount: 500,
+      created_at: '2024-01-15 14:30',
+      oder_details: [
+         {
+            product_id: 'p1',
+            product_name: '经典巧克力蛋糕',
+            product_image: '/static/images/store.png',
+            specs: { 甜度: '标准甜' },
+            price: 2800,
+            quantity: 1,
+         },
+         {
+            product_id: 'p2',
+            product_name: '海盐焦糖拿铁',
+            product_image: '/static/images/store.png',
+            specs: { 甜度: '半糖' },
+            price: 2500,
+            quantity: 2,
+         },
       ],
-      totalAmount: 7800,
-      discountAmount: 500,
-      createdAt: '2024-01-15 14:30',
-      estimatedTime: '约15分钟',
    },
    {
-      id: 'order-2',
-      orderNo: '202401150002',
-      storeName: '甜品工坊·万象城店',
-      storeImage: '/static/images/store.png',
-      status: 'ready',
-      items: [
-         { productName: '提拉米苏', quantity: 1, price: 3600 },
-         { productName: '杨枝甘露', quantity: 1, price: 2200 },
+      _id: 'order-2',
+      order_id: '202401150002',
+      user_id: 'mock-user-1',
+      order_status: 'ready',
+      total_amount: 5800,
+      discount_amount: 0,
+      created_at: '2024-01-15 13:00',
+      oder_details: [
+         {
+            product_id: 'p3',
+            product_name: '提拉米苏',
+            product_image: '/static/images/store.png',
+            specs: {},
+            price: 3600,
+            quantity: 1,
+         },
+         {
+            product_id: 'p4',
+            product_name: '杨枝甘露',
+            product_image: '/static/images/store.png',
+            specs: {},
+            price: 2200,
+            quantity: 1,
+         },
       ],
-      totalAmount: 5800,
-      discountAmount: 0,
-      createdAt: '2024-01-15 13:00',
-      estimatedTime: '可取餐',
    },
    {
-      id: 'order-3',
-      orderNo: '202401140001',
-      storeName: '甜品工坊·中心城店',
-      storeImage: '/static/images/store.png',
-      status: 'completed',
-      items: [
-         { productName: '草莓芝士塔', quantity: 2, price: 3200 },
-         { productName: '珍珠奶茶', quantity: 1, price: 1600 },
+      _id: 'order-3',
+      order_id: '202401140001',
+      user_id: 'mock-user-1',
+      order_status: 'completed',
+      total_amount: 8000,
+      discount_amount: 300,
+      created_at: '2024-01-14 16:20',
+      oder_details: [
+         {
+            product_id: 'p5',
+            product_name: '草莓芝士塔',
+            product_image: '/static/images/store.png',
+            specs: {},
+            price: 3200,
+            quantity: 2,
+         },
+         {
+            product_id: 'p6',
+            product_name: '珍珠奶茶',
+            product_image: '/static/images/store.png',
+            specs: {},
+            price: 1600,
+            quantity: 1,
+         },
       ],
-      totalAmount: 8000,
-      discountAmount: 300,
-      createdAt: '2024-01-14 16:20',
    },
    {
-      id: 'order-4',
-      orderNo: '202401130001',
-      storeName: '甜品工坊·万象城店',
-      storeImage: '/static/images/store.png',
-      status: 'completed',
-      items: [{ productName: '下午茶双人套餐', quantity: 1, price: 8800 }],
-      totalAmount: 8800,
-      discountAmount: 0,
-      createdAt: '2024-01-13 15:00',
+      _id: 'order-4',
+      order_id: '202401130001',
+      user_id: 'mock-user-1',
+      order_status: 'completed',
+      total_amount: 8800,
+      discount_amount: 0,
+      created_at: '2024-01-13 15:00',
+      oder_details: [
+         {
+            product_id: 'p7',
+            product_name: '下午茶双人套餐',
+            product_image: '/static/images/store.png',
+            specs: {},
+            price: 8800,
+            quantity: 1,
+         },
+      ],
    },
 ];
 
 /** 获取进行中的订单 */
-export function getActiveOrders(): Order[] {
-   return orders.filter(order => order.status !== 'completed');
+export function getActiveOrders(): Orders[] {
+   return orders.filter(order => order.order_status !== 'completed');
 }
 
 /** 获取历史订单（已完成） */
-export function getHistoryOrders(): Order[] {
-   return orders.filter(order => order.status === 'completed');
+export function getHistoryOrders(): Orders[] {
+   return orders.filter(order => order.order_status === 'completed');
 }

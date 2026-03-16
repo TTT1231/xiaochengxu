@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import type { Order } from '@/types';
+import type { Orders } from '@/types';
 import { getStatusText, getStatusClass } from '@/composables/useOrder';
+import { formatPriceDisplay, formatDateTime } from '@/utils/format';
 
 const props = defineProps<{
-   order: Order;
+   order: Orders;
 }>();
 
 const emit = defineEmits<{
-   click: [order: Order];
+   click: [order: Orders];
 }>();
 
 const handleCardClick = () => {
@@ -18,26 +19,24 @@ const handleCardClick = () => {
 <template>
    <view class="order-card" @click="handleCardClick">
       <view class="card-top">
-         <image class="store-image" :src="order.storeImage" mode="aspectFill" />
          <view class="card-content">
             <view class="content-header">
-               <text class="store-name">{{ order.storeName }}</text>
-               <text class="arrow">›</text>
+               <text class="order-id">订单号: {{ order.order_id }}</text>
+               <view class="status-row">
+                  <view class="status-dot" :class="getStatusClass(order.order_status)"></view>
+                  <text class="status-text" :class="getStatusClass(order.order_status)">
+                     {{ getStatusText(order.order_status) }}
+                  </text>
+               </view>
             </view>
-            <text class="order-no">订单号: {{ order.orderNo }}</text>
-            <view class="status-row">
-               <view class="status-dot" :class="getStatusClass(order.status)"></view>
-               <text class="status-text" :class="getStatusClass(order.status)">
-                  {{ getStatusText(order.status) }}
-               </text>
-            </view>
+            <text class="order-time">{{ formatDateTime(order.created_at) }}</text>
          </view>
       </view>
 
       <view class="card-divider" />
 
       <view class="card-footer">
-         <text class="time-text">预计 {{ order.estimatedTime || '15 分钟' }}后可取</text>
+         <text class="total-text">合计 {{ formatPriceDisplay(order.total_amount) }}</text>
          <view class="detail-btn">
             <text class="detail-text">查看详情</text>
          </view>
@@ -55,21 +54,10 @@ const handleCardClick = () => {
 }
 
 .card-top {
-   display: flex;
-   gap: 24rpx;
    padding: 32rpx 32rpx 24rpx;
 }
 
-.store-image {
-   width: 140rpx;
-   height: 140rpx;
-   border-radius: 16rpx;
-   background-color: $bg-hover;
-   flex-shrink: 0;
-}
-
 .card-content {
-   flex: 1;
    display: flex;
    flex-direction: column;
    justify-content: flex-start;
@@ -83,34 +71,23 @@ const handleCardClick = () => {
    margin-bottom: 8rpx;
 }
 
-.store-name {
-   font-size: 32rpx;
+.order-id {
+   font-size: 28rpx;
    font-weight: 600;
-   color: #1e293b;
-   line-height: 44rpx;
+   color: $text-primary;
+   line-height: 40rpx;
    flex: 1;
    overflow: hidden;
    text-overflow: ellipsis;
    white-space: nowrap;
 }
 
-.arrow {
-   font-size: 36rpx;
-   color: #94a3b8;
-   margin-left: 8rpx;
-}
-
-.order-no {
-   font-size: 26rpx;
-   color: #64748b;
-   line-height: 36rpx;
-   margin-bottom: 12rpx;
-}
-
 .status-row {
    display: flex;
    align-items: center;
    gap: 8rpx;
+   flex-shrink: 0;
+   margin-left: 16rpx;
 }
 
 .status-dot {
@@ -126,6 +103,10 @@ const handleCardClick = () => {
    &.status-ready {
       background-color: $status-ready;
    }
+
+   &.status-cancelled {
+      background-color: #ef4444;
+   }
 }
 
 .status-text {
@@ -134,6 +115,20 @@ const handleCardClick = () => {
    &.status-pending {
       color: $brand-primary;
    }
+
+   &.status-ready {
+      color: $status-ready;
+   }
+
+   &.status-cancelled {
+      color: #ef4444;
+   }
+}
+
+.order-time {
+   font-size: 24rpx;
+   color: $text-muted;
+   line-height: 34rpx;
 }
 
 .card-divider {
@@ -151,9 +146,11 @@ const handleCardClick = () => {
    border-bottom-right-radius: 24rpx;
 }
 
-.time-text {
-   font-size: 26rpx;
-   color: #64748b;
+.total-text {
+   font-size: 30rpx;
+   font-weight: 700;
+   color: $text-primary;
+   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 .detail-btn {

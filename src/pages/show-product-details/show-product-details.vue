@@ -9,14 +9,7 @@ const cartStore = useCartStore();
 
 const product = ref<Products | null>(null);
 const currentSlide = ref(0);
-const selectedSweetness = ref('标准甜');
-const selectedPackaging = ref('环保纸袋');
-
-const sweetnessOptions = ['标准甜', '半糖', '无额外糖'];
-const packagingOptions = [
-   { label: '环保纸袋 (免费)', value: '环保纸袋', extraPrice: 0 },
-   { label: '礼品精装 (+¥5)', value: '礼品精装', extraPrice: 5 },
-];
+const selectedSpecs = ref<Record<string, string>>({});
 
 /** 轮播图图片列表：解析 images 字段（用 & 分隔） */
 const carouselImages = computed(() => {
@@ -27,11 +20,35 @@ const carouselImages = computed(() => {
 /** 是否有多张图片（需要轮播） */
 const hasMultipleImages = computed(() => carouselImages.value.length > 1);
 
+/** 规格组列表（从 product.specs 动态获取） */
+const specGroups = computed(() => {
+   if (!product.value?.specs) return [];
+   return Object.values(product.value.specs);
+});
+
+/** 计算含规格加价的总价 */
 const totalPrice = computed(() => {
    if (!product.value) return 0;
-   const packaging = packagingOptions.find(p => p.value === selectedPackaging.value);
-   return product.value.price + (packaging?.extraPrice ?? 0);
+   return product.value.price;
 });
+
+/** 初始化默认选中每个规格组的第一个非售罄选项 */
+const initDefaultSpecs = () => {
+   if (!product.value?.specs) return;
+   const defaults: Record<string, string> = {};
+   for (const group of Object.values(product.value.specs)) {
+      const availableOption = group.options.find(opt => !opt.isSoldOut);
+      if (availableOption) {
+         defaults[group.name] = availableOption.value;
+      }
+   }
+   selectedSpecs.value = defaults;
+};
+
+/** 选择规格 */
+const handleSelectSpec = (specKey: string, optionValue: string) => {
+   selectedSpecs.value = { ...selectedSpecs.value, [specKey]: optionValue };
+};
 
 onLoad(async options => {
    const productId = options?.id;
@@ -43,6 +60,7 @@ onLoad(async options => {
    const found = homeStore.getProductById(productId);
    if (found) {
       product.value = found;
+      initDefaultSpecs();
    } else {
       uni.showToast({ title: '商品不存在', icon: 'none' });
       setTimeout(() => uni.navigateBack(), 1500);
@@ -55,15 +73,7 @@ const handleSwiperChange = (e: { detail: { current: number } }) => {
 
 const handleAddToCart = () => {
    if (!product.value) return;
-
-   // 创建带选项的商品副本
-   const itemWithOptions: Products = {
-      ...product.value,
-      name: `${product.value.name} (${selectedSweetness.value}, ${selectedPackaging.value})`,
-      price: totalPrice.value,
-   };
-
-   cartStore.addItem(itemWithOptions);
+   cartStore.addItem(product.value, { ...selectedSpecs.value });
    uni.navigateBack();
 };
 </script>
@@ -119,49 +129,35 @@ const handleAddToCart = () => {
          <view class="price-row">
             <view class="current-price">
                <text class="currency">¥</text>
-               <text class="amount">{{ product.price }}</text>
+               <text class="amount">{{ totalPrice }}</text>
             </view>
-            <text class="original-price">¥35.00</text>
          </view>
 
          <!-- 描述 -->
-         <text class="description">
-            层层浓郁的巧克力，进口丝滑口感，纯手工精心制作，每一口都是极致享受。选用70%浓度黑巧克力，口感微苦回甘。
-         </text>
+         <text class="description">{{ product.description }}</text>
 
          <!-- 分隔线 -->
          <view class="divider" />
 
-         <!-- 定制选项 -->
-         <view class="options-section">
-            <!-- 甜度选择 -->
-            <view class="option-group">
-               <text class="option-title">甜度选择</text>
+         <!-- 动态规格选项 -->
+         <view v-if="specGroups.length > 0" class="options-section">
+            <view v-for="group in specGroups" :key="group.name" class="option-group">
+               <text class="option-title">{{ group.name }}</text>
                <view class="option-items">
                   <view
-                     v-for="option in sweetnessOptions"
-                     :key="option"
-                     class="option-btn"
-                     :class="{ active: selectedSweetness === option }"
-                     @click="selectedSweetness = option"
-                  >
-                     <text class="option-text">{{ option }}</text>
-                  </view>
-               </view>
-            </view>
-
-            <!-- 包装选择 -->
-            <view class="option-group">
-               <text class="option-title">包装选择</text>
-               <view class="option-items">
-                  <view
-                     v-for="option in packagingOptions"
+                     v-for="option in group.options"
                      :key="option.value"
                      class="option-btn"
-                     :class="{ active: selectedPackaging === option.value }"
-                     @click="selectedPackaging = option.value"
+                     :class="{
+                        active: selectedSpecs[group.name] === option.value,
+                        disabled: option.isSoldOut,
+                     }"
+                     @click="!option.isSoldOut && handleSelectSpec(group.name, option.value)"
                   >
-                     <text class="option-text">{{ option.label }}</text>
+                     <text class="option-text">
+                        {{ option.value }}
+                        <text v-if="option.isSoldOut" class="sold-out-tag"> (售罄)</text>
+                     </text>
                   </view>
                </view>
             </view>
@@ -292,13 +288,6 @@ const handleAddToCart = () => {
    }
 }
 
-.original-price {
-   font-size: 28rpx;
-   color: $text-muted;
-   text-decoration: line-through;
-   font-family: 'Plus Jakarta Sans', sans-serif;
-}
-
 // 描述
 .description {
    font-size: 28rpx;
@@ -356,12 +345,21 @@ const handleAddToCart = () => {
          color: $brand-primary;
       }
    }
+
+   &.disabled {
+      opacity: 0.4;
+   }
 }
 
 .option-text {
    font-size: 28rpx;
    color: $text-secondary;
    line-height: 40rpx;
+}
+
+.sold-out-tag {
+   font-size: 24rpx;
+   color: $text-muted;
 }
 
 // 底部栏
