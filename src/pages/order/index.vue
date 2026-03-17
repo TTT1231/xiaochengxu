@@ -42,11 +42,16 @@ const handleOrderClick = (order: Orders) => {
    });
 };
 
-const handleReorder = (order: Orders) => {
+const handleReorder = async (order: Orders) => {
    const details = order.oder_details;
    if (!details || details.length === 0) {
       uni.showToast({ title: '订单无商品信息', icon: 'none' });
       return;
+   }
+
+   // 按需加载商品数据（store 为空时才请求）
+   if (homeStore.products.length === 0) {
+      await homeStore.fetchData();
    }
 
    let addedCount = 0;
@@ -67,7 +72,6 @@ const handleReorder = (order: Orders) => {
 };
 
 onShow(async () => {
-   await homeStore.fetchData();
    if (isFirstLoad.value) {
       isFirstLoad.value = false;
       await fetchOrders();

@@ -3,10 +3,13 @@ import type { Reward } from '@/mock';
 import Header from '@/components/common/Header.vue';
 import PointsCard from '@/components/points/PointsCard.vue';
 import RewardCard from '@/components/points/RewardCard.vue';
-import { currentUser, hotRewards } from '@/mock';
+import { hotRewards } from '@/mock';
 import { useHeaderHeight } from '@/composables/useHeaderHeight';
 
 const { headerHeight } = useHeaderHeight();
+
+// TODO: 从真实 API 获取用户积分
+const userPoints = 0;
 
 const handleDetailClick = () => {
    // TODO: Navigate to points detail page
@@ -28,7 +31,7 @@ const handleViewMore = () => {
 
       <view class="page-content" :style="{ height: `calc(100vh - ${headerHeight}px)` }">
          <!-- 积分卡片 -->
-         <PointsCard :points="currentUser.points" @detail="handleDetailClick" />
+         <PointsCard :points="userPoints" @detail="handleDetailClick" />
 
          <!-- 热门兑换标题 -->
          <view class="section-header">

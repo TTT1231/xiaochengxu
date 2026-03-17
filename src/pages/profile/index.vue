@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { computed } from 'vue';
 import { onShow } from '@dcloudio/uni-app';
-import type { Users, Credits } from '@/types';
-import { getUserProfile } from '@/api/userApi';
 import { useUserStore } from '@/stores';
 import { commonIcons } from '@/data/imgPaths';
 import { useHeaderHeight } from '@/composables/useHeaderHeight';
@@ -17,24 +15,13 @@ const { headerHeight } = useHeaderHeight();
 const userStore = useUserStore();
 const serviceIconSrc = commonIcons.customerService;
 
-const userProfile = ref<Users | null>(null);
-const credits = ref<Credits | null>(null);
+const userProfile = computed(() => userStore.user);
+const credits = computed(() => userStore.credits);
 
 const levelConfig = computed(() => useUserLevel(userProfile.value?.level ?? '普通用户'));
 
-const fetchProfile = async () => {
-   if (!userStore.openid) return;
-   try {
-      const profile = await getUserProfile(userStore.openid);
-      userProfile.value = profile.user;
-      credits.value = profile.credits;
-   } catch {
-      // 静默失败，不影响页面展示
-   }
-};
-
 onShow(() => {
-   fetchProfile();
+   userStore.fetchProfile();
 });
 
 const handlePointsClick = () => {
@@ -63,8 +50,6 @@ const handleLogout = () => {
       success: res => {
          if (res.confirm) {
             userStore.logout();
-            userProfile.value = null;
-            credits.value = null;
             uni.showToast({
                title: '已退出登录',
                icon: 'success',

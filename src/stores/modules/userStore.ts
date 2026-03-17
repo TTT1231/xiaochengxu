@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
-import { login as wxLogin } from '@/api/userApi';
+import { login as wxLogin, getUserProfile } from '@/api/userApi';
 import { supabaseClient } from '@/utils/supabaseClient';
+import type { Users, Credits } from '@/types';
 
 interface AuthState {
    accessToken: string;
@@ -8,6 +9,8 @@ interface AuthState {
    openid: string;
    isLoggedIn: boolean;
    isLoading: boolean;
+   user: Users | null;
+   credits: Credits | null;
 }
 
 interface LoginResult {
@@ -69,6 +72,8 @@ export const useUserStore = defineStore('user', {
       openid: '',
       isLoggedIn: false,
       isLoading: false,
+      user: null,
+      credits: null,
    }),
 
    getters: {
@@ -128,6 +133,8 @@ export const useUserStore = defineStore('user', {
             uni.setStorageSync(REFRESH_TOKEN_KEY, refreshToken);
             uni.setStorageSync(OPENID_KEY, openid);
 
+            await this.fetchProfile();
+
             return { success: true, message: result.message, isNewUser };
          } catch (error) {
             return {
@@ -145,8 +152,22 @@ export const useUserStore = defineStore('user', {
          this.refreshToken = '';
          this.openid = '';
          this.isLoggedIn = false;
+         this.user = null;
+         this.credits = null;
          supabaseClient.clearAccessToken();
          clearAuthStorage();
+      },
+
+      /** 获取用户资料（用户信息 + 积分） */
+      async fetchProfile(): Promise<void> {
+         if (!this.openid) return;
+         try {
+            const profile = await getUserProfile(this.openid);
+            this.user = profile.user;
+            this.credits = profile.credits;
+         } catch {
+            // 静默失败，不影响使用
+         }
       },
 
       /** 静默刷新 token，失败不抛异常 */

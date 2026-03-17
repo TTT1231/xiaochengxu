@@ -1,15 +1,6 @@
 /**
- * 用户 Mock 数据
+ * 积分商城 Mock 数据
  */
-
-export interface User {
-   id: string;
-   nickname: string;
-   avatar: string;
-   memberLevel: string;
-   points: number;
-   coupons: number;
-}
 
 export interface Reward {
    id: string;
@@ -18,15 +9,6 @@ export interface Reward {
    points: number;
    category: string;
 }
-
-export const currentUser: User = {
-   id: 'user-1',
-   nickname: '甜品爱好者',
-   avatar: '/static/images/avatar.png',
-   memberLevel: '黄金会员',
-   points: 2580,
-   coupons: 3,
-};
 
 export const hotRewards: Reward[] = [
    {
