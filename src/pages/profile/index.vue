@@ -66,7 +66,6 @@ const handleLogout = () => {
             <MenuList @click="handleMenuClick" />
          </view>
 
-         <!-- 联系客服按钮 -->
          <view class="card-spacing">
             <view class="service-btn" @click="handleServiceClick">
                <image class="service-icon" :src="serviceIconSrc" mode="aspectFit" />
@@ -78,7 +77,6 @@ const handleLogout = () => {
             </view>
          </view>
 
-         <!-- 退出登录 -->
          <view class="logout-wrapper">
             <text class="logout-text" @click="handleLogout">退出登录</text>
          </view>
@@ -133,7 +131,7 @@ const handleLogout = () => {
 .service-title {
    font-size: 32rpx;
    font-weight: 500;
-   color: #ffffff;
+   color: $uni-text-color-inverse;
    line-height: 44rpx;
 }
 
@@ -164,11 +162,10 @@ const handleLogout = () => {
 
 .logout-text {
    font-size: 28rpx;
-   color: #94a3b8; /* text-muted matching 4.png */
+   color: $text-muted;
    line-height: 40rpx;
 }
 
-// 底部占位 - 防止被 TabBar 遮挡
 .bottom-spacer {
    height: 128rpx;
 }

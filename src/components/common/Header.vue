@@ -140,14 +140,14 @@ const handleQrcodeClick = (): void => {
    display: flex;
    align-items: center;
    justify-content: center;
-   background-color: #ffffff;
-   border: 2rpx solid #e2e8f0;
+   background-color: $bg-card;
+   border: 2rpx solid $border-light;
    border-radius: 50%;
    box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.03);
    transition: all 0.2s ease;
 
    &:active {
-      background-color: #f8fafc;
+      background-color: $bg-hover;
       transform: scale(0.96);
    }
 }

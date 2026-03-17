@@ -42,7 +42,7 @@ const handleSelect = (id: number): void => {
 .category-sidebar {
    width: 192rpx;
    height: 100%;
-   background-color: #f8fafc;
+   background-color: $bg-page;
 }
 
 .category-item {

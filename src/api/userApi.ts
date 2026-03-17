@@ -28,16 +28,7 @@ type LoginResponse = LoginSuccessResponse | LoginFailResponse;
 /**
  * 微信登录接口
  * @param code - 微信登录凭证
- * @returns 登录/注册结果
- *
- * 返回值:
- * | 场景 | 返回 |
- * |------|------|
- * | 注册成功 | { success: true, message: "注册成功", data: { openid: "xxx", isNewUser: true } } |
- * | 登录成功 | { success: true, message: "登录成功", data: { openid: "xxx", isNewUser: false } } |
- * | 缺少code | { success: false, message: "缺少code参数" } |
- * | 微信接口错误 | { success: false, message: "错误信息", errcode: 40029 } |
- * | 数据库错误 | { success: false, message: "数据库查询失败" / "创建用户失败" } |
+ * @returns 登录/注册结果，包含 openid、accessToken、refreshToken
  */
 export async function login(code: string): Promise<LoginResponse> {
    if (!code?.trim()) return { success: false, message: '缺少code参数' };

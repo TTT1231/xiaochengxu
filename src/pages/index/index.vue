@@ -78,10 +78,8 @@ const handleProductClick = (productId: string): void => {
 
       <!-- 主内容区域 -->
       <view class="main-content" :style="{ paddingTop: headerHeight + 'px' }">
-         <!-- Banner -->
          <Banner />
 
-         <!-- 内容区域：sidebar + products -->
          <view class="content-wrapper">
             <!-- 左侧分类栏 - sticky 吸顶效果 -->
             <view class="category-sidebar" :style="{ top: headerHeight + 'px' }">
@@ -107,18 +105,15 @@ const handleProductClick = (productId: string): void => {
 
             <!-- 产品列表区域 -->
             <view class="product-area">
-               <!-- 每个分类一个区块 -->
                <view
                   v-for="category in homeStore.categories"
                   :key="category._id"
                   :id="'section-' + category._id"
                   class="category-section"
                >
-                  <!-- 分类标题 -->
                   <view class="section-header">
                      <text class="section-title">{{ category.name }}</text>
                   </view>
-                  <!-- 产品列表 -->
                   <view class="product-list">
                      <ProductCard
                         v-for="product in getProductsByCategory(category._id)"
@@ -129,22 +124,18 @@ const handleProductClick = (productId: string): void => {
                      />
                   </view>
                </view>
-               <!-- 底部留白 -->
                <view class="bottom-spacer" :class="{ 'has-cart': totalCount > 0 }"></view>
             </view>
          </view>
       </view>
 
-      <!-- 悬浮购物车 -->
       <FloatingCart
          v-if="totalCount > 0"
          :count="totalCount"
          :amount="totalAmount"
-         :discount="5"
          @click="handleCartClick"
       />
 
-      <!-- 底部导航 -->
       <TabBar :current="0" />
    </view>
 </template>
@@ -160,7 +151,7 @@ const handleProductClick = (productId: string): void => {
 .content-wrapper {
    display: flex;
    flex-direction: row;
-   background-color: #f8fafc;
+   background-color: $bg-page;
 }
 
 .category-sidebar {
@@ -211,7 +202,7 @@ const handleProductClick = (productId: string): void => {
 }
 
 .main-content {
-   background-color: #ffffff;
+   background-color: $bg-card;
 }
 
 .product-area {

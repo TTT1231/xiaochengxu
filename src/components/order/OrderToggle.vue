@@ -32,7 +32,7 @@ function handleToggle(value: boolean): void {
    display: flex;
    width: 100%;
    height: 88rpx;
-   background-color: #fcece3;
+   background-color: $brand-primary-light;
    border-radius: $radius-full;
    padding: 8rpx;
    box-sizing: border-box;
@@ -47,7 +47,7 @@ function handleToggle(value: boolean): void {
    transition: all 0.3s;
 
    &.active {
-      background-color: #ffffff;
+      background-color: $bg-card;
       box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
    }
 }
@@ -61,7 +61,7 @@ function handleToggle(value: boolean): void {
    }
 
    .toggle-btn:not(.active) & {
-      color: #94a3b8;
+      color: $text-muted;
    }
 }
 </style>

@@ -59,7 +59,7 @@ const emit = defineEmits<{
    white-space: nowrap;
 
    .active & {
-      color: #ffffff;
+      color: $uni-text-color-inverse;
       font-weight: 500;
    }
 }

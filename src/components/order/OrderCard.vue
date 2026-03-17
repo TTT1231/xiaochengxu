@@ -105,7 +105,7 @@ const handleCardClick = () => {
    }
 
    &.status-cancelled {
-      background-color: #ef4444;
+      background-color: $badge-error;
    }
 }
 
@@ -121,7 +121,7 @@ const handleCardClick = () => {
    }
 
    &.status-cancelled {
-      color: #ef4444;
+      color: $badge-error;
    }
 }
 
@@ -141,7 +141,7 @@ const handleCardClick = () => {
    justify-content: space-between;
    align-items: center;
    padding: 24rpx 32rpx;
-   background-color: #fafafa;
+   background-color: $bg-hover;
    border-bottom-left-radius: 24rpx;
    border-bottom-right-radius: 24rpx;
 }
@@ -161,7 +161,7 @@ const handleCardClick = () => {
 
 .detail-text {
    font-size: 26rpx;
-   color: #ffffff;
+   color: $uni-text-color-inverse;
    font-weight: 500;
 }
 </style>

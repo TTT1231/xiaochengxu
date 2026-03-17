@@ -38,7 +38,9 @@ const handleClick = (): void => {
             </view>
             <view class="price-info">
                <text class="cart-amount">{{ formatPriceDisplay(amount) }}</text>
-               <text class="discount-text">已优惠 {{ formatPriceDisplay(discount) }}</text>
+               <text v-if="discount > 0" class="discount-text"
+                  >已优惠 {{ formatPriceDisplay(discount) }}</text
+               >
             </view>
          </view>
          <view class="checkout-btn">
@@ -87,15 +89,15 @@ const handleClick = (): void => {
 
 .cart-icon-wrapper {
    position: relative;
-   width: 96rpx; /* size-[48px] in Figma */
+   width: 96rpx;
    height: 96rpx;
    background-color: $brand-primary;
    border-radius: 50%;
    display: flex;
    align-items: center;
    justify-content: center;
-   border: 8rpx solid $bg-page; /* border-4 in Figma */
-   margin-top: -32rpx; /* Extends 32rpx above the bar */
+   border: 8rpx solid $bg-page;
+   margin-top: -32rpx;
    flex-shrink: 0;
 }
 

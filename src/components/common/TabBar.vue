@@ -76,7 +76,7 @@ const handleTabClick = (index: number, pagePath: string) => {
    height: 128rpx;
    display: flex;
    background-color: $bg-card;
-   border-top: 1rpx solid #f1f5f9;
+   border-top: 1rpx solid $bg-input;
    padding-bottom: constant(safe-area-inset-bottom);
    padding-bottom: env(safe-area-inset-bottom);
    z-index: 999;

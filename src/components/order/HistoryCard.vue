@@ -141,7 +141,7 @@ const handleReorder = () => {
    padding: 10rpx 32rpx;
    border: 2rpx solid rgba(238, 134, 43, 0.3);
    border-radius: $radius-full;
-   background-color: #fff;
+   background-color: $bg-card;
 }
 
 .refresh-icon {

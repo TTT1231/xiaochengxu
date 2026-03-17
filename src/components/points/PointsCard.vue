@@ -97,7 +97,7 @@ const emit = defineEmits<{
 .points-value {
    font-size: 72rpx;
    font-weight: 700;
-   color: #ffffff;
+   color: $uni-text-color-inverse;
    line-height: 80rpx;
    letter-spacing: -1rpx;
 }
@@ -121,7 +121,7 @@ const emit = defineEmits<{
 
 .detail-text {
    font-size: 28rpx;
-   color: #ffffff;
+   color: $uni-text-color-inverse;
    line-height: 40rpx;
 }
 

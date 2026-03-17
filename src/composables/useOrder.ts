@@ -8,6 +8,15 @@ import { ORDER_STATUS_TEXT } from '@/types';
 import { getOrdersByUser } from '@/api/orderApi';
 import { useUserStore } from '@/stores';
 
+/** 订单状态颜色映射（与 uni.scss 中 $status-* 变量保持一致） */
+const STATUS_COLOR_MAP: Record<string, string> = {
+   pending: '#f59e0b',
+   preparing: '#3b82f6',
+   ready: '#10b981',
+   completed: '#6b7280',
+   cancelled: '#ef4444',
+};
+
 // 当前查看的订单列表
 const orderList = ref<Orders[]>([]);
 
@@ -20,16 +29,24 @@ const loading = ref(false);
 /**
  * 获取订单状态文本
  */
-export const getStatusText = (status: string): string => {
-   return (ORDER_STATUS_TEXT as Record<string, string>)[status] ?? status;
-};
+export function getStatusText(status: string): string {
+   return ORDER_STATUS_TEXT[status] ?? status;
+}
 
 /**
  * 获取订单状态样式类名
  */
-export const getStatusClass = (status: string): string => {
+export function getStatusClass(status: string): string {
    return `status-${status}`;
-};
+}
+
+/**
+ * 获取订单状态颜色
+ * 颜色值与 uni.scss 中 $status-* 变量保持一致
+ */
+export function getStatusColor(status: string): string {
+   return STATUS_COLOR_MAP[status] ?? '#6b7280';
+}
 
 export function useOrder() {
    const userStore = useUserStore();
@@ -42,8 +59,7 @@ export function useOrder() {
       loading.value = true;
       try {
          orderList.value = await getOrdersByUser(userStore.openid);
-      } catch (err) {
-         console.error('获取订单失败:', err);
+      } catch {
          orderList.value = [];
       } finally {
          loading.value = false;

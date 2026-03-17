@@ -14,21 +14,12 @@ const emit = defineEmits<{
 const handleExchange = () => {
    emit('exchange', props.reward);
 };
-
-const handleImageError = () => {
-   // 图片加载失败时使用默认背景色
-};
 </script>
 
 <template>
    <view class="reward-card">
       <view class="image-wrapper">
-         <image
-            class="reward-image"
-            :src="reward.image"
-            mode="aspectFill"
-            @error="handleImageError"
-         />
+         <image class="reward-image" :src="reward.image" mode="aspectFill" />
       </view>
       <view class="reward-content">
          <text class="reward-name">{{ reward.name }}</text>
@@ -54,7 +45,6 @@ const handleImageError = () => {
 
 .image-wrapper {
    width: 100%;
-   /* 使用 padding-bottom 技巧实现 1:1 宽高比，兼容性更好 */
    position: relative;
    padding-bottom: 100%;
    background-color: #f5f5f5;
@@ -130,7 +120,7 @@ const handleImageError = () => {
 
 .exchange-text {
    font-size: 24rpx;
-   color: #ffffff;
+   color: $uni-text-color-inverse;
    font-weight: 500;
    line-height: 32rpx;
 }

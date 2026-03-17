@@ -2,9 +2,9 @@
 import { ref, computed } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
 import type { Orders } from '@/types';
-import { ORDER_STATUS_TEXT } from '@/types';
 import { getOrderDetail, cancelOrder } from '@/api/orderApi';
 import { formatPriceDisplay, formatDateTime } from '@/utils/format';
+import { getStatusText, getStatusColor } from '@/composables/useOrder';
 import Header from '@/components/common/Header.vue';
 import { useHeaderHeight } from '@/composables/useHeaderHeight';
 
@@ -25,31 +25,13 @@ const actualAmount = computed(() => {
    return order.value.total_amount - (order.value.discount_amount ?? 0);
 });
 
-/** 获取状态颜色 */
-const getStatusColor = (status: string): string => {
-   const map: Record<string, string> = {
-      pending: '#f59e0b',
-      preparing: '#3b82f6',
-      ready: '#10b981',
-      completed: '#6b7280',
-      cancelled: '#ef4444',
-   };
-   return map[status] ?? '#6b7280';
-};
-
-/** 获取状态文本 */
-const getStatusText = (status: string): string => {
-   return (ORDER_STATUS_TEXT as Record<string, string>)[status] ?? status;
-};
-
 /** 加载订单数据 */
 const fetchOrder = async () => {
    loading.value = true;
    try {
       const data = await getOrderDetail(orderId.value);
       order.value = data;
-   } catch (err) {
-      console.error('获取订单详情失败:', err);
+   } catch {
       uni.showToast({ title: '获取订单失败', icon: 'none' });
    } finally {
       loading.value = false;
@@ -68,8 +50,7 @@ const handleCancelOrder = () => {
             await cancelOrder(orderId.value);
             await fetchOrder();
             uni.showToast({ title: '订单已取消', icon: 'success' });
-         } catch (err) {
-            console.error('取消订单失败:', err);
+         } catch {
             uni.showToast({ title: '取消失败', icon: 'none' });
          } finally {
             cancelling.value = false;
@@ -94,19 +75,16 @@ onLoad(async options => {
    <view class="detail-page" :style="{ paddingTop: headerHeight + 'px' }">
       <Header title="订单详情" :show-back="true" />
 
-      <!-- Loading -->
       <view v-if="loading" class="state-view">
          <view class="loading-spinner" />
          <text class="state-label">加载中</text>
       </view>
 
-      <!-- 订单不存在 -->
       <view v-else-if="!order" class="state-view">
          <text class="state-icon">?</text>
          <text class="state-label">订单不存在</text>
       </view>
 
-      <!-- 订单内容 -->
       <scroll-view v-else scroll-y class="content-scroll">
          <!-- 状态横幅 -->
          <view
@@ -152,7 +130,6 @@ onLoad(async options => {
             </view>
          </view>
 
-         <!-- 商品清单 -->
          <view class="section-card">
             <text class="section-heading">商品明细</text>
             <view
@@ -177,7 +154,6 @@ onLoad(async options => {
             </view>
          </view>
 
-         <!-- 价格汇总 -->
          <view class="section-card">
             <text class="section-heading">费用明细</text>
             <view class="fee-row">
@@ -200,7 +176,6 @@ onLoad(async options => {
             </view>
          </view>
 
-         <!-- 取消订单 -->
          <view v-if="canCancel" class="action-dock">
             <view
                class="cancel-action"
@@ -211,7 +186,6 @@ onLoad(async options => {
             </view>
          </view>
 
-         <!-- 底部留白 -->
          <view class="scroll-bottom" />
       </scroll-view>
    </view>
@@ -452,7 +426,7 @@ onLoad(async options => {
    line-height: 40rpx;
 
    &.discount {
-      color: #ef4444;
+      color: $badge-error;
    }
 }
 
@@ -511,7 +485,7 @@ onLoad(async options => {
    }
 
    &:active:not(.disabled) {
-      background-color: #fefcfb;
+      background-color: $bg-page;
    }
 }
 

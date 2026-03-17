@@ -48,7 +48,7 @@ defineProps<Props>();
 .nickname {
    font-size: 38rpx;
    font-weight: 600;
-   color: #1e293b;
+   color: $text-primary;
    line-height: 52rpx;
 }
 
@@ -68,7 +68,7 @@ defineProps<Props>();
 
 .user-id {
    font-size: 24rpx;
-   color: #94a3b8;
+   color: $text-muted;
    line-height: 34rpx;
    margin-top: 4rpx;
 }

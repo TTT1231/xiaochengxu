@@ -79,12 +79,7 @@ onShow(async () => {
             <OrderToggle :active="showActive" @change="handleToggleChange" />
          </view>
 
-         <scroll-view
-            class="order-list"
-            scroll-y
-            scroll-with-animation
-         >
-            <!-- 进行中的订单 -->
+         <scroll-view class="order-list" scroll-y scroll-with-animation>
             <view v-if="showActive" class="order-section">
                <view class="section-header">
                   <text class="section-title">进行中的订单</text>
@@ -109,7 +104,6 @@ onShow(async () => {
                />
             </view>
 
-            <!-- 历史记录 -->
             <view v-else class="order-section">
                <view class="section-header">
                   <text class="section-title">历史记录</text>
@@ -136,7 +130,6 @@ onShow(async () => {
                </view>
             </view>
 
-            <!-- 底部占位，防止被 TabBar 遮挡 -->
             <view class="bottom-spacer"></view>
          </scroll-view>
       </view>
@@ -149,16 +142,14 @@ onShow(async () => {
 .order-page {
    min-height: 100vh;
    background-color: $bg-page;
-   /* 使用 padding 为 Header 和 TabBar 留出空间 */
-   padding-top: var(--header-height, 176rpx); /* 使用动态计算的头部高度，默认176rpx */
-   padding-bottom: 128rpx; /* TabBar 高度 */
+   padding-top: var(--header-height, 176rpx);
+   padding-bottom: 128rpx;
    box-sizing: border-box;
 }
 
 .page-content {
    height: 100%;
    padding: 0 24rpx;
-   /* 额外的顶部间距，让内容不紧贴 Header */
    padding-top: 24rpx;
 }
 
@@ -167,9 +158,7 @@ onShow(async () => {
 }
 
 .order-list {
-   height: calc(
-      100vh - var(--header-height, 176rpx) - 128rpx - 120rpx
-   ); /* 添加 toggle 的高度减去 */
+   height: calc(100vh - var(--header-height, 176rpx) - 128rpx - 120rpx);
 }
 
 .order-section {

@@ -7,8 +7,6 @@ const envConfig = useEnvConfig();
 
 /**
  * 获取首页左侧分类菜单
- * @returns 分类列表
- * @throws {Error} 数据库查询失败时抛出
  */
 export async function getLeftMenuData(): Promise<Categoried[]> {
    const { data, error } = await supabaseClient.query<Categoried>('categoried');
@@ -17,9 +15,7 @@ export async function getLeftMenuData(): Promise<Categoried[]> {
 }
 
 /**
- * 获取首页右侧产品数据
- * @returns 产品列表（图片路径已转换为完整URL）
- * @throws {Error} 数据库查询失败时抛出
+ * 获取首页右侧产品数据，图片路径已转换为完整 URL
  */
 export async function getRightProductData(): Promise<Products[]> {
    const { data, error } = await supabaseClient.query<Products>('products');
@@ -29,8 +25,7 @@ export async function getRightProductData(): Promise<Products[]> {
    const storagePrefix = `${envConfig.supabaseUrl}/storage/v1/object/public/products-img/`;
 
    /**
-    * 将images 的数据 xx1.png&xx1_des_1.png&xx1_des_2.png 加上前缀
-    * 支持两种格式：完整 URL 或相对路径
+    * 为相对路径的图片添加存储前缀，保留完整 URL 不变
     * 使用 map 创建新数组，避免直接变异原数据
     */
    return data.map(product => {

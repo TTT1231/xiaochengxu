@@ -33,7 +33,6 @@ const handleClick = (): void => {
          <view class="bottom-group">
             <view class="price">{{ formatPriceDisplay(product.price) }}</view>
             <view class="action-btn">
-               <!-- 移除文字加号，完全使用 CSS 伪元素绘制完美居中的加号 -->
                <view v-if="quantity && quantity > 0" class="badge">
                   <text class="badge-num">{{ quantity }}</text>
                </view>
@@ -55,14 +54,14 @@ const handleClick = (): void => {
    width: 192rpx;
    height: 192rpx;
    border-radius: 32rpx;
-   background-color: #f8fafc;
+   background-color: $bg-page;
    flex-shrink: 0;
 }
 
 .card-content {
    flex: 1;
    min-width: 0;
-   max-width: calc(100% - 248rpx); // 192(图片) + 24(左距) + 32(右距)
+   max-width: calc(100% - 248rpx);
    margin-left: 24rpx;
    margin-right: 32rpx;
    display: flex;
@@ -97,7 +96,6 @@ const handleClick = (): void => {
    line-height: 32rpx;
    margin-top: 6rpx;
    width: 100%;
-   // 小程序多行截断
    display: -webkit-box;
    -webkit-box-orient: vertical;
    -webkit-line-clamp: 2;

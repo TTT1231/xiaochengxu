@@ -47,7 +47,6 @@ const handleCheckout = async () => {
          url: `/pages/order/detail?id=${order.order_id}`,
       });
    } catch (err) {
-      console.error('创建订单失败:', err);
       uni.showToast({
          title: err instanceof Error ? err.message : '下单失败',
          icon: 'none',
@@ -244,7 +243,7 @@ const handleCheckout = async () => {
 }
 
 .plus-text {
-   color: #ffffff;
+   color: $uni-text-color-inverse;
 }
 
 .quantity-text {
@@ -298,6 +297,6 @@ const handleCheckout = async () => {
 .checkout-text {
    font-size: 28rpx;
    font-weight: 500;
-   color: #ffffff;
+   color: $uni-text-color-inverse;
 }
 </style>

@@ -93,14 +93,11 @@ const handleViewMore = () => {
    display: flex;
    flex-wrap: wrap;
    padding: 0 32rpx;
-   /* 使用 gap 控制间距，兼容不同设备 */
    gap: 24rpx;
 }
 
 .reward-item {
-   /* 两列布局，考虑间距 */
    width: calc((100% - 24rpx) / 2);
-   /* 限制最大宽度，防止在大屏设备上过宽 */
    max-width: 400rpx;
    flex-shrink: 0;
 }

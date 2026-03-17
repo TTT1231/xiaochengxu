@@ -80,7 +80,6 @@ const handleAddToCart = () => {
 
 <template>
    <view class="page" v-if="product">
-      <!-- 轮播图区域 -->
       <view class="carousel-section">
          <!-- 多张图片：使用轮播 -->
          <swiper
@@ -95,7 +94,7 @@ const handleAddToCart = () => {
             </swiper-item>
          </swiper>
 
-         <!-- 单张图片：直接显示 -->
+         <!-- 单张图片 -->
          <image
             v-else
             class="carousel-image single-image"
@@ -103,7 +102,7 @@ const handleAddToCart = () => {
             mode="aspectFill"
          />
 
-         <!-- 指示器（仅多张图片时显示） -->
+         <!-- 轮播指示器 -->
          <view v-if="hasMultipleImages" class="carousel-indicators">
             <view
                v-for="(_, index) in carouselImages"
@@ -114,9 +113,7 @@ const handleAddToCart = () => {
          </view>
       </view>
 
-      <!-- 主内容区域 -->
       <view class="main-content">
-         <!-- 标题和评分 -->
          <view class="header-row">
             <text class="product-name">{{ product.name }}</text>
             <view class="rating">
@@ -136,7 +133,6 @@ const handleAddToCart = () => {
          <!-- 描述 -->
          <text class="description">{{ product.description }}</text>
 
-         <!-- 分隔线 -->
          <view class="divider" />
 
          <!-- 动态规格选项 -->
@@ -176,7 +172,7 @@ const handleAddToCart = () => {
 <style lang="scss" scoped>
 .page {
    min-height: 100vh;
-   background-color: #f8f7f6;
+   background-color: $bg-page;
    position: relative;
    padding-bottom: calc(128rpx + env(safe-area-inset-bottom));
 }
@@ -225,7 +221,7 @@ const handleAddToCart = () => {
 .main-content {
    position: relative;
    margin-top: -48rpx;
-   background-color: #f8f7f6;
+   background-color: $bg-page;
    border-radius: 48rpx 48rpx 0 0;
    padding: 64rpx 32rpx 160rpx;
 }
@@ -334,7 +330,7 @@ const handleAddToCart = () => {
 .option-btn {
    padding: 20rpx 36rpx;
    border-radius: 32rpx;
-   background-color: #f1f5f9;
+   background-color: $bg-input;
    border: 2rpx solid transparent;
 
    &.active {
@@ -390,6 +386,6 @@ const handleAddToCart = () => {
 .btn-text {
    font-size: 32rpx;
    font-weight: 500;
-   color: #fff;
+   color: $uni-text-color-inverse;
 }
 </style>
