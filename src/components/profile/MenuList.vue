@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import { useUserLevel } from '@/composables/useUserLevel';
 
 const MENU_ICONS = '/static/icons/menu';
@@ -16,7 +17,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const levelConfig = useUserLevel(props.level ?? '普通用户');
+const levelConfig = computed(() => useUserLevel(props.level ?? '普通会员'));
 
 const menuItems: MenuItem[] = [
    {
@@ -48,7 +49,7 @@ const emit = defineEmits<{
          levelConfig.isVip
             ? { boxShadow: `0 2rpx 16rpx ${levelConfig.lightBg}` }
             : {}
-      "
+      ">
       <view
          v-for="(item, index) in menuItems"
          :key="item.key"

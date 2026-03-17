@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Users } from '@/types';
+import { computed } from 'vue';
 import { useUserLevel } from '@/composables/useUserLevel';
 
 const DEFAULT_AVATAR = '/static/images/avatar.png';
@@ -10,7 +11,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const levelConfig = useUserLevel(props.user.level);
+const levelConfig = computed(() => useUserLevel(props.user.level));
 </script>
 
 <template>

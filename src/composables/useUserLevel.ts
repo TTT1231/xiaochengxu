@@ -25,7 +25,7 @@ interface LevelConfig {
 }
 
 const LEVEL_CONFIG: Record<string, LevelConfig> = {
-   普通用户: {
+   普通会员: {
       tier: 'regular',
       isVip: false,
       color: '',
@@ -36,9 +36,9 @@ const LEVEL_CONFIG: Record<string, LevelConfig> = {
       pageBg: '#f8f7f6',
       serviceGradient: 'linear-gradient(to right, #ee862b, #f59e0b)',
       badgeGradient: '',
-      displayLabel: '普通用户',
+      displayLabel: '普通会员',
    },
-   青铜用户: {
+   黄铜会员: {
       tier: 'bronze',
       isVip: true,
       color: '#B87333',
@@ -49,9 +49,9 @@ const LEVEL_CONFIG: Record<string, LevelConfig> = {
       pageBg: '#FBF8F5',
       serviceGradient: 'linear-gradient(to right, #ee862b, #B87333)',
       badgeGradient: 'linear-gradient(135deg, #B87333, #CD9B6A)',
-      displayLabel: '青铜会员',
+      displayLabel: '黄铜会员',
    },
-   白银用户: {
+   白银会员: {
       tier: 'silver',
       isVip: true,
       color: '#9CA3AF',
@@ -64,7 +64,7 @@ const LEVEL_CONFIG: Record<string, LevelConfig> = {
       badgeGradient: 'linear-gradient(135deg, #9CA3AF, #B8BEC6)',
       displayLabel: '白银会员',
    },
-   黄金用户: {
+   黄金会员: {
       tier: 'gold',
       isVip: true,
       color: '#D97706',
@@ -81,5 +81,5 @@ const LEVEL_CONFIG: Record<string, LevelConfig> = {
 
 /** 获取用户等级配置 */
 export function useUserLevel(level: string): LevelConfig {
-   return LEVEL_CONFIG[level] ?? LEVEL_CONFIG['普通用户'];
+   return LEVEL_CONFIG[level] ?? LEVEL_CONFIG['普通会员'];
 }

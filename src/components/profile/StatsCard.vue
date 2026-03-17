@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import { formatPoints } from '@/utils/format';
 import { useUserLevel } from '@/composables/useUserLevel';
 
@@ -11,7 +12,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const levelConfig = useUserLevel(props.level ?? '普通用户');
+const levelConfig = computed(() => useUserLevel(props.level ?? '普通会员'));
 
 const emit = defineEmits<{
    'click:points': [];

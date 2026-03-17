@@ -50,6 +50,7 @@ const handleCheckout = async () => {
       });
 
       cartStore.clearCart();
+      userStore.fetchProfile();
 
       uni.redirectTo({
          url: `/pages/order/detail?id=${order.order_id}`,

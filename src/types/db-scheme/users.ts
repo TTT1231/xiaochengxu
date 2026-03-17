@@ -6,7 +6,7 @@ export interface Users {
    name: string;
    /** 唯一6位用户ID */
    id: string;
-   /** 用户等级 (普通用户/青铜用户/白银用户/黄金用户) */
+   /** 用户等级 (普通会员/黄铜会员/白银会员/黄金会员) */
    level: string;
    /** 创建时间 */
    created_at: string;

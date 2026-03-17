@@ -18,7 +18,7 @@ const serviceIconSrc = commonIcons.customerService;
 const userProfile = computed(() => userStore.user);
 const credits = computed(() => userStore.credits);
 
-const levelConfig = computed(() => useUserLevel(userProfile.value?.level ?? '普通用户'));
+const levelConfig = computed(() => useUserLevel(userProfile.value?.level ?? '普通会员'));
 
 onShow(() => {
    userStore.fetchProfile();
@@ -104,7 +104,7 @@ const handleLogout = () => {
                      openid: '',
                      name: '加载中...',
                      id: '--',
-                     level: '普通用户',
+                     level: '普通会员',
                      created_at: '',
                      user_id: '',
                   }"
