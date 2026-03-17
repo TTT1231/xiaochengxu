@@ -11,14 +11,7 @@ const { headerHeight } = useHeaderHeight();
 
 const cartStore = useCartStore();
 const userStore = useUserStore();
-const {
-   items: cartItems,
-   totalAmount,
-   originalAmount,
-   totalDiscount,
-   removeItem,
-   addItem,
-} = cartStore;
+const { items: cartItems, removeItem, addItem } = cartStore;
 const submitting = ref(false);
 
 const handleRemove = (productId: string) => {
@@ -45,8 +38,8 @@ const handleCheckout = async () => {
       const order = await createOrder({
          userId: userStore.openid,
          items: cartItems,
-         totalAmount: originalAmount,
-         discountAmount: totalDiscount,
+         totalAmount: cartStore.originalAmount,
+         discountAmount: cartStore.totalDiscount,
       });
 
       cartStore.clearCart();
@@ -116,7 +109,7 @@ const handleCheckout = async () => {
       <view v-if="cartItems.length > 0" class="bottom-bar">
          <view class="total-info">
             <text class="total-label">合计</text>
-            <text class="total-amount">{{ formatPriceDisplay(totalAmount) }}</text>
+            <text class="total-amount">{{ formatPriceDisplay(cartStore.totalAmount) }}</text>
          </view>
          <view
             class="checkout-btn"
