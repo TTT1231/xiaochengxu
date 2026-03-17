@@ -54,15 +54,15 @@ export function useOrder() {
    /**
     * 获取订单列表
     */
-   const fetchOrders = async (): Promise<void> => {
+   const fetchOrders = async (silent = false): Promise<void> => {
       if (!userStore.openid) return;
-      loading.value = true;
+      if (!silent) loading.value = true;
       try {
          orderList.value = await getOrdersByUser(userStore.openid);
       } catch {
          orderList.value = [];
       } finally {
-         loading.value = false;
+         if (!silent) loading.value = false;
       }
    };
 

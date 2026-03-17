@@ -16,6 +16,17 @@ const { headerHeight } = useHeaderHeight();
 
 const { activeOrders, historyOrders, loading, fetchOrders, toggleOrderType } = useOrder();
 
+const refreshing = ref(false);
+
+const onRefresh = async () => {
+   refreshing.value = true;
+   try {
+      await fetchOrders(true);
+   } finally {
+      refreshing.value = false;
+   }
+};
+
 const cartStore = useCartStore();
 const homeStore = useHomeStore();
 
@@ -79,7 +90,14 @@ onShow(async () => {
             <OrderToggle :active="showActive" @change="handleToggleChange" />
          </view>
 
-         <scroll-view class="order-list" scroll-y scroll-with-animation>
+         <scroll-view
+            class="order-list"
+            scroll-y
+            scroll-with-animation
+            refresher-enabled
+            :refresher-triggered="refreshing"
+            @refresherrefresh="onRefresh"
+         >
             <view v-if="showActive" class="order-section">
                <view class="section-header">
                   <text class="section-title">进行中的订单</text>
