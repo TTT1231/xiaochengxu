@@ -17,6 +17,7 @@ const { headerHeight } = useHeaderHeight();
 const { activeOrders, historyOrders, loading, fetchOrders, toggleOrderType } = useOrder();
 
 const refreshing = ref(false);
+const isFirstLoad = ref(true);
 
 const onRefresh = async () => {
    refreshing.value = true;
@@ -67,7 +68,12 @@ const handleReorder = (order: Orders) => {
 
 onShow(async () => {
    await homeStore.fetchData();
-   await fetchOrders();
+   if (isFirstLoad.value) {
+      isFirstLoad.value = false;
+      await fetchOrders();
+   } else {
+      await fetchOrders(true);
+   }
 });
 </script>
 
