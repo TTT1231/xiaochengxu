@@ -1,10 +1,4 @@
-/**
- * 订单相关类型定义
- */
-
-export type { Orders, OrderDetailItem } from './db-scheme';
-
-/** 业务层使用的订单状态 */
+/** 订单状态 */
 export type OrderStatus = 'pending' | 'preparing' | 'ready' | 'completed' | 'cancelled';
 
 /** 订单状态文本映射 */

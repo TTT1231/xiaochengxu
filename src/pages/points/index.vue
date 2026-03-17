@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Reward } from '@/types';
+import type { Reward } from '@/mock';
 import Header from '@/components/common/Header.vue';
 import PointsCard from '@/components/points/PointsCard.vue';
 import RewardCard from '@/components/points/RewardCard.vue';

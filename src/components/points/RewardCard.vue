@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Reward } from '@/types';
+import type { Reward } from '@/mock';
 
 interface Props {
    reward: Reward;
