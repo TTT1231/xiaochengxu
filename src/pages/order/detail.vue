@@ -148,8 +148,12 @@ onLoad(async options => {
                   </view>
                   <view class="product-bottom">
                      <view class="price-group">
-                        <text class="product-price">{{ formatPriceDisplay(item.price - item.discount) }}</text>
-                        <text v-if="item.discount > 0" class="product-original-price">{{ formatPriceDisplay(item.price) }}</text>
+                        <text class="product-price">{{
+                           formatPriceDisplay(item.price - item.discount)
+                        }}</text>
+                        <text v-if="item.discount > 0" class="product-original-price">{{
+                           formatPriceDisplay(item.price)
+                        }}</text>
                      </view>
                      <text class="product-qty">x{{ item.quantity }}</text>
                   </view>

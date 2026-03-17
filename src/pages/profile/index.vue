@@ -1,7 +1,12 @@
 <script setup lang="ts">
-import { currentUser } from '@/mock';
+import { ref, computed } from 'vue';
+import { onShow } from '@dcloudio/uni-app';
+import type { Users, Credits } from '@/types';
+import { getUserProfile } from '@/api/userApi';
+import { useUserStore } from '@/stores';
 import { commonIcons } from '@/data/imgPaths';
 import { useHeaderHeight } from '@/composables/useHeaderHeight';
+import { useUserLevel } from '@/composables/useUserLevel';
 import Header from '@/components/common/Header.vue';
 import TabBar from '@/components/common/TabBar.vue';
 import UserCard from '@/components/profile/UserCard.vue';
@@ -9,7 +14,28 @@ import StatsCard from '@/components/profile/StatsCard.vue';
 import MenuList from '@/components/profile/MenuList.vue';
 
 const { headerHeight } = useHeaderHeight();
+const userStore = useUserStore();
 const serviceIconSrc = commonIcons.customerService;
+
+const userProfile = ref<Users | null>(null);
+const credits = ref<Credits | null>(null);
+
+const levelConfig = computed(() => useUserLevel(userProfile.value?.level ?? '普通用户'));
+
+const fetchProfile = async () => {
+   if (!userStore.openid) return;
+   try {
+      const profile = await getUserProfile(userStore.openid);
+      userProfile.value = profile.user;
+      credits.value = profile.credits;
+   } catch {
+      // 静默失败，不影响页面展示
+   }
+};
+
+onShow(() => {
+   fetchProfile();
+});
 
 const handlePointsClick = () => {
    uni.navigateTo({ url: '/pages/points/index' });
@@ -19,7 +45,7 @@ const handleCouponsClick = () => {
    // TODO: Navigate to coupons page
 };
 
-const handleMenuClick = (key: string) => {
+const handleMenuClick = (_key: string) => {
    // TODO: Implement menu navigation
 };
 
@@ -36,6 +62,9 @@ const handleLogout = () => {
       content: '确定要退出登录吗？',
       success: res => {
          if (res.confirm) {
+            userStore.logout();
+            userProfile.value = null;
+            credits.value = null;
             uni.showToast({
                title: '已退出登录',
                icon: 'success',
@@ -47,27 +76,80 @@ const handleLogout = () => {
 </script>
 
 <template>
-   <view class="profile-page" :style="{ paddingTop: headerHeight + 'px' }">
+   <view
+      class="profile-page"
+      :style="{
+         paddingTop: headerHeight + 'px',
+         backgroundColor: levelConfig.pageBg,
+      }"
+   >
       <Header title="个人中心" :show-back="false" />
 
+      <!-- VIP 顶部标识线 -->
+      <view
+         v-if="levelConfig.isVip"
+         class="tier-accent"
+         :style="{ background: `linear-gradient(to right, ${levelConfig.color}, transparent)` }"
+      ></view>
+
+      <!-- 顶部氛围带 -->
+      <view
+         class="tier-banner"
+         :style="{
+            background: levelConfig.bannerGradient,
+         }"
+      >
+         <view
+            v-if="levelConfig.isVip"
+            class="banner-glow"
+            :style="{ backgroundColor: levelConfig.color }"
+         ></view>
+         <view
+            v-if="levelConfig.isVip"
+            class="banner-glow banner-glow--secondary"
+            :style="{ backgroundColor: levelConfig.color }"
+         ></view>
+         <view class="banner-content">
+            <view v-if="userProfile" class="user-card-wrap">
+               <UserCard :user="userProfile" />
+            </view>
+            <view v-else class="user-card-wrap">
+               <UserCard
+                  :user="{
+                     openid: '',
+                     name: '加载中...',
+                     id: '--',
+                     level: '普通用户',
+                     created_at: '',
+                     user_id: '',
+                  }"
+               />
+            </view>
+         </view>
+      </view>
+
+      <!-- 下方内容区 -->
       <view class="content">
          <view class="card-spacing">
-            <UserCard :user="currentUser" />
-         </view>
-         <view class="card-spacing">
             <StatsCard
-               :points="currentUser.points"
-               :coupons="currentUser.coupons"
+               :points="credits?.available_scores ?? 0"
+               :coupons="0"
+               :level="userProfile?.level"
                @click:points="handlePointsClick"
                @click:coupons="handleCouponsClick"
             />
          </view>
+
          <view class="card-spacing">
-            <MenuList @click="handleMenuClick" />
+            <MenuList :level="userProfile?.level" @click="handleMenuClick" />
          </view>
 
          <view class="card-spacing">
-            <view class="service-btn" @click="handleServiceClick">
+            <view
+               class="service-btn"
+               :style="{ background: levelConfig.serviceGradient }"
+               @click="handleServiceClick"
+            >
                <image class="service-icon" :src="serviceIconSrc" mode="aspectFit" />
                <view class="service-text">
                   <text class="service-title">联系客服</text>
@@ -92,10 +174,50 @@ const handleLogout = () => {
 <style lang="scss" scoped>
 .profile-page {
    min-height: 100vh;
-   background-color: $bg-page;
    box-sizing: border-box;
+   transition: background-color 0.3s ease;
 }
 
+/* ── 顶部氛围带 ── */
+.tier-banner {
+   position: relative;
+   overflow: hidden;
+}
+
+.banner-content {
+   padding: 24rpx 24rpx 32rpx;
+}
+
+.banner-glow {
+   position: absolute;
+   top: 20rpx;
+   right: 20rpx;
+   width: 200rpx;
+   height: 200rpx;
+   border-radius: 50%;
+   opacity: 0.15;
+
+   &--secondary {
+      top: auto;
+      right: auto;
+      bottom: -30rpx;
+      left: -30rpx;
+      width: 160rpx;
+      height: 160rpx;
+      opacity: 0.08;
+   }
+}
+
+.tier-accent {
+   height: 6rpx;
+}
+
+.user-card-wrap {
+   position: relative;
+   z-index: 1;
+}
+
+/* ── 下方内容区 ── */
 .content {
    padding: 0 24rpx;
 }
@@ -104,15 +226,15 @@ const handleLogout = () => {
    margin-bottom: 24rpx;
 }
 
-// 联系客服按钮
+/* ── 联系客服按钮 ── */
 .service-btn {
-   background: linear-gradient(to right, #ee862b, #f59e0b);
    border-radius: $radius-lg;
    padding: 32rpx;
    display: flex;
    align-items: center;
    gap: 20rpx;
    box-shadow: $shadow-card;
+   transition: background 0.3s ease;
 }
 
 .service-icon {
@@ -147,7 +269,7 @@ const handleLogout = () => {
    font-weight: 300;
 }
 
-// 退出登录
+/* ── 退出登录 ── */
 .logout-wrapper {
    display: flex;
    justify-content: center;

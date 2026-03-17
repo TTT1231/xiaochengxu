@@ -1,12 +1,17 @@
 <script setup lang="ts">
 import { formatPoints } from '@/utils/format';
+import { useUserLevel } from '@/composables/useUserLevel';
 
 interface Props {
    points: number;
    coupons: number;
+   /** 用户等级，用于左侧竖线颜色 */
+   level?: string;
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
+
+const levelConfig = useUserLevel(props.level ?? '普通用户');
 
 const emit = defineEmits<{
    'click:points': [];
@@ -15,11 +20,23 @@ const emit = defineEmits<{
 </script>
 
 <template>
-   <view class="stats-container">
+   <view
+      class="stats-container"
+      :style="{
+         borderColor: levelConfig.color,
+         ...(levelConfig.isVip
+            ? { boxShadow: `0 2rpx 16rpx ${levelConfig.lightBg}` }
+            : {}),
+      }"
+   >
       <view class="stat-item" @click="emit('click:points')">
          <text class="stat-label">我的积分</text>
          <view class="stat-value-row">
-            <text class="stat-value">{{ formatPoints(points) }}</text>
+            <text
+               class="stat-value"
+               :style="levelConfig.color ? { color: levelConfig.color } : {}"
+               >{{ formatPoints(points) }}</text
+            >
             <text class="stat-unit">分</text>
          </view>
       </view>
@@ -37,6 +54,8 @@ const emit = defineEmits<{
 .stats-container {
    display: flex;
    gap: 24rpx;
+   border-left: 6rpx solid transparent;
+   transition: border-color 0.2s ease;
 }
 
 .stat-item {
@@ -49,7 +68,6 @@ const emit = defineEmits<{
    padding: 32rpx;
    box-shadow: $shadow-card;
    gap: 12rpx;
-   cursor: pointer;
 
    &:active {
       opacity: 0.7;

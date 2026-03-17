@@ -36,7 +36,9 @@ const handleClick = (): void => {
          <view class="bottom-group">
             <view class="price-area">
                <view class="price">{{ formatPriceDisplay(product.price - product.discount) }}</view>
-               <view v-if="product.discount > 0" class="original-price">{{ formatPriceDisplay(product.price) }}</view>
+               <view v-if="product.discount > 0" class="original-price">{{
+                  formatPriceDisplay(product.price)
+               }}</view>
             </view>
             <view class="action-btn">
                <view v-if="quantity && quantity > 0" class="badge">

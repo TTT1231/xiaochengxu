@@ -1,20 +1,47 @@
 <script setup lang="ts">
-import type { User } from '@/mock';
+import type { Users } from '@/types';
+import { useUserLevel } from '@/composables/useUserLevel';
+
+const DEFAULT_AVATAR = '/static/images/avatar.png';
 
 interface Props {
-   user: User;
+   user: Users;
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
+
+const levelConfig = useUserLevel(props.user.level);
 </script>
 
 <template>
-   <view class="user-card">
-      <image :src="user.avatar" class="avatar" mode="aspectFill" />
+   <view
+      class="user-card"
+      :class="[levelConfig.isVip ? `tier-${levelConfig.tier}` : '']"
+      :style="{
+         borderColor: levelConfig.color,
+         boxShadow: levelConfig.shadow,
+         ...(levelConfig.isVip ? { background: levelConfig.gradientBg } : {}),
+      }"
+   >
+      <view
+         class="avatar-wrap"
+         :style="{
+            borderColor: levelConfig.color,
+            boxShadow: levelConfig.tier === 'gold' ? `0 0 20rpx ${levelConfig.lightBg}` : 'none',
+         }"
+      >
+         <image :src="DEFAULT_AVATAR" class="avatar" mode="aspectFill" />
+      </view>
       <view class="user-info">
-         <text class="nickname">{{ user.nickname }}</text>
-         <view class="member-badge">
-            <text class="member-text">{{ user.memberLevel }}</text>
+         <text class="nickname">{{ user.name }}</text>
+         <view
+            v-if="levelConfig.isVip"
+            class="member-badge"
+            :style="{
+               background: levelConfig.badgeGradient,
+            }"
+         >
+            <text class="member-text">{{ levelConfig.displayLabel }}</text>
          </view>
          <text class="user-id">ID: {{ user.id }}</text>
       </view>
@@ -23,10 +50,31 @@ defineProps<Props>();
 
 <style lang="scss" scoped>
 .user-card {
-   background-color: transparent;
-   padding: 20rpx 0 40rpx 0;
+   padding: 32rpx;
    display: flex;
    align-items: center;
+   border-radius: 28rpx;
+   border: 2rpx solid transparent;
+   background-color: $bg-card;
+   transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+}
+
+/* ── 头像光环 ── */
+.avatar-wrap {
+   width: 152rpx;
+   height: 152rpx;
+   border-radius: $radius-full;
+   border: 3rpx solid transparent;
+   margin-right: 28rpx;
+   flex-shrink: 0;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
 }
 
 .avatar {
@@ -34,10 +82,9 @@ defineProps<Props>();
    height: 140rpx;
    border-radius: $radius-full;
    background-color: #6bb2aa;
-   margin-right: 32rpx;
-   flex-shrink: 0;
 }
 
+/* ── 用户信息 ── */
 .user-info {
    flex: 1;
    display: flex;
@@ -52,20 +99,22 @@ defineProps<Props>();
    line-height: 52rpx;
 }
 
+/* ── VIP 等级徽章 ── */
 .member-badge {
    align-self: flex-start;
-   background-color: rgba($brand-primary, 0.1);
    border-radius: $radius-full;
-   padding: 4rpx 16rpx;
+   padding: 6rpx 20rpx;
 }
 
 .member-text {
    font-size: 22rpx;
-   color: $brand-primary;
-   font-weight: 500;
+   font-weight: 600;
+   color: #ffffff;
    line-height: 30rpx;
+   text-shadow: 0 1rpx 2rpx rgba(0, 0, 0, 0.15);
 }
 
+/* ── 用户 ID ── */
 .user-id {
    font-size: 24rpx;
    color: $text-muted;

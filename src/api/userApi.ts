@@ -1,4 +1,6 @@
 import { useEnvConfig } from '../hooks/useEnvConfig';
+import { supabaseClient } from '@/utils/supabaseClient';
+import type { Users, Credits } from '@/types';
 
 const envConfig = useEnvConfig();
 
@@ -24,6 +26,12 @@ interface LoginFailResponse {
 }
 
 type LoginResponse = LoginSuccessResponse | LoginFailResponse;
+
+/** 用户档案（用户信息 + 积分） */
+export interface UserProfile {
+   user: Users;
+   credits: Credits | null;
+}
 
 /**
  * 微信登录接口
@@ -61,4 +69,34 @@ export async function login(code: string): Promise<LoginResponse> {
          },
       });
    });
+}
+
+/**
+ * 获取用户档案（用户信息 + 积分）
+ */
+export async function getUserProfile(openid: string): Promise<UserProfile> {
+   const client = supabaseClient.getClient();
+   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   const db = client as any;
+
+   const { data: userData, error: userError } = await db
+      .from('users')
+      .select('*')
+      .eq('openid', openid)
+      .single();
+
+   if (userError) {
+      throw new Error(`获取用户信息失败: ${userError.message}`);
+   }
+
+   const { data: creditsData } = await db
+      .from('credits')
+      .select('*')
+      .eq('users_id', openid)
+      .single();
+
+   return {
+      user: userData as unknown as Users,
+      credits: creditsData ? (creditsData as unknown as Credits) : null,
+   };
 }

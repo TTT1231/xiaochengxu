@@ -11,7 +11,14 @@ const { headerHeight } = useHeaderHeight();
 
 const cartStore = useCartStore();
 const userStore = useUserStore();
-const { items: cartItems, totalAmount, originalAmount, totalDiscount, removeItem, addItem } = cartStore;
+const {
+   items: cartItems,
+   totalAmount,
+   originalAmount,
+   totalDiscount,
+   removeItem,
+   addItem,
+} = cartStore;
 const submitting = ref(false);
 
 const handleRemove = (productId: string) => {
@@ -84,8 +91,12 @@ const handleCheckout = async () => {
                      </text>
                   </view>
                   <view class="item-price-group">
-                     <text class="item-price">{{ formatPriceDisplay(item.product.price - item.product.discount) }}</text>
-                     <text v-if="item.product.discount > 0" class="item-original-price">{{ formatPriceDisplay(item.product.price) }}</text>
+                     <text class="item-price">{{
+                        formatPriceDisplay(item.product.price - item.product.discount)
+                     }}</text>
+                     <text v-if="item.product.discount > 0" class="item-original-price">{{
+                        formatPriceDisplay(item.product.price)
+                     }}</text>
                   </view>
                </view>
                <view class="quantity-control">

@@ -31,10 +31,7 @@ export const useCartStore = defineStore('cart', {
 
       /** 购物车总优惠 */
       totalDiscount: state =>
-         state.items.reduce(
-            (sum, item) => sum + item.product.discount * item.quantity,
-            0,
-         ),
+         state.items.reduce((sum, item) => sum + item.product.discount * item.quantity, 0),
 
       /** 购物车原价总和 */
       originalAmount: state =>

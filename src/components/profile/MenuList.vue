@@ -1,5 +1,6 @@
 <script setup lang="ts">
-/** 菜单配置数据（内联定义） */
+import { useUserLevel } from '@/composables/useUserLevel';
+
 const MENU_ICONS = '/static/icons/menu';
 
 interface MenuItem {
@@ -7,6 +8,15 @@ interface MenuItem {
    icon: string;
    label: string;
 }
+
+interface Props {
+   /** 用户等级，用于图标底色 */
+   level?: string;
+}
+
+const props = defineProps<Props>();
+
+const levelConfig = useUserLevel(props.level ?? '普通用户');
 
 const menuItems: MenuItem[] = [
    {
@@ -32,7 +42,13 @@ const emit = defineEmits<{
 </script>
 
 <template>
-   <view class="menu-list">
+   <view
+      class="menu-list"
+      :style="
+         levelConfig.isVip
+            ? { boxShadow: `0 2rpx 16rpx ${levelConfig.lightBg}` }
+            : {}
+      "
       <view
          v-for="(item, index) in menuItems"
          :key="item.key"
@@ -40,7 +56,10 @@ const emit = defineEmits<{
          :class="{ 'has-divider': index < menuItems.length - 1 }"
          @click="emit('click', item.key)"
       >
-         <view class="menu-icon">
+         <view
+            class="menu-icon"
+            :style="levelConfig.lightBg ? { backgroundColor: levelConfig.lightBg } : {}"
+         >
             <image :src="item.icon" class="icon" />
          </view>
          <text class="menu-label">{{ item.label }}</text>
@@ -63,7 +82,6 @@ const emit = defineEmits<{
    align-items: center;
    padding: 28rpx 32rpx;
    position: relative;
-   cursor: pointer;
 
    &.has-divider::after {
       content: '';
@@ -90,6 +108,7 @@ const emit = defineEmits<{
    display: flex;
    align-items: center;
    justify-content: center;
+   transition: background-color 0.2s ease;
 
    .icon {
       width: 32rpx;
