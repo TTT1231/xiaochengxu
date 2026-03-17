@@ -1,26 +1,14 @@
-/** 用户等级配置 */
 interface LevelConfig {
-   /** 等级标识 (用于 CSS class) */
    tier: 'regular' | 'bronze' | 'silver' | 'gold';
-   /** 是否为付费等级 (青铜及以上) */
    isVip: boolean;
-   /** 主色 */
    color: string;
-   /** 浅色背景 */
    lightBg: string;
-   /** UserCard 渐变背景 */
    gradientBg: string;
-   /** UserCard 卡片阴影 */
    shadow: string;
-   /** 顶部氛围带渐变 (从深到浅，纵向) */
    bannerGradient: string;
-   /** 整页背景色 (极淡等级色调) */
    pageBg: string;
-   /** 客服按钮渐变 */
    serviceGradient: string;
-   /** 徽章渐变填充 */
    badgeGradient: string;
-   /** 显示文本 (用户→会员) */
    displayLabel: string;
 }
 
@@ -79,7 +67,6 @@ const LEVEL_CONFIG: Record<string, LevelConfig> = {
    },
 };
 
-/** 获取用户等级配置 */
 export function useUserLevel(level: string): LevelConfig {
    return LEVEL_CONFIG[level] ?? LEVEL_CONFIG['普通会员'];
 }

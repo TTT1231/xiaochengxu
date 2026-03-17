@@ -24,26 +24,26 @@ onShow(() => {
    userStore.fetchProfile();
 });
 
-const handlePointsClick = () => {
+function handlePointsClick(): void {
    uni.navigateTo({ url: '/pages/points/index' });
-};
+}
 
-const handleCouponsClick = () => {
+function handleCouponsClick(): void {
    // TODO: Navigate to coupons page
-};
+}
 
-const handleMenuClick = (_key: string) => {
+function handleMenuClick(_key: string): void {
    // TODO: Implement menu navigation
-};
+}
 
-const handleServiceClick = () => {
+function handleServiceClick(): void {
    uni.showToast({
       title: '正在连接客服...',
       icon: 'loading',
    });
-};
+}
 
-const handleLogout = () => {
+function handleLogout(): void {
    uni.showModal({
       title: '提示',
       content: '确定要退出登录吗？',
@@ -57,7 +57,7 @@ const handleLogout = () => {
          }
       },
    });
-};
+}
 </script>
 
 <template>
@@ -70,14 +70,12 @@ const handleLogout = () => {
    >
       <Header title="个人中心" :show-back="false" />
 
-      <!-- VIP 顶部标识线 -->
       <view
          v-if="levelConfig.isVip"
          class="tier-accent"
          :style="{ background: `linear-gradient(to right, ${levelConfig.color}, transparent)` }"
       ></view>
 
-      <!-- 顶部氛围带 -->
       <view
          class="tier-banner"
          :style="{
@@ -113,7 +111,6 @@ const handleLogout = () => {
          </view>
       </view>
 
-      <!-- 下方内容区 -->
       <view class="content">
          <view class="card-spacing">
             <StatsCard
@@ -148,7 +145,6 @@ const handleLogout = () => {
             <text class="logout-text" @click="handleLogout">退出登录</text>
          </view>
 
-         <!-- 底部占位 -->
          <view class="bottom-spacer"></view>
       </view>
 
@@ -163,7 +159,6 @@ const handleLogout = () => {
    transition: background-color 0.3s ease;
 }
 
-/* ── 顶部氛围带 ── */
 .tier-banner {
    position: relative;
    overflow: hidden;
@@ -202,7 +197,6 @@ const handleLogout = () => {
    z-index: 1;
 }
 
-/* ── 下方内容区 ── */
 .content {
    padding: 0 24rpx;
 }
@@ -211,7 +205,6 @@ const handleLogout = () => {
    margin-bottom: 24rpx;
 }
 
-/* ── 联系客服按钮 ── */
 .service-btn {
    border-radius: $radius-lg;
    padding: 32rpx;
@@ -254,7 +247,6 @@ const handleLogout = () => {
    font-weight: 300;
 }
 
-/* ── 退出登录 ── */
 .logout-wrapper {
    display: flex;
    justify-content: center;

@@ -19,34 +19,28 @@ export const useCartStore = defineStore('cart', {
    }),
 
    getters: {
-      /** 购物车商品总数 */
       totalCount: state => state.items.reduce((sum, item) => sum + item.quantity, 0),
 
-      /** 购物车总金额（折后价） */
+      /** 折后价合计 */
       totalAmount: state =>
          state.items.reduce(
             (sum, item) => sum + (item.product.price - item.product.discount) * item.quantity,
             0,
          ),
 
-      /** 购物车总优惠 */
       totalDiscount: state =>
          state.items.reduce((sum, item) => sum + item.product.discount * item.quantity, 0),
 
-      /** 购物车原价总和 */
       originalAmount: state =>
          state.items.reduce((sum, item) => sum + item.product.price * item.quantity, 0),
 
-      /** 获取指定商品数量（返回函数支持传参） */
       getItemQuantity:
          state =>
-         (productId: string): number => {
-            return state.items.find(item => item.product._id === productId)?.quantity ?? 0;
-         },
+         (productId: string): number =>
+            state.items.find(item => item.product._id === productId)?.quantity ?? 0,
    },
 
    actions: {
-      /** 添加商品到购物车 */
       addItem(product: Products, selectedSpecs?: Record<string, string>): void {
          const index = this.items.findIndex(item => item.product._id === product._id);
          if (index > -1) {
@@ -60,7 +54,6 @@ export const useCartStore = defineStore('cart', {
          }
       },
 
-      /** 从购物车移除商品（数量-1） */
       removeItem(productId: string): void {
          const index = this.items.findIndex(item => item.product._id === productId);
          if (index === -1) return;
@@ -74,7 +67,6 @@ export const useCartStore = defineStore('cart', {
          }
       },
 
-      /** 清空购物车 */
       clearCart(): void {
          this.items = [];
       },

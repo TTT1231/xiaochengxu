@@ -14,8 +14,8 @@ const emit = defineEmits<{
 }>();
 
 const firstThumb = computed(() => {
-   const items = props.order.oder_details;
-   return items && items.length > 0 ? items[0].product_image : '';
+   const items = props.order.oder_details ?? [];
+   return items[0]?.product_image ?? '';
 });
 
 const itemsSummary = computed(() => {

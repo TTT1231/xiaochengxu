@@ -62,7 +62,6 @@ const levelConfig = computed(() => useUserLevel(props.user.level));
       box-shadow 0.2s ease;
 }
 
-/* ── 头像光环 ── */
 .avatar-wrap {
    width: 152rpx;
    height: 152rpx;
@@ -85,7 +84,6 @@ const levelConfig = computed(() => useUserLevel(props.user.level));
    background-color: #6bb2aa;
 }
 
-/* ── 用户信息 ── */
 .user-info {
    flex: 1;
    display: flex;
@@ -100,7 +98,6 @@ const levelConfig = computed(() => useUserLevel(props.user.level));
    line-height: 52rpx;
 }
 
-/* ── VIP 等级徽章 ── */
 .member-badge {
    align-self: flex-start;
    border-radius: $radius-full;
@@ -115,7 +112,6 @@ const levelConfig = computed(() => useUserLevel(props.user.level));
    text-shadow: 0 1rpx 2rpx rgba(0, 0, 0, 0.15);
 }
 
-/* ── 用户 ID ── */
 .user-id {
    font-size: 24rpx;
    color: $text-muted;

@@ -12,9 +12,7 @@ const emit = defineEmits<{
 
 <template>
    <view class="points-card">
-      <!-- 装饰圆形 -->
       <view class="decorative-circle"></view>
-      <!-- 积分图标 -->
       <view class="points-icon">
          <image class="icon-image" src="/static/icons/points/star.svg" mode="aspectFit" />
       </view>

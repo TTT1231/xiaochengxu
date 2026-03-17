@@ -130,7 +130,6 @@ const handleClick = (): void => {
 .price-info {
    display: flex;
    flex-direction: column;
-   gap: 0;
 }
 
 .cart-amount {

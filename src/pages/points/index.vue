@@ -30,16 +30,13 @@ const handleViewMore = () => {
       <Header title="积分商城" :show-back="true" />
 
       <view class="page-content" :style="{ height: `calc(100vh - ${headerHeight}px)` }">
-         <!-- 积分卡片 -->
          <PointsCard :points="userPoints" @detail="handleDetailClick" />
 
-         <!-- 热门兑换标题 -->
          <view class="section-header">
             <text class="section-title">热门兑换</text>
             <text class="view-more" @click="handleViewMore">查看更多</text>
          </view>
 
-         <!-- 商品网格 -->
          <scroll-view class="rewards-scroll" scroll-y>
             <view class="rewards-grid">
                <view v-for="reward in hotRewards" :key="reward.id" class="reward-item">
@@ -47,7 +44,6 @@ const handleViewMore = () => {
                </view>
             </view>
 
-            <!-- 底部占位 -->
             <view class="bottom-spacer"></view>
          </scroll-view>
       </view>

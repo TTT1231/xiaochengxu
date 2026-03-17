@@ -1,7 +1,3 @@
-/**
- * 积分商城 Mock 数据
- */
-
 export interface Reward {
    id: string;
    name: string;

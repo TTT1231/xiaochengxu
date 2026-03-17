@@ -55,8 +55,6 @@ const handleClick = (): void => {
    display: flex;
    position: relative;
    width: 100%;
-   padding: 0;
-   box-sizing: border-box;
 }
 
 .card-cover {
@@ -98,7 +96,6 @@ const handleClick = (): void => {
 
 .text-group {
    width: 100%;
-   min-width: 0;
    display: flex;
    flex-direction: column;
 }
@@ -133,7 +130,6 @@ const handleClick = (): void => {
    align-items: center;
    justify-content: space-between;
    width: 100%;
-   box-sizing: border-box;
 }
 
 .price-area {

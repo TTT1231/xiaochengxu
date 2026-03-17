@@ -1,4 +1,3 @@
-// 基础路径
 const BASE_PATH = '/static';
 const ICONS_BASE = `${BASE_PATH}/icons`;
 const IMAGES_BASE = `${BASE_PATH}/images`;

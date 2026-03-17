@@ -25,9 +25,7 @@ const emit = defineEmits<{
       class="stats-container"
       :style="{
          borderColor: levelConfig.color,
-         ...(levelConfig.isVip
-            ? { boxShadow: `0 2rpx 16rpx ${levelConfig.lightBg}` }
-            : {}),
+         ...(levelConfig.isVip ? { boxShadow: `0 2rpx 16rpx ${levelConfig.lightBg}` } : {}),
       }"
    >
       <view class="stat-item" @click="emit('click:points')">

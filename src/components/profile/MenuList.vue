@@ -45,11 +45,8 @@ const emit = defineEmits<{
 <template>
    <view
       class="menu-list"
-      :style="
-         levelConfig.isVip
-            ? { boxShadow: `0 2rpx 16rpx ${levelConfig.lightBg}` }
-            : {}
-      ">
+      :style="levelConfig.isVip ? { boxShadow: `0 2rpx 16rpx ${levelConfig.lightBg}` } : {}"
+   >
       <view
          v-for="(item, index) in menuItems"
          :key="item.key"

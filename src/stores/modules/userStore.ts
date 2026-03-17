@@ -30,14 +30,12 @@ const OPENID_KEY = 'wx_openid';
 const TOKEN_EXPIRY_BUFFER_SECONDS = 60; // 提前 60 秒视为过期
 const TOKEN_REFRESH_THRESHOLD_SECONDS = 300; // 剩余 5 分钟时刷新
 
-/** 清除所有认证相关存储 */
 function clearAuthStorage(): void {
    uni.removeStorageSync(TOKEN_KEY);
    uni.removeStorageSync(REFRESH_TOKEN_KEY);
    uni.removeStorageSync(OPENID_KEY);
 }
 
-/** 解析 JWT payload，失败返回 null */
 function parseJwtPayload(token: string): JwtPayload | null {
    try {
       const payload = token.split('.')[1];
@@ -48,19 +46,16 @@ function parseJwtPayload(token: string): JwtPayload | null {
    }
 }
 
-/** 获取 token 剩余有效秒数，无效返回 0 */
 function getTokenRemainingSeconds(token: string): number {
    const payload = parseJwtPayload(token);
    if (!payload?.exp) return 0;
    return Math.max(0, payload.exp - Date.now() / 1000);
 }
 
-/** 检查 token 是否已过期（提前 60 秒视为过期） */
 function isTokenExpired(token: string): boolean {
    return getTokenRemainingSeconds(token) < TOKEN_EXPIRY_BUFFER_SECONDS;
 }
 
-/** 检查 token 是否即将过期（剩余 < 5 分钟） */
 function isTokenExpiringSoon(token: string): boolean {
    return getTokenRemainingSeconds(token) < TOKEN_REFRESH_THRESHOLD_SECONDS;
 }
@@ -77,7 +72,6 @@ export const useUserStore = defineStore('user', {
    }),
 
    getters: {
-      /** 是否已认证（有有效 token） */
       isAuthenticated: state => Boolean(state.accessToken && state.isLoggedIn),
    },
 
@@ -104,7 +98,6 @@ export const useUserStore = defineStore('user', {
          await this.loginWithWeChat();
       },
 
-      /** 微信授权登录完整流程：wx.login -> Edge Function -> 持久化 */
       async loginWithWeChat(): Promise<LoginResult> {
          this.isLoading = true;
          try {
@@ -146,7 +139,6 @@ export const useUserStore = defineStore('user', {
          }
       },
 
-      /** 退出登录，清除所有凭证 */
       logout(): void {
          this.accessToken = '';
          this.refreshToken = '';
@@ -158,7 +150,6 @@ export const useUserStore = defineStore('user', {
          clearAuthStorage();
       },
 
-      /** 获取用户资料（用户信息 + 积分） */
       async fetchProfile(): Promise<void> {
          if (!this.openid) return;
          try {
@@ -170,7 +161,6 @@ export const useUserStore = defineStore('user', {
          }
       },
 
-      /** 静默刷新 token，失败不抛异常 */
       async refreshTokenIfNeeded(): Promise<void> {
          if (!this.accessToken || isTokenExpiringSoon(this.accessToken)) {
             await this.loginWithWeChat();

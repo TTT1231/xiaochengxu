@@ -1,5 +1,4 @@
 <script setup lang="ts">
-/** TabBar 配置数据（内联定义） */
 interface TabItem {
    text: string;
    pagePath: string;
@@ -38,12 +37,10 @@ const props = withDefaults(defineProps<Props>(), {
    current: 0,
 });
 
-const handleTabClick = (index: number, pagePath: string) => {
+function handleTabClick(index: number, pagePath: string): void {
    if (index === props.current) return;
-   uni.switchTab({
-      url: pagePath,
-   });
-};
+   uni.switchTab({ url: pagePath });
+}
 </script>
 
 <template>
@@ -52,12 +49,12 @@ const handleTabClick = (index: number, pagePath: string) => {
          v-for="(tab, index) in tabs"
          :key="tab.pagePath"
          class="tab-item"
-         :class="{ active: props.current === index }"
+         :class="{ active: current === index }"
          @click="handleTabClick(index, tab.pagePath)"
       >
          <view class="tab-icon">
             <image
-               :src="props.current === index ? tab.selectedIconPath : tab.iconPath"
+               :src="current === index ? tab.selectedIconPath : tab.iconPath"
                class="icon"
                mode="aspectFit"
             />

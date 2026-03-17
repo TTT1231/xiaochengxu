@@ -8,12 +8,11 @@ class SupabaseClient {
    private supabaseUrl: string;
    private supabaseKey: string;
    private client: ReturnType<typeof createClient>;
-   private accessToken: string;
+   private accessToken = '';
 
-   constructor(supabaseUrl: string, supabaseKey: string, accessToken: string = '') {
+   constructor(supabaseUrl: string, supabaseKey: string) {
       this.supabaseUrl = supabaseUrl;
       this.supabaseKey = supabaseKey;
-      this.accessToken = accessToken;
       this.client = createClient(this.supabaseUrl, this.supabaseKey);
    }
 
@@ -23,20 +22,15 @@ class SupabaseClient {
          global: { headers: { Authorization: `Bearer ${this.accessToken}` } },
       });
    }
+
    setAccessToken(token: string) {
       this.accessToken = token;
    }
+
    clearAccessToken() {
       this.accessToken = '';
    }
-   getAccessToken(): string {
-      return this.accessToken;
-   }
 
-   /**
-    * @description 通用查询方法 - 查询表所有数据
-    * @template T - data默认返回T[]
-    */
    async query<T>(table: string): Promise<PostgrestResponse<T>> {
       return (await this.client.from(table).select('*')) as unknown as PostgrestResponse<T>;
    }

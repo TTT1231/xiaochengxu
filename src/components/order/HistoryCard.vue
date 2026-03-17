@@ -15,30 +15,20 @@ const emit = defineEmits<{
    reorder: [order: Orders];
 }>();
 
-const refreshIconSrc = commonIcons.refresh;
-
 const itemsSummary = computed(() => {
-   const items = props.order.oder_details;
-   if (!items || items.length === 0) return '';
+   const items = props.order.oder_details ?? [];
+   if (items.length === 0) return '';
    return items.map(item => `${item.product_name} x${item.quantity}`).join(', ');
 });
 
 const firstThumb = computed(() => {
-   const items = props.order.oder_details;
-   return items && items.length > 0 ? items[0].product_image : '';
+   const items = props.order.oder_details ?? [];
+   return items[0]?.product_image ?? '';
 });
-
-const handleCardClick = () => {
-   emit('click', props.order);
-};
-
-const handleReorder = () => {
-   emit('reorder', props.order);
-};
 </script>
 
 <template>
-   <view class="history-card" @click="handleCardClick">
+   <view class="history-card" @click="emit('click', order)">
       <view class="card-header">
          <view class="store-info">
             <image v-if="firstThumb" class="store-thumb" :src="firstThumb" mode="aspectFill" />
@@ -55,8 +45,8 @@ const handleReorder = () => {
 
       <view class="card-footer">
          <text class="price">{{ formatPriceDisplay(order.total_amount) }}</text>
-         <view class="reorder-btn" @click.stop="handleReorder">
-            <image class="refresh-icon" :src="refreshIconSrc" mode="aspectFit" />
+         <view class="reorder-btn" @click.stop="emit('reorder', order)">
+            <image class="refresh-icon" :src="commonIcons.refresh" mode="aspectFit" />
             <text class="reorder-text">再来一单</text>
          </view>
       </view>

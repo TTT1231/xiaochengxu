@@ -25,9 +25,7 @@ const icons = {
 };
 
 const handleBack = (): void => {
-   uni.navigateBack({
-      delta: 1,
-   });
+   uni.navigateBack();
 };
 const handleLocationClick = (): void => {
    // TODO: 门店选择
@@ -39,7 +37,6 @@ const handleQrcodeClick = (): void => {
 
 <template>
    <view class="header" :style="{ paddingTop: menuTop + 'px' }">
-      <!-- 首页模式：门店 + 图标 + 搜索栏 -->
       <template v-if="mode === 'home'">
          <view class="home-header-content">
             <view
@@ -63,7 +60,6 @@ const handleQrcodeClick = (): void => {
          </view>
       </template>
 
-      <!-- 普通页面模式：返回按钮 + 标题 -->
       <template v-else>
          <view class="simple-header" :style="{ height: menuHeight + 'px' }">
             <view v-if="showBack" class="back-btn" @click="handleBack">
@@ -92,7 +88,6 @@ const handleQrcodeClick = (): void => {
    border-bottom-right-radius: 32rpx;
 }
 
-// 首页模式
 .home-header-content {
    padding: 0 32rpx;
    display: flex;
@@ -158,7 +153,6 @@ const handleQrcodeClick = (): void => {
    opacity: 0.85;
 }
 
-// 普通模式
 .simple-header {
    display: flex;
    align-items: center;

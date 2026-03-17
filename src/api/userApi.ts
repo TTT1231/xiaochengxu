@@ -4,21 +4,17 @@ import type { Users, Credits } from '@/types';
 
 const envConfig = useEnvConfig();
 
-// 成功响应
 interface LoginSuccessResponse {
    success: true;
    message: string;
    data: {
       openid: string;
       isNewUser: boolean;
-      /** supabase jwt auth access token */
       accessToken: string;
-      /** supabase jwt refresh token */
       refreshToken: string;
    };
 }
 
-// 失败响应
 interface LoginFailResponse {
    success: false;
    message: string;
@@ -27,17 +23,11 @@ interface LoginFailResponse {
 
 type LoginResponse = LoginSuccessResponse | LoginFailResponse;
 
-/** 用户档案（用户信息 + 积分） */
 export interface UserProfile {
    user: Users;
    credits: Credits | null;
 }
 
-/**
- * 微信登录接口
- * @param code - 微信登录凭证
- * @returns 登录/注册结果，包含 openid、accessToken、refreshToken
- */
 export async function login(code: string): Promise<LoginResponse> {
    if (!code?.trim()) return { success: false, message: '缺少code参数' };
 
@@ -71,9 +61,6 @@ export async function login(code: string): Promise<LoginResponse> {
    });
 }
 
-/**
- * 获取用户档案（用户信息 + 积分）
- */
 export async function getUserProfile(openid: string): Promise<UserProfile> {
    const client = supabaseClient.getClient();
    // eslint-disable-next-line @typescript-eslint/no-explicit-any

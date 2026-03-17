@@ -13,19 +13,27 @@ const { headerHeight } = useHeaderHeight();
 const order = ref<Orders | null>(null);
 const loading = ref(true);
 const cancelling = ref(false);
-
 const orderId = ref('');
 
-/** 是否可取消（仅 pending 状态） */
 const canCancel = computed(() => order.value?.order_status === 'pending');
 
-/** 实付金额 */
 const actualAmount = computed(() => {
    if (!order.value) return 0;
    return order.value.total_amount - (order.value.discount_amount ?? 0);
 });
 
-/** 加载订单数据 */
+const statusColor = computed(() => (order.value ? getStatusColor(order.value.order_status) : ''));
+
+function getStatusIcon(status: string): string {
+   const icons: Record<string, string> = {
+      pending: '\u23F3',
+      preparing: '\uD83D\uDD25',
+      ready: '\u2705',
+      completed: '\uD83D\uDCE6',
+   };
+   return icons[status] ?? '\u2715';
+}
+
 const fetchOrder = async () => {
    loading.value = true;
    try {
@@ -38,7 +46,6 @@ const fetchOrder = async () => {
    }
 };
 
-/** 取消订单 */
 const handleCancelOrder = () => {
    uni.showModal({
       title: '确认取消',
@@ -86,38 +93,23 @@ onLoad(async options => {
       </view>
 
       <scroll-view v-else scroll-y class="content-scroll">
-         <!-- 状态横幅 -->
          <view
             class="status-hero"
             :style="{
-               backgroundColor: getStatusColor(order.order_status) + '0d',
-               borderBottomColor: getStatusColor(order.order_status) + '20',
+               backgroundColor: statusColor + '0d',
+               borderBottomColor: statusColor + '20',
             }"
          >
-            <view
-               class="status-icon-ring"
-               :style="{ borderColor: getStatusColor(order.order_status) + '30' }"
-            >
-               <text class="status-icon" :style="{ color: getStatusColor(order.order_status) }">
-                  {{
-                     order.order_status === 'pending'
-                        ? '⏳'
-                        : order.order_status === 'preparing'
-                          ? '🔥'
-                          : order.order_status === 'ready'
-                            ? '✅'
-                            : order.order_status === 'completed'
-                              ? '📦'
-                              : '✕'
-                  }}
+            <view class="status-icon-ring" :style="{ borderColor: statusColor + '30' }">
+               <text class="status-icon" :style="{ color: statusColor }">
+                  {{ getStatusIcon(order.order_status) }}
                </text>
             </view>
-            <text class="status-title" :style="{ color: getStatusColor(order.order_status) }">
+            <text class="status-title" :style="{ color: statusColor }">
                {{ getStatusText(order.order_status) }}
             </text>
          </view>
 
-         <!-- 订单元信息 -->
          <view class="meta-strip">
             <view class="meta-item">
                <text class="meta-key">订单号</text>

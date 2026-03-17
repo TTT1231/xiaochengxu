@@ -11,34 +11,31 @@ const product = ref<Products | null>(null);
 const currentSlide = ref(0);
 const selectedSpecs = ref<Record<string, string>>({});
 
-/** 轮播图图片列表：解析 images 字段（用 & 分隔） */
+/** 轮播图图片列表（images 字段用 & 分隔） */
 const carouselImages = computed(() => {
    if (!product.value?.images) return [];
    return product.value.images.split('&').filter(Boolean);
 });
 
-/** 是否有多张图片（需要轮播） */
 const hasMultipleImages = computed(() => carouselImages.value.length > 1);
 
-/** 规格组列表（从 product.specs 动态获取） */
+/** 规格组列表 */
 const specGroups = computed(() => {
    if (!product.value?.specs) return [];
    return Object.values(product.value.specs);
 });
 
-/** 折后价格 */
 const discountedPrice = computed(() => {
    if (!product.value) return 0;
    return product.value.price - product.value.discount;
 });
 
-/** 是否有优惠 */
 const hasDiscount = computed(() => {
    if (!product.value) return false;
    return product.value.discount > 0;
 });
 
-/** 初始化默认选中每个规格组的第一个非售罄选项 */
+/** 初始化默认选中每个规格组的第一个可用选项 */
 const initDefaultSpecs = () => {
    if (!product.value?.specs) return;
    const defaults: Record<string, string> = {};
@@ -51,7 +48,6 @@ const initDefaultSpecs = () => {
    selectedSpecs.value = defaults;
 };
 
-/** 选择规格 */
 const handleSelectSpec = (specKey: string, optionValue: string) => {
    selectedSpecs.value = { ...selectedSpecs.value, [specKey]: optionValue };
 };
@@ -87,7 +83,6 @@ const handleAddToCart = () => {
 <template>
    <view class="page" v-if="product">
       <view class="carousel-section">
-         <!-- 多张图片：使用轮播 -->
          <swiper
             v-if="hasMultipleImages"
             class="carousel"
@@ -100,7 +95,6 @@ const handleAddToCart = () => {
             </swiper-item>
          </swiper>
 
-         <!-- 单张图片 -->
          <image
             v-else
             class="carousel-image single-image"
@@ -108,7 +102,6 @@ const handleAddToCart = () => {
             mode="aspectFill"
          />
 
-         <!-- 轮播指示器 -->
          <view v-if="hasMultipleImages" class="carousel-indicators">
             <view
                v-for="(_, index) in carouselImages"
@@ -142,12 +135,10 @@ const handleAddToCart = () => {
             </view>
          </view>
 
-         <!-- 描述 -->
          <text class="description">{{ product.description }}</text>
 
          <view class="divider" />
 
-         <!-- 动态规格选项 -->
          <view v-if="specGroups.length > 0" class="options-section">
             <view v-for="group in specGroups" :key="group.name" class="option-group">
                <text class="option-title">{{ group.name }}</text>
@@ -172,7 +163,6 @@ const handleAddToCart = () => {
          </view>
       </view>
 
-      <!-- 底部栏 -->
       <view class="bottom-bar">
          <view class="add-cart-btn" @click="handleAddToCart">
             <text class="btn-text">加入购物车</text>
@@ -189,7 +179,6 @@ const handleAddToCart = () => {
    padding-bottom: calc(128rpx + env(safe-area-inset-bottom));
 }
 
-// 轮播图区域
 .carousel-section {
    position: relative;
    width: 100%;
@@ -229,7 +218,6 @@ const handleAddToCart = () => {
    }
 }
 
-// 主内容区域
 .main-content {
    position: relative;
    margin-top: -48rpx;
@@ -270,7 +258,6 @@ const handleAddToCart = () => {
    font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
-// 价格
 .price-row {
    display: flex;
    align-items: baseline;
@@ -326,7 +313,6 @@ const handleAddToCart = () => {
    }
 }
 
-// 描述
 .description {
    font-size: 28rpx;
    color: $text-secondary;
@@ -335,14 +321,12 @@ const handleAddToCart = () => {
    margin-bottom: 32rpx;
 }
 
-// 分隔线
 .divider {
    height: 2rpx;
    background-color: rgba(238, 134, 43, 0.1);
    margin-bottom: 48rpx;
 }
 
-// 选项区域
 .options-section {
    display: flex;
    flex-direction: column;
@@ -400,7 +384,6 @@ const handleAddToCart = () => {
    color: $text-muted;
 }
 
-// 底部栏
 .bottom-bar {
    position: fixed;
    bottom: 0;

@@ -18,23 +18,11 @@ export const useHomeStore = defineStore('home', {
    }),
 
    getters: {
-      /** 按分类ID分组的产品Map */
-      productsByCategory: state => {
-         const map = new Map<number, Products[]>();
-         for (const product of state.products) {
-            const list = map.get(product.categoried_id) ?? [];
-            map.set(product.categoried_id, [...list, product]);
-         }
-         return map;
-      },
-
-      /** 获取指定分类的产品列表（返回函数支持传参） */
       getProductsByCategory:
          state =>
          (categoryId: number): Products[] =>
             state.products.filter(p => p.categoried_id === categoryId),
 
-      /** 根据ID获取产品（返回函数支持传参） */
       getProductById:
          state =>
          (productId: string): Products | undefined =>
@@ -42,9 +30,8 @@ export const useHomeStore = defineStore('home', {
    },
 
    actions: {
-      /** 获取首页数据（分类 + 产品） */
       async fetchData(): Promise<void> {
-         if (this.categories.length > 0) return; // 已加载，跳过
+         if (this.categories.length > 0) return;
          this.loading = true;
          this.error = null;
          try {

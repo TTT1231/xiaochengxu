@@ -15,7 +15,6 @@ const cartStore = useCartStore();
 
 const activeCategoryId = ref<number>(0);
 const { headerHeight } = useHeaderHeight();
-const isScrolling = ref(false);
 const currentScrollTop = ref(0);
 
 const { totalCount, totalAmount } = storeToRefs(cartStore);
@@ -41,7 +40,6 @@ watch(
 
 const handleCategorySelect = (id: number): void => {
    activeCategoryId.value = id;
-   isScrolling.value = true;
 
    const query = uni.createSelectorQuery();
    query.select('#section-' + id).boundingClientRect();
@@ -55,10 +53,6 @@ const handleCategorySelect = (id: number): void => {
          });
       }
    });
-
-   setTimeout(() => {
-      isScrolling.value = false;
-   }, 400);
 };
 
 const handleCartClick = (): void => {
