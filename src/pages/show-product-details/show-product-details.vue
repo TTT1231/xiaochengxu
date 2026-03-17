@@ -26,10 +26,16 @@ const specGroups = computed(() => {
    return Object.values(product.value.specs);
 });
 
-/** 计算含规格加价的总价 */
-const totalPrice = computed(() => {
+/** 折后价格 */
+const discountedPrice = computed(() => {
    if (!product.value) return 0;
-   return product.value.price;
+   return product.value.price - product.value.discount;
+});
+
+/** 是否有优惠 */
+const hasDiscount = computed(() => {
+   if (!product.value) return false;
+   return product.value.discount > 0;
 });
 
 /** 初始化默认选中每个规格组的第一个非售罄选项 */
@@ -122,11 +128,17 @@ const handleAddToCart = () => {
             </view>
          </view>
 
-         <!-- 价格 -->
          <view class="price-row">
             <view class="current-price">
                <text class="currency">¥</text>
-               <text class="amount">{{ totalPrice }}</text>
+               <text class="amount">{{ discountedPrice }}</text>
+            </view>
+            <view v-if="hasDiscount" class="original-price">
+               <text class="orig-currency">¥</text>
+               <text class="orig-amount">{{ product.price }}</text>
+            </view>
+            <view v-if="hasDiscount" class="discount-tag">
+               <text class="discount-tag-text">省¥{{ product.discount }}</text>
             </view>
          </view>
 
@@ -264,6 +276,36 @@ const handleAddToCart = () => {
    align-items: baseline;
    gap: 16rpx;
    margin-bottom: 32rpx;
+}
+
+.original-price {
+   display: flex;
+   align-items: baseline;
+   color: $text-muted;
+   text-decoration: line-through;
+
+   .orig-currency {
+      font-size: 24rpx;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+   }
+
+   .orig-amount {
+      font-size: 32rpx;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+   }
+}
+
+.discount-tag {
+   background-color: rgba(239, 68, 68, 0.1);
+   padding: 4rpx 16rpx;
+   border-radius: $radius-full;
+}
+
+.discount-tag-text {
+   font-size: 22rpx;
+   color: $badge-error;
+   font-weight: 500;
+   line-height: 30rpx;
 }
 
 .current-price {

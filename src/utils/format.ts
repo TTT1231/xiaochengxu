@@ -32,7 +32,7 @@ export function formatNumber(num: number): string {
  * 格式化价格（分转元，保留两位小数）
  */
 export function formatPrice(price: number): string {
-   return price.toFixed(2);
+   return price % 1 === 0 ? price.toString() : price.toFixed(2);
 }
 
 /**

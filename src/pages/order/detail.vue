@@ -147,7 +147,10 @@ onLoad(async options => {
                      </view>
                   </view>
                   <view class="product-bottom">
-                     <text class="product-price">{{ formatPriceDisplay(item.price) }}</text>
+                     <view class="price-group">
+                        <text class="product-price">{{ formatPriceDisplay(item.price - item.discount) }}</text>
+                        <text v-if="item.discount > 0" class="product-original-price">{{ formatPriceDisplay(item.price) }}</text>
+                     </view>
                      <text class="product-qty">x{{ item.quantity }}</text>
                   </view>
                </view>
@@ -390,6 +393,20 @@ onLoad(async options => {
    align-items: center;
    justify-content: space-between;
    margin-top: 8rpx;
+}
+
+.price-group {
+   display: flex;
+   align-items: baseline;
+   gap: 10rpx;
+}
+
+.product-original-price {
+   font-size: 22rpx;
+   color: $text-muted;
+   text-decoration: line-through;
+   font-family: 'Plus Jakarta Sans', sans-serif;
+   line-height: 30rpx;
 }
 
 .product-price {

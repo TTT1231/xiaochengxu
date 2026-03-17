@@ -48,6 +48,8 @@ export interface Products {
    images: string;
    /** 产品规格 (JSON) / Product specifications */
    specs: ProductSpecs;
+   /** 优惠金额 (单位: 元) / Discount amount in yuan, 0 = no discount */
+   discount: number;
    /** 状态 (上架/下架) / Status (enabled/disabled) */
    status: boolean;
 }

@@ -22,8 +22,22 @@ export const useCartStore = defineStore('cart', {
       /** 购物车商品总数 */
       totalCount: state => state.items.reduce((sum, item) => sum + item.quantity, 0),
 
-      /** 购物车总金额 */
+      /** 购物车总金额（折后价） */
       totalAmount: state =>
+         state.items.reduce(
+            (sum, item) => sum + (item.product.price - item.product.discount) * item.quantity,
+            0,
+         ),
+
+      /** 购物车总优惠 */
+      totalDiscount: state =>
+         state.items.reduce(
+            (sum, item) => sum + item.product.discount * item.quantity,
+            0,
+         ),
+
+      /** 购物车原价总和 */
+      originalAmount: state =>
          state.items.reduce((sum, item) => sum + item.product.price * item.quantity, 0),
 
       /** 获取指定商品数量（返回函数支持传参） */

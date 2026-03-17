@@ -14,8 +14,10 @@ export interface OrderDetailItem {
    product_image: string;
    /** 用户选择的规格 { "甜度": "标准甜", "包装": "精美礼盒" } */
    specs: Record<string, string>;
-   /** 含规格加价的单价（分） / Unit price including spec surcharges (in cents) */
+   /** 含规格加价的单价（元） / Unit price (in yuan) */
    price: number;
+   /** 单品优惠金额（元） / Per-item discount (in yuan) */
+   discount: number;
    /** 数量 / Quantity */
    quantity: number;
 }

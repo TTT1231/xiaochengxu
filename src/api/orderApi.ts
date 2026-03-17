@@ -40,6 +40,7 @@ export async function createOrder(params: CreateOrderParams): Promise<Orders> {
       product_image: item.product.images.split('&')[0] || '',
       specs: item.selectedSpecs,
       price: item.product.price,
+      discount: item.product.discount,
       quantity: item.quantity,
    }));
 

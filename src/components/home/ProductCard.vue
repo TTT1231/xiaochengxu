@@ -23,6 +23,9 @@ const handleClick = (): void => {
 <template>
    <view class="card-container" @click="handleClick">
       <image class="card-cover" :src="getMainImage(product.images)" mode="aspectFill" />
+      <view v-if="product.discount > 0" class="discount-badge">
+         <text class="discount-badge-text">省¥{{ product.discount }}</text>
+      </view>
 
       <view class="card-content">
          <view class="text-group">
@@ -31,7 +34,10 @@ const handleClick = (): void => {
          </view>
 
          <view class="bottom-group">
-            <view class="price">{{ formatPriceDisplay(product.price) }}</view>
+            <view class="price-area">
+               <view class="price">{{ formatPriceDisplay(product.price - product.discount) }}</view>
+               <view v-if="product.discount > 0" class="original-price">{{ formatPriceDisplay(product.price) }}</view>
+            </view>
             <view class="action-btn">
                <view v-if="quantity && quantity > 0" class="badge">
                   <text class="badge-num">{{ quantity }}</text>
@@ -45,6 +51,7 @@ const handleClick = (): void => {
 <style lang="scss" scoped>
 .card-container {
    display: flex;
+   position: relative;
    width: 100%;
    padding: 0;
    box-sizing: border-box;
@@ -56,6 +63,22 @@ const handleClick = (): void => {
    border-radius: 32rpx;
    background-color: $bg-page;
    flex-shrink: 0;
+}
+
+.discount-badge {
+   position: absolute;
+   top: 12rpx;
+   left: 12rpx;
+   background-color: $badge-error;
+   padding: 4rpx 14rpx;
+   border-radius: $radius-full;
+}
+
+.discount-badge-text {
+   font-size: 20rpx;
+   color: #ffffff;
+   font-weight: 600;
+   line-height: 28rpx;
 }
 
 .card-content {
@@ -111,18 +134,34 @@ const handleClick = (): void => {
    box-sizing: border-box;
 }
 
+.price-area {
+   display: flex;
+   align-items: baseline;
+   gap: 12rpx;
+   flex: 1;
+   min-width: 0;
+   margin-right: 20rpx;
+   overflow: hidden;
+}
+
+.original-price {
+   font-size: 22rpx;
+   color: $text-muted;
+   text-decoration: line-through;
+   font-family: 'Plus Jakarta Sans', sans-serif;
+   line-height: 1;
+   flex-shrink: 0;
+}
+
 .price {
    font-size: 32rpx;
    font-weight: 700;
    color: $brand-primary;
    line-height: 1;
    font-family: 'Plus Jakarta Sans', sans-serif;
-   flex: 1;
-   min-width: 0;
    overflow: hidden;
    text-overflow: ellipsis;
    white-space: nowrap;
-   margin-right: 20rpx;
 }
 
 .action-btn {

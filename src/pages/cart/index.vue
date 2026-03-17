@@ -11,7 +11,7 @@ const { headerHeight } = useHeaderHeight();
 
 const cartStore = useCartStore();
 const userStore = useUserStore();
-const { items: cartItems, totalAmount, removeItem, addItem } = cartStore;
+const { items: cartItems, totalAmount, originalAmount, totalDiscount, removeItem, addItem } = cartStore;
 const submitting = ref(false);
 
 const handleRemove = (productId: string) => {
@@ -38,7 +38,8 @@ const handleCheckout = async () => {
       const order = await createOrder({
          userId: userStore.openid,
          items: cartItems,
-         totalAmount: totalAmount,
+         totalAmount: originalAmount,
+         discountAmount: totalDiscount,
       });
 
       cartStore.clearCart();
@@ -82,7 +83,10 @@ const handleCheckout = async () => {
                         {{ value }}
                      </text>
                   </view>
-                  <text class="item-price">{{ formatPriceDisplay(item.product.price) }}</text>
+                  <view class="item-price-group">
+                     <text class="item-price">{{ formatPriceDisplay(item.product.price - item.product.discount) }}</text>
+                     <text v-if="item.product.discount > 0" class="item-original-price">{{ formatPriceDisplay(item.product.price) }}</text>
+                  </view>
                </view>
                <view class="quantity-control">
                   <view class="control-btn minus" @click="handleRemove(item.product._id)">
@@ -205,10 +209,23 @@ const handleCheckout = async () => {
    line-height: 32rpx;
 }
 
+.item-price-group {
+   display: flex;
+   align-items: baseline;
+   gap: 10rpx;
+}
+
 .item-price {
    font-size: 32rpx;
    font-weight: 700;
    color: $brand-primary;
+}
+
+.item-original-price {
+   font-size: 22rpx;
+   color: $text-muted;
+   text-decoration: line-through;
+   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 .quantity-control {
