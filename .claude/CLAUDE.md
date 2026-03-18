@@ -9,13 +9,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Common Commands
 
 ```bash
-# Development
-pnpm dev:h5          # H5 web development
-pnpm dev:mp-weixin   # WeChat Mini Program development
+# Development (primary workflow — compile + open WeChat DevTools + HMR)
+node scripts/dev.mjs dev    # Start dev server, auto-open DevTools, HMR on save
+node scripts/dev.mjs stop   # Close project in WeChat DevTools
 
-# Build
-pnpm build:h5        # Build for H5
-pnpm build:mp-weixin # Build for WeChat Mini Program
+# Build (output to dist/dev/mp-weixin)
+pnpm dev:mp-weixin   # Compile only (no DevTools open)
+pnpm build:mp-weixin # Production build
 
 # Code Quality
 pnpm type-check      # TypeScript type checking (vue-tsc)
@@ -30,36 +30,50 @@ pnpm format          # Prettier format
 src/
 ├── pages/                    # Page components (routes configured in pages.json)
 │   ├── index/               # 首页/点单 (Home/Order)
-│   ├── order/               # 订单 (Orders)
+│   ├── order/               # 订单 (Orders) + order/detail.vue
 │   ├── profile/             # 我的 (Profile)
 │   ├── points/              # 积分商城 (Points Mall)
-│   └── cart/                # 购物车 (Cart)
+│   ├── cart/                # 购物车 (Cart)
+│   └── show-product-details/ # 商品详情页 (Product Details)
 ├── components/
-│   ├── common/              # Shared components (Header, TabBar, SearchBar)
-│   ├── home/                # Home page components (Banner, CategorySidebar, ProductCard, FloatingCart)
+│   ├── common/              # Shared components (Header, TabBar)
+│   ├── home/                # Home page components (Banner, ProductCard, FloatingCart)
 │   ├── order/               # Order page components (OrderCard, OrderToggle, HistoryCard)
-│   ├── points/              # Points page components (CategoryTabs, PointsCard, RewardCard)
+│   ├── points/              # Points page components (PointsCard, RewardCard)
 │   └── profile/             # Profile page components (UserCard, StatsCard, MenuList)
-├── composables/             # Vue composables (state management)
-│   ├── useCart.ts          # Cart state & operations
-│   └── useOrder.ts         # Order logic
+├── stores/                  # Pinia state management
+│   ├── index.ts             # Re-export all stores
+│   └── modules/
+│       ├── cartStore.ts     # Cart state & operations
+│       ├── homeStore.ts     # Home page state
+│       └── userStore.ts     # User state & auth
+├── composables/             # Vue composables
+│   ├── useHeaderHeight.ts   # Dynamic header height calculation
+│   ├── useOrder.ts          # Order logic
+│   └── useUserLevel.ts      # User level calculation
 ├── types/                   # TypeScript type definitions
-│   ├── index.ts            # Re-export all types
-│   ├── product.ts          # Product, Category, CartItem
-│   ├── order.ts            # Order, OrderItem, OrderStatus
-│   └── user.ts             # User, Reward
+│   ├── index.ts             # Re-export all types
+│   ├── constants.ts         # OrderStatus, ORDER_STATUS_TEXT
+│   └── db-scheme/           # Supabase DB schema types
+│       ├── index.ts         # Re-export DB types
+│       ├── products.ts      # Products, ProductSpecs, ProductSpecGroup/Option
+│       ├── categoried.ts    # Categoried (product categories)
+│       ├── orders.ts        # Orders, OrderDetailItem
+│       └── users.ts         # Users, Credits
+├── api/                     # API layer (Supabase queries)
+│   ├── homeDataApi.ts       # Home page data fetching
+│   ├── orderApi.ts          # Order operations
+│   └── userApi.ts           # User operations
+├── hooks/                   # Vue hooks
+│   └── useEnvConfig.ts      # Environment config (Supabase URL/Key)
 ├── mock/                    # Mock data for development
-│   ├── index.ts            # Re-export all mock data
-│   ├── products.ts         # Product catalog
-│   ├── categories.ts       # Product categories
-│   ├── orders.ts           # Sample orders
-│   ├── user.ts             # User profile data
-│   ├── rewards.ts          # Points rewards
-│   └── readme.md           # Mock data structure documentation
+│   ├── index.ts             # Re-export mock data
+│   └── user.ts              # User profile mock data
 ├── data/                    # Static data & constants
-│   └── imgPaths.ts         # Image path constants (icons, tabbar, etc.)
+│   └── imgPaths.ts          # Image path constants (icons, tabbar, etc.)
 ├── utils/                   # Utility functions
-│   └── format.ts           # Formatting helpers (price, date, number)
+│   ├── format.ts            # Formatting helpers (price, date, number)
+│   └── supabaseClient.ts    # Supabase client initialization
 ├── static/                  # Static assets (images, icons)
 ├── pages.json               # Page routing configuration
 ├── manifest.json            # App metadata & platform configs
@@ -91,17 +105,11 @@ export function createApp() {
 
 ### State Management
 
-Uses **Vue Composables** pattern with module-level reactive state:
+Uses **Pinia** stores under `src/stores/modules/`:
 
-```typescript
-// composables/useCart.ts - Global cart state
-const cartItems = ref<CartItem[]>([]); // Module-level state (singleton)
-
-export function useCart() {
-   // Computed properties and methods
-   return { items, totalCount, totalAmount, addItem, removeItem, clearCart };
-}
-```
+- `cartStore.ts` — Cart items, total count/amount, add/remove/clear
+- `homeStore.ts` — Home page data (products, categories)
+- `userStore.ts` — User profile, auth state, points/credits
 
 ### Component Organization
 
@@ -176,73 +184,29 @@ Components matching patterns are auto-imported:
 | `src/manifest.json` | App metadata, platform configs, permissions |
 | `src/uni.scss` | Global SCSS variables (brand colors, spacing, shadows) |
 | `src/shime-uni.d.ts` | uni-app type augmentations for Vue |
-| `src/mock/readme.md` | Mock data structure documentation |
+| `src/utils/supabaseClient.ts` | Supabase client initialization |
+| `src/hooks/useEnvConfig.ts` | Environment config (Supabase URL/Key) |
 
 ## Design System (uni.scss)
 
-### Brand Colors
+Brand colors, status colors, text colors, spacing, shadows, and border radii are defined in `src/uni.scss`. Key variables:
 
-```scss
-$brand-primary: #ee862b;      // Main orange
-$brand-primary-light: rgba(238, 134, 43, 0.1);
-$brand-primary-dark: #d67520;
-```
-
-### Status Colors (Order Status)
-
-```scss
-$status-pending: #f59e0b;     // 待处理
-$status-preparing: #3b82f6;   // 制作中
-$status-ready: #10b981;       // 待取餐
-$status-completed: #6b7280;   // 已完成
-```
-
-### Text Colors
-
-```scss
-$text-primary: #0f172a;       // Primary text
-$text-secondary: #475569;     // Secondary text
-$text-tertiary: #64748b;      // Tertiary text
-$text-muted: #94a3b8;         // Muted/placeholder
-```
+- `$brand-primary: #ee862b` — Main orange
+- `$status-*` — Order status colors (pending/preparing/ready/completed)
+- `$text-primary/secondary/tertiary/muted` — Text hierarchy
+- `$radius-sm/md/lg/xl` — Border radii (rpx)
+- `$shadow-sm/card/lg` — Elevation levels
 
 ## Data Types
 
-### Core Types
-
-```typescript
-interface Product {
-   id: string;
-   name: string;
-   description: string;
-   price: number;
-   image: string;
-   categoryId: string;
-}
-
-interface CartItem {
-   product: Product;
-   quantity: number;
-}
-
-type OrderStatus = 'pending' | 'preparing' | 'ready' | 'completed';
-
-interface Order {
-   id: string;
-   orderNo: string;
-   storeName: string;
-   status: OrderStatus;
-   items: OrderItem[];
-   totalAmount: number;
-   createdAt: string;
-}
-```
+All types are defined in `src/types/`:
+- `src/types/constants.ts` — `OrderStatus` (includes `cancelled`), `ORDER_STATUS_TEXT`
+- `src/types/db-scheme/` — Supabase DB schema types (`Products`, `Categoried`, `Orders`, `Users`, `Credits`)
 
 ## Platform Notes
 
 - Use `view`, `text`, `image` instead of HTML elements (`div`, `span`, `img`)
 - Size units: `rpx` (responsive pixel, 750rpx = screen width)
-- Some CSS features unavailable on Mini Programs
 - Custom navigation style enabled (`navigationStyle: "custom"`)
 - Custom TabBar enabled (`tabBar.custom: true` in `pages.json`)
 
@@ -253,6 +217,9 @@ interface Order {
 - **Image paths**: Use absolute paths from `/static/` or `@/static/`
 - **v-for with :key**: Always required for list rendering performance
 - **Page lifecycle**: Use `onReady`, `onPageScroll` from `@dcloudio/uni-app`, not Vue's `onMounted`
+- **TabBar**: Custom TabBar managed via `src/components/common/TabBar.vue`
+- **Navigation**: Header component handles custom navigation bar
+- **Safe areas**: Use `env(safe-area-inset-bottom)` for bottom spacing
 
 ## Dependencies
 
@@ -262,6 +229,8 @@ interface Order {
 | `vue-i18n` | Internationalization |
 | `@dcloudio/uni-*` | uni-app platform modules (WeChat, H5, etc.) |
 | `sass` | SCSS preprocessing |
+| `supabase-wechat-stable-v2` | Supabase client for WeChat Mini Program |
+| `pinia` | State management |
 
 ## Development Workflow
 
@@ -286,9 +255,9 @@ interface Order {
 ### Development Commands
 
 ```bash
-# Start development
-pnpm dev:mp-weixin    # WeChat Mini Program (primary)
-pnpm dev:h5           # H5 web (secondary)
+# Start development (compile + open DevTools + HMR)
+node scripts/dev.mjs dev    # Primary dev workflow
+node scripts/dev.mjs stop   # Stop DevTools
 
 # Before committing
 pnpm lint:fix         # Fix ESLint issues
@@ -296,16 +265,7 @@ pnpm format           # Format with Prettier
 pnpm type-check       # Verify TypeScript types
 ```
 
-## Platform-Specific Gotchas
-
-### WeChat Mini Program
-
-- **Empty `<script setup>`**: Compiled away by uni-app, no bundle impact - keep for consistency
-- **TabBar**: Custom TabBar enabled, managed via `src/components/common/TabBar.vue`
-- **Navigation**: Custom style (`navigationStyle: "custom"`), Header component handles it
-- **Safe areas**: Use `env(safe-area-inset-bottom)` for bottom spacing
-
-### TypeScript Configuration
+## TypeScript Configuration
 
 - **Deprecated options**: `importsNotUsedAsValues` and `preserveValueImports` are inherited from `@vue/tsconfig`
 - **Do NOT "fix"** TypeScript warnings about these options - they're framework-level
