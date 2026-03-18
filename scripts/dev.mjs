@@ -69,41 +69,48 @@ function runCli(args) {
 }
 
 function dev() {
-   const buildProc = spawn('pnpm', ['dev:mp-weixin'], {
-      cwd: PROJECT_DIR,
-      stdio: ['ignore', 'pipe', 'pipe'],
-      shell: true,
-   });
+   return new Promise((resolve, reject) => {
+      const buildProc = spawn('pnpm', ['dev:mp-weixin'], {
+         cwd: PROJECT_DIR,
+         stdio: ['ignore', 'pipe', 'pipe'],
+         shell: true,
+      });
 
-   const cleanup = () => {
-      buildProc.kill();
-      process.exit(0);
-   };
-   process.on('SIGINT', cleanup);
-   process.on('SIGTERM', cleanup);
+      const cleanup = () => {
+         buildProc.kill();
+         process.exit(0);
+      };
+      process.on('SIGINT', cleanup);
+      process.on('SIGTERM', cleanup);
 
-   console.log('[1/2] Compiling uni-app (dev:mp-weixin)...');
+      console.log('[1/2] Compiling uni-app (dev:mp-weixin)...');
 
-   let compiled = false;
+      let compiled = false;
 
-   buildProc.stdout.on('data', (data) => {
-      const msg = data.toString();
-      process.stdout.write(msg);
+      buildProc.stdout.on('data', (data) => {
+         const msg = data.toString();
+         process.stdout.write(msg);
 
-      if (!compiled && (msg.includes('ready in') || msg.includes('watching'))) {
-         compiled = true;
-         console.log('\n[2/2] Opening WeChat DevTools...');
-         runCli(['open', '--project', DIST_PATH]);
-      }
-   });
+         if (!compiled && (msg.includes('ready in') || msg.includes('watching'))) {
+            compiled = true;
+            console.log('\n[2/2] Opening WeChat DevTools...');
+            runCli(['open', '--project', DIST_PATH]);
+         }
+      });
 
-   buildProc.stderr.on('data', (data) => {
-      process.stderr.write(data);
-   });
+      buildProc.stderr.on('data', (data) => {
+         process.stderr.write(data);
+      });
 
-   buildProc.on('error', (err) => {
-      console.error('Build failed:', err.message);
-      process.exit(1);
+      buildProc.on('error', (err) => {
+         console.error('Build failed:', err.message);
+         reject(err);
+      });
+
+      buildProc.on('close', (code) => {
+         if (code === 0) resolve();
+         else reject(new Error(`build exited with code ${code}`));
+      });
    });
 }
 
