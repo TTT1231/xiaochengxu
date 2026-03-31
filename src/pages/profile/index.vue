@@ -2,7 +2,6 @@
 import { computed } from 'vue';
 import { onShow } from '@dcloudio/uni-app';
 import { useUserStore } from '@/stores';
-import { commonIcons } from '@/data/imgPaths';
 import { useHeaderHeight } from '@/composables/useHeaderHeight';
 import { useUserLevel } from '@/composables/useUserLevel';
 import Header from '@/components/common/Header.vue';
@@ -13,8 +12,6 @@ import MenuList from '@/components/profile/MenuList.vue';
 
 const { headerHeight } = useHeaderHeight();
 const userStore = useUserStore();
-const serviceIconSrc = commonIcons.customerService;
-
 const userProfile = computed(() => userStore.user);
 const credits = computed(() => userStore.credits);
 
@@ -34,13 +31,6 @@ function handleCouponsClick(): void {
 
 function handleMenuClick(_key: string): void {
    // TODO: Implement menu navigation
-}
-
-function handleServiceClick(): void {
-   uni.showToast({
-      title: '正在连接客服...',
-      icon: 'loading',
-   });
 }
 
 function handleLogout(): void {
@@ -123,26 +113,7 @@ function handleLogout(): void {
          </view>
 
          <view class="card-spacing">
-            <MenuList :level="userProfile?.level" @click="handleMenuClick" />
-         </view>
-
-         <view class="card-spacing">
-            <view
-               class="service-btn"
-               :style="{ background: levelConfig.serviceGradient }"
-               @click="handleServiceClick"
-            >
-               <image class="service-icon" :src="serviceIconSrc" mode="aspectFit" />
-               <view class="service-text">
-                  <text class="service-title">联系客服</text>
-                  <text class="service-subtitle">解答您的任何疑问</text>
-               </view>
-               <text class="service-arrow">›</text>
-            </view>
-         </view>
-
-         <view class="logout-wrapper">
-            <text class="logout-text" @click="handleLogout">退出登录</text>
+            <MenuList :level="userProfile?.level" @click="handleMenuClick" @logout="handleLogout" />
          </view>
 
          <view class="bottom-spacer"></view>
@@ -203,66 +174,6 @@ function handleLogout(): void {
 
 .card-spacing {
    margin-bottom: 24rpx;
-}
-
-.service-btn {
-   border-radius: $radius-lg;
-   padding: 32rpx;
-   display: flex;
-   align-items: center;
-   gap: 20rpx;
-   box-shadow: $shadow-card;
-   transition: background 0.3s ease;
-}
-
-.service-icon {
-   width: 48rpx;
-   height: 48rpx;
-   flex-shrink: 0;
-}
-
-.service-text {
-   flex: 1;
-   display: flex;
-   flex-direction: column;
-   gap: 4rpx;
-}
-
-.service-title {
-   font-size: 32rpx;
-   font-weight: 500;
-   color: $uni-text-color-inverse;
-   line-height: 44rpx;
-}
-
-.service-subtitle {
-   font-size: 24rpx;
-   color: rgba(255, 255, 255, 0.8);
-   line-height: 34rpx;
-}
-
-.service-arrow {
-   font-size: 40rpx;
-   color: rgba(255, 255, 255, 0.8);
-   font-weight: 300;
-}
-
-.logout-wrapper {
-   display: flex;
-   justify-content: center;
-   align-items: center;
-   padding: 32rpx 0;
-   margin-bottom: 24rpx;
-   background-color: $bg-card;
-   border-radius: $radius-lg;
-   border: 2rpx solid $border-light;
-   box-shadow: $shadow-card;
-}
-
-.logout-text {
-   font-size: 28rpx;
-   color: $text-muted;
-   line-height: 40rpx;
 }
 
 .bottom-spacer {

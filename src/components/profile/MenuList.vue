@@ -21,11 +21,6 @@ const levelConfig = computed(() => useUserLevel(props.level ?? '普通会员'));
 
 const menuItems: MenuItem[] = [
    {
-      key: 'coupons',
-      icon: `${MENU_ICONS}/menu-coupons.svg`,
-      label: '我的优惠券',
-   },
-   {
       key: 'address',
       icon: `${MENU_ICONS}/menu-address.svg`,
       label: '地址管理',
@@ -35,10 +30,26 @@ const menuItems: MenuItem[] = [
       icon: `${MENU_ICONS}/menu-settings.svg`,
       label: '系统设置',
    },
+   {
+      key: 'privacy',
+      icon: `${MENU_ICONS}/menu-privacy.svg`,
+      label: '隐私政策',
+   },
+   {
+      key: 'agreement',
+      icon: `${MENU_ICONS}/menu-agreement.svg`,
+      label: '用户协议',
+   },
+   {
+      key: 'business',
+      icon: `${MENU_ICONS}/menu-business.svg`,
+      label: '经营公示',
+   },
 ];
 
 const emit = defineEmits<{
    (e: 'click', key: string): void;
+   (e: 'logout'): void;
 }>();
 </script>
 
@@ -64,6 +75,10 @@ const emit = defineEmits<{
          <view class="menu-arrow">
             <text class="arrow">›</text>
          </view>
+      </view>
+      <view class="menu-divider"></view>
+      <view class="logout-item" @click="emit('logout')">
+         <text class="logout-label">退出登录</text>
       </view>
    </view>
 </template>
@@ -127,5 +142,27 @@ const emit = defineEmits<{
       color: $text-muted;
       font-weight: 300;
    }
+}
+
+.menu-divider {
+   height: 16rpx;
+   background-color: $bg-page;
+}
+
+.logout-item {
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   padding: 28rpx 32rpx;
+
+   &:active {
+      background-color: $bg-hover;
+   }
+}
+
+.logout-label {
+   font-size: 28rpx;
+   color: $text-muted;
+   line-height: 40rpx;
 }
 </style>
