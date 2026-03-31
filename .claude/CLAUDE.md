@@ -9,8 +9,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Common Commands
 
 ```bash
-# Development (primary workflow — compile + open WeChat DevTools + HMR)
-node scripts/dev.mjs dev    # Start dev server, auto-open DevTools, HMR on save
+# Development (compile + open WeChat DevTools + HMR)
+node scripts/dev.mjs dev    # Start dev server, auto-open DevTools
 node scripts/dev.mjs stop   # Close project in WeChat DevTools
 
 # Build (output to dist/dev/mp-weixin)
@@ -19,66 +19,38 @@ pnpm build:mp-weixin # Production build
 
 # Code Quality
 pnpm type-check      # TypeScript type checking (vue-tsc)
-pnpm lint            # ESLint check
-pnpm lint:fix        # ESLint auto-fix
-pnpm format          # Prettier format
+pnpm lint:fix        # ESLint auto-fix + Prettier format
 ```
 
 ## Project Structure
 
 ```
 src/
-├── pages/                    # Page components (routes configured in pages.json)
+├── pages/                    # Page components (routes in pages.json)
 │   ├── index/               # 首页/点单 (Home/Order)
 │   ├── order/               # 订单 (Orders) + order/detail.vue
 │   ├── profile/             # 我的 (Profile)
 │   ├── points/              # 积分商城 (Points Mall)
 │   ├── cart/                # 购物车 (Cart)
 │   └── show-product-details/ # 商品详情页 (Product Details)
-├── components/
-│   ├── common/              # Shared components (Header, TabBar)
-│   ├── home/                # Home page components (Banner, ProductCard, FloatingCart)
-│   ├── order/               # Order page components (OrderCard, OrderToggle, HistoryCard)
-│   ├── points/              # Points page components (PointsCard, RewardCard)
-│   └── profile/             # Profile page components (UserCard, StatsCard, MenuList)
-├── stores/                  # Pinia state management
-│   ├── index.ts             # Re-export all stores
-│   └── modules/
-│       ├── cartStore.ts     # Cart state & operations
-│       ├── homeStore.ts     # Home page state
-│       └── userStore.ts     # User state & auth
-├── composables/             # Vue composables
-│   ├── useHeaderHeight.ts   # Dynamic header height calculation
-│   ├── useOrder.ts          # Order logic
-│   └── useUserLevel.ts      # User level calculation
-├── types/                   # TypeScript type definitions
-│   ├── index.ts             # Re-export all types
-│   ├── constants.ts         # OrderStatus, ORDER_STATUS_TEXT
-│   └── db-scheme/           # Supabase DB schema types
-│       ├── index.ts         # Re-export DB types
-│       ├── products.ts      # Products, ProductSpecs, ProductSpecGroup/Option
-│       ├── categoried.ts    # Categoried (product categories)
-│       ├── orders.ts        # Orders, OrderDetailItem
-│       └── users.ts         # Users, Credits
-├── api/                     # API layer (Supabase queries)
-│   ├── homeDataApi.ts       # Home page data fetching
-│   ├── orderApi.ts          # Order operations
-│   └── userApi.ts           # User operations
-├── hooks/                   # Vue hooks
-│   └── useEnvConfig.ts      # Environment config (Supabase URL/Key)
-├── mock/                    # Mock data for development
-│   ├── index.ts             # Re-export mock data
-│   └── user.ts              # User profile mock data
-├── data/                    # Static data & constants
-│   └── imgPaths.ts          # Image path constants (icons, tabbar, etc.)
-├── utils/                   # Utility functions
-│   ├── format.ts            # Formatting helpers (price, date, number)
-│   └── supabaseClient.ts    # Supabase client initialization
-├── static/                  # Static assets (images, icons)
-├── pages.json               # Page routing configuration
-├── manifest.json            # App metadata & platform configs
-├── uni.scss                 # Global SCSS variables
-└── App.vue                  # App root with lifecycle hooks
+├── components/               # Organized by feature
+│   ├── common/              # Header, TabBar
+│   ├── home/                # Banner, ProductCard, FloatingCart
+│   ├── order/               # OrderCard, OrderToggle, HistoryCard
+│   ├── points/              # PointsCard, RewardCard
+│   └── profile/             # UserCard, StatsCard, MenuList
+├── stores/modules/           # Pinia: cartStore, homeStore, userStore
+├── composables/              # useHeaderHeight, useOrder, useUserLevel
+├── types/                    # TypeScript types + db-scheme/
+├── api/                      # Supabase query layer
+├── hooks/                    # useEnvConfig (Supabase URL/Key)
+├── data/                     # Static constants (imgPaths)
+├── utils/                    # format, supabaseClient
+├── static/                   # Images, icons
+├── pages.json                # Page routing & tabBar config
+├── manifest.json             # App metadata & platform configs
+├── uni.scss                  # Global SCSS design tokens
+└── App.vue                   # App root with lifecycle hooks
 ```
 
 ## Architecture
@@ -187,6 +159,17 @@ Components matching patterns are auto-imported:
 | `src/utils/supabaseClient.ts` | Supabase client initialization |
 | `src/hooks/useEnvConfig.ts` | Environment config (Supabase URL/Key) |
 
+## Environment Configuration
+
+Supabase credentials are set via `.env` file at project root:
+
+```env
+VITE_SUPABASE_URL=<your-supabase-url>
+VITE_SUPABASE_PUBLISHABLE_KEY=<your-publishable-key>
+```
+
+Accessed at runtime via `useEnvConfig()` composable → `import.meta.env.VITE_*`.
+
 ## Design System (uni.scss)
 
 Brand colors, status colors, text colors, spacing, shadows, and border radii are defined in `src/uni.scss`. Key variables:
@@ -252,21 +235,8 @@ All types are defined in `src/types/`:
 2. Create in `src/components/<scope>/<Name>.vue`
 3. easycom auto-imports components matching patterns
 
-### Development Commands
-
-```bash
-# Start development (compile + open DevTools + HMR)
-node scripts/dev.mjs dev    # Primary dev workflow
-node scripts/dev.mjs stop   # Stop DevTools
-
-# Before committing
-pnpm lint:fix         # Fix ESLint issues
-pnpm format           # Format with Prettier
-pnpm type-check       # Verify TypeScript types
-```
-
 ## TypeScript Configuration
 
-- **Deprecated options**: `importsNotUsedAsValues` and `preserveValueImports` are inherited from `@vue/tsconfig`
-- **Do NOT "fix"** TypeScript warnings about these options - they're framework-level
+- **Deprecated options**: `importsNotUsedAsValues` and `preserveValueImports` are inherited from `@vue/tsconfig` but overridden locally in `tsconfig.json` to suppress IDE warnings
+- Local tsc version is 4.9.5 (does not report these as deprecated); VS Code uses its bundled TS which may show warnings — these are safe to ignore
 - See `.claude/rules/tsconfig-deprecated-options.md` for details

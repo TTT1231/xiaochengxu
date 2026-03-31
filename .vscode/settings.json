@@ -68,7 +68,7 @@
    "explorer.fileNesting.expand": false, // 默认折叠嵌套文件（不展开）
    "explorer.fileNesting.patterns": {
       //file fold
-      "package.json": "pnpm-lock.yaml, .gitignore,  .gitattributes,  .npmrc,shims-uni.d.ts",
+      "package.json": "pnpm-lock.yaml, .gitignore,  .gitattributes,  .npmrc,shims-uni.d.ts,README.md",
       "pages.json": "manifest.json,shime-uni.d.ts,uni.scss",
       "eslint.config.mjs": ".prettierignore, .prettierrc.json,.prettier,.editorconfig,cspell.json",
       ".env": ".env.*"
