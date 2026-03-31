@@ -32,43 +32,43 @@ A cross-platform dessert ordering mini app built for **WeChat Mini Program** and
 
 ### ✨ Key Highlights
 
-| Feature | Description |
-|:--------|:------------|
-| 🍰 **Product Browsing** | Category-based product listing with rich detail pages and spec customization |
-| 🛒 **Smart Cart** | Floating cart with real-time item count, spec selection, and quantity management |
-| 📋 **Order Tracking** | Full order lifecycle — pending, preparing, ready, completed, cancelled |
-| 🎁 **Points Mall** | Loyalty points system with redeemable rewards to drive repeat purchases |
-| 👤 **User Profile** | Order history, points balance, and membership level management |
-| 🌐 **Cross-Platform** | Single codebase compiles to WeChat Mini Program and H5 web |
+| Feature                 | Description                                                                      |
+| :---------------------- | :------------------------------------------------------------------------------- |
+| 🍰 **Product Browsing** | Category-based product listing with rich detail pages and spec customization     |
+| 🛒 **Smart Cart**       | Floating cart with real-time item count, spec selection, and quantity management |
+| 📋 **Order Tracking**   | Full order lifecycle — pending, preparing, ready, completed, cancelled           |
+| 🎁 **Points Mall**      | Loyalty points system with redeemable rewards to drive repeat purchases          |
+| 👤 **User Profile**     | Order history, points balance, and membership level management                   |
+| 🌐 **Cross-Platform**   | Single codebase compiles to WeChat Mini Program and H5 web                       |
 
 <br />
 
 ### 🛠 Tech Stack
 
-| Layer | Technology |
-|:------|:-----------|
-| Framework | Vue 3 + Composition API (`<script setup>`) |
-| Build Tool | Vite 5 + uni-app CLI |
-| Language | TypeScript |
-| State Management | Pinia |
-| Backend | Supabase (PostgreSQL + Auth + RLS) |
-| Styling | SCSS with `rpx` responsive units |
-| i18n | vue-i18n |
-| Code Quality | ESLint + Prettier + vue-tsc + cspell |
+| Layer            | Technology                                 |
+| :--------------- | :----------------------------------------- |
+| Framework        | Vue 3 + Composition API (`<script setup>`) |
+| Build Tool       | Vite 5 + uni-app CLI                       |
+| Language         | TypeScript                                 |
+| State Management | Pinia                                      |
+| Backend          | Supabase (PostgreSQL + Auth + RLS)         |
+| Styling          | SCSS with `rpx` responsive units           |
+| i18n             | vue-i18n                                   |
+| Code Quality     | ESLint + Prettier + vue-tsc + cspell       |
 
 <br />
 
 ### 📱 Pages
 
-| Page | Route | Description |
-|:-----|:------|:------------|
-| Home / Order | `pages/index/index` | Product browsing with category tabs and floating cart |
-| Orders | `pages/order/index` | Order list with status toggle (active / history) |
-| Order Detail | `pages/order/detail` | Single order details and status timeline |
-| Profile | `pages/profile/index` | User info, points, and settings menu |
-| Points Mall | `pages/points/index` | Browse and redeem rewards with points |
-| Cart | `pages/cart/index` | Cart items with spec editing and checkout |
-| Product Detail | `pages/show-product-details/` | Product info, spec groups, and add-to-cart |
+| Page           | Route                         | Description                                           |
+| :------------- | :---------------------------- | :---------------------------------------------------- |
+| Home / Order   | `pages/index/index`           | Product browsing with category tabs and floating cart |
+| Orders         | `pages/order/index`           | Order list with status toggle (active / history)      |
+| Order Detail   | `pages/order/detail`          | Single order details and status timeline              |
+| Profile        | `pages/profile/index`         | User info, points, and settings menu                  |
+| Points Mall    | `pages/points/index`          | Browse and redeem rewards with points                 |
+| Cart           | `pages/cart/index`            | Cart items with spec editing and checkout             |
+| Product Detail | `pages/show-product-details/` | Product info, spec groups, and add-to-cart            |
 
 <br />
 
@@ -158,43 +158,43 @@ Private project — all rights reserved.
 
 ### ✨ 核心功能
 
-| 功能 | 说明 |
-|:-----|:-----|
-| 🍰 **商品浏览** | 按分类浏览商品，支持富图文详情页和规格自定义 |
-| 🛒 **智能购物车** | 浮动购物车，实时显示商品数量，支持规格选择和数量管理 |
-| 📋 **订单追踪** | 完整订单生命周期 — 待付款、制作中、待取餐、已完成、已取消 |
-| 🎁 **积分商城** | 会员积分体系，可兑换奖励商品，促进复购 |
-| 👤 **个人中心** | 订单历史、积分余额、会员等级管理 |
-| 🌐 **跨平台** | 一套代码同时编译为微信小程序和 H5 网页 |
+| 功能              | 说明                                                      |
+| :---------------- | :-------------------------------------------------------- |
+| 🍰 **商品浏览**   | 按分类浏览商品，支持富图文详情页和规格自定义              |
+| 🛒 **智能购物车** | 浮动购物车，实时显示商品数量，支持规格选择和数量管理      |
+| 📋 **订单追踪**   | 完整订单生命周期 — 待付款、制作中、待取餐、已完成、已取消 |
+| 🎁 **积分商城**   | 会员积分体系，可兑换奖励商品，促进复购                    |
+| 👤 **个人中心**   | 订单历史、积分余额、会员等级管理                          |
+| 🌐 **跨平台**     | 一套代码同时编译为微信小程序和 H5 网页                    |
 
 <br />
 
 ### 🛠 技术栈
 
-| 层级 | 技术 |
-|:-----|:-----|
-| 框架 | Vue 3 + Composition API (`<script setup>`) |
-| 构建工具 | Vite 5 + uni-app CLI |
-| 语言 | TypeScript |
-| 状态管理 | Pinia |
-| 后端 | Supabase (PostgreSQL + Auth + RLS) |
-| 样式 | SCSS + `rpx` 响应式单位 |
-| 国际化 | vue-i18n |
-| 代码质量 | ESLint + Prettier + vue-tsc + cspell |
+| 层级     | 技术                                       |
+| :------- | :----------------------------------------- |
+| 框架     | Vue 3 + Composition API (`<script setup>`) |
+| 构建工具 | Vite 5 + uni-app CLI                       |
+| 语言     | TypeScript                                 |
+| 状态管理 | Pinia                                      |
+| 后端     | Supabase (PostgreSQL + Auth + RLS)         |
+| 样式     | SCSS + `rpx` 响应式单位                    |
+| 国际化   | vue-i18n                                   |
+| 代码质量 | ESLint + Prettier + vue-tsc + cspell       |
 
 <br />
 
 ### 📱 页面一览
 
-| 页面 | 路由 | 说明 |
-|:-----|:-----|:-----|
-| 首页 / 点单 | `pages/index/index` | 分类浏览商品，浮动购物车入口 |
-| 订单 | `pages/order/index` | 订单列表，支持进行中 / 历史订单切换 |
-| 订单详情 | `pages/order/detail` | 单笔订单详情与状态时间线 |
-| 我的 | `pages/profile/index` | 用户信息、积分、设置菜单 |
-| 积分商城 | `pages/points/index` | 浏览和兑换积分奖励 |
-| 购物车 | `pages/cart/index` | 购物车商品管理、规格编辑、结算 |
-| 商品详情 | `pages/show-product-details/` | 商品信息、规格组、加入购物车 |
+| 页面        | 路由                          | 说明                                |
+| :---------- | :---------------------------- | :---------------------------------- |
+| 首页 / 点单 | `pages/index/index`           | 分类浏览商品，浮动购物车入口        |
+| 订单        | `pages/order/index`           | 订单列表，支持进行中 / 历史订单切换 |
+| 订单详情    | `pages/order/detail`          | 单笔订单详情与状态时间线            |
+| 我的        | `pages/profile/index`         | 用户信息、积分、设置菜单            |
+| 积分商城    | `pages/points/index`          | 浏览和兑换积分奖励                  |
+| 购物车      | `pages/cart/index`            | 购物车商品管理、规格编辑、结算      |
+| 商品详情    | `pages/show-product-details/` | 商品信息、规格组、加入购物车        |
 
 <br />
 
@@ -257,12 +257,6 @@ pnpm lint:fix      # ESLint 自动修复
 pnpm format        # Prettier 格式化
 pnpm spell:check   # 拼写检查
 ```
-
-<br />
-
-### 📄 许可证
-
-私有项目 — 保留所有权利。
 
 <br />
 
