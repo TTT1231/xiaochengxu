@@ -86,6 +86,6 @@ export default [
 
    prettierConfig, // 禁用与 Prettier 冲突的规则，必须放在最后
    {
-      ignores: ['node_modules/**', 'dist/**', 'esbuild.config.mjs', 'scripts/dev.mjs'],
+      ignores: ['node_modules/**', 'dist/**', 'esbuild.config.mjs', 'scripts/dev.mjs', 'scripts/inject-env.mjs'],
    },
 ];
