@@ -89,12 +89,11 @@ function handleLogout(): void {
             <view v-else class="user-card-wrap">
                <UserCard
                   :user="{
-                     openid: '',
+                     _id: '',
                      name: '加载中...',
                      id: '--',
                      level: '普通会员',
                      created_at: '',
-                     user_id: '',
                   }"
                />
             </view>

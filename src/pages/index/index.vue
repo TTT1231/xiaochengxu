@@ -13,7 +13,7 @@ import { useHeaderHeight } from '@/composables/useHeaderHeight';
 const homeStore = useHomeStore();
 const cartStore = useCartStore();
 
-const activeCategoryId = ref<number>(0);
+const activeCategoryId = ref<string>('0');
 const { headerHeight } = useHeaderHeight();
 const currentScrollTop = ref(0);
 
@@ -24,7 +24,7 @@ const getProductsByCategory = homeStore.getProductsByCategory;
 
 onLoad(async () => {
    await homeStore.fetchData();
-   if (!activeCategoryId.value && homeStore.categories.length > 0) {
+   if (activeCategoryId.value === '0' && homeStore.categories.length > 0) {
       activeCategoryId.value = homeStore.categories[0]._id;
    }
 });
@@ -32,13 +32,13 @@ onLoad(async () => {
 watch(
    () => homeStore.categories,
    cats => {
-      if (cats.length > 0 && !activeCategoryId.value) {
+      if (cats.length > 0 && activeCategoryId.value === '0') {
          activeCategoryId.value = cats[0]._id;
       }
    },
 );
 
-const handleCategorySelect = (id: number): void => {
+const handleCategorySelect = (id: string): void => {
    activeCategoryId.value = id;
 
    const query = uni.createSelectorQuery();

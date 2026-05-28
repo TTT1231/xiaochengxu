@@ -1,6 +1,5 @@
+/** Environment configuration — WeChat Cloud uses project.config.json and cloud env,
+ *  no frontend env vars needed. This composable is kept as a stub for compatibility. */
 export function useEnvConfig() {
-   return {
-      supabaseUrl: import.meta.env.VITE_SUPABASE_URL as string,
-      supabasePublishableKey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string,
-   } as const;
+   return {} as const;
 }

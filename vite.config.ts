@@ -1,8 +1,11 @@
-import { defineConfig, loadEnv, type Plugin } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
 import uni from '@dcloudio/vite-plugin-uni';
 import { existsSync, readdirSync, mkdirSync, writeFileSync, readFileSync, cpSync } from 'node:fs';
-import { join, basename, extname } from 'node:path';
+import { join, extname, relative } from 'node:path';
 
+/** Recursively compile weixin-cloud/ directory into dist output.
+ *  Each cloud function is at weixin-cloud/<name>/index.ts
+ *  and compiles to dist/dev/mp-weixin/weixin-cloud/<name>/index.js */
 function compileWeixinCloud(): Plugin {
    return {
       name: 'compile-weixin-cloud',
@@ -15,46 +18,47 @@ function compileWeixinCloud(): Plugin {
          // @ts-expect-error esbuild is a transitive dependency of Vite
          const { transformSync } = await import('esbuild');
 
-         for (const file of readdirSync(cloudDir, { withFileTypes: true })) {
-            if (!file.isFile()) continue;
-            const srcPath = join(cloudDir, file.name);
-            const ext = extname(file.name);
+         function processDirectory(dir: string) {
+            for (const entry of readdirSync(dir, { withFileTypes: true })) {
+               const srcPath = join(dir, entry.name);
+               if (entry.isDirectory()) {
+                  processDirectory(srcPath);
+               } else if (entry.isFile()) {
+                  const ext = extname(entry.name);
+                  const relPath = relative(cloudDir, srcPath);
 
-            if (ext === '.ts') {
-               const result = transformSync(readFileSync(srcPath, 'utf-8'), {
-                  loader: 'ts',
-                  target: 'es2020',
-                  format: 'cjs',
-               });
-               writeFileSync(join(outDir, basename(file.name, ext) + '.js'), result.code);
-            } else {
-               cpSync(srcPath, join(outDir, file.name));
+                  if (ext === '.ts') {
+                     const result = transformSync(readFileSync(srcPath, 'utf-8'), {
+                        loader: 'ts',
+                        target: 'es2020',
+                        format: 'cjs',
+                     });
+                     const outPath = join(outDir, relPath.replace(/\.ts$/, '.js'));
+                     mkdirSync(join(outPath, '..'), { recursive: true });
+                     writeFileSync(outPath, result.code);
+                  } else {
+                     const outPath = join(outDir, relPath);
+                     mkdirSync(join(outPath, '..'), { recursive: true });
+                     cpSync(srcPath, outPath);
+                  }
+               }
             }
          }
+
+         processDirectory(cloudDir);
       },
    };
 }
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => {
-   const env = loadEnv(mode, process.cwd());
-
-   return {
-      plugins: [uni(), compileWeixinCloud()],
-      css: {
-         preprocessorOptions: {
-            scss: {
-               api: 'modern-compiler',
-               silenceDeprecations: ['legacy-js-api'],
-            },
+export default defineConfig({
+   plugins: [uni(), compileWeixinCloud()],
+   css: {
+      preprocessorOptions: {
+         scss: {
+            api: 'modern-compiler',
+            silenceDeprecations: ['legacy-js-api'],
          },
       },
-      define: {
-         // uni-app 小程序需要将整个 import.meta.env 对象替换
-         'import.meta.env': JSON.stringify({
-            VITE_SUPABASE_URL: env.VITE_SUPABASE_URL,
-            VITE_SUPABASE_PUBLISHABLE_KEY: env.VITE_SUPABASE_PUBLISHABLE_KEY,
-         }),
-      },
-   };
+   },
 });

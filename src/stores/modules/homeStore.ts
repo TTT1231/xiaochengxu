@@ -20,7 +20,7 @@ export const useHomeStore = defineStore('home', {
    getters: {
       getProductsByCategory:
          state =>
-         (categoryId: number): Products[] =>
+         (categoryId: string): Products[] =>
             state.products.filter(p => p.categoried_id === categoryId),
 
       getProductById:

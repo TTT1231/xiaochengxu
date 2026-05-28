@@ -21,17 +21,17 @@ export type ProductSpecs = Record<string, ProductSpecGroup>;
 
 /** 产品表 */
 export interface Products {
-   /** 主键 ID (UUID) */
+   /** 文档 _id = 原始数字 ID (字符串形式) */
    _id: string;
-   /** 分类 ID (外键关联 categoried 表) */
-   categoried_id: number;
+   /** 分类 ID (对应 Categoried._id) */
+   categoried_id: string;
    /** 产品名称 */
    name: string;
    /** 产品描述 */
    description: string;
    /** 价格 (单位: 分) */
    price: number;
-   /** 产品图片 (逗号分隔或 JSON 数组) */
+   /** 产品图片 (微信云 fileID，多个用 & 分隔) */
    images: string;
    /** 产品规格 (JSON) */
    specs: ProductSpecs;
