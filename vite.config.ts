@@ -1,7 +1,10 @@
 import { defineConfig, type Plugin } from 'vite';
 import uni from '@dcloudio/vite-plugin-uni';
 import { existsSync, readdirSync, mkdirSync, writeFileSync, readFileSync, cpSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { join, extname, relative } from 'node:path';
+
+const require = createRequire(import.meta.url);
 
 /** Recursively compile weixin-cloud/ directory into dist output.
  *  Each cloud function is at weixin-cloud/<name>/index.ts
@@ -15,8 +18,7 @@ function compileWeixinCloud(): Plugin {
          if (!existsSync(cloudDir)) return;
 
          mkdirSync(outDir, { recursive: true });
-         // @ts-expect-error esbuild is a transitive dependency of Vite
-         const { transformSync } = await import('esbuild');
+         const { transformSync } = require('esbuild');
 
          function processDirectory(dir: string) {
             for (const entry of readdirSync(dir, { withFileTypes: true })) {
