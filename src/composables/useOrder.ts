@@ -32,10 +32,10 @@ export function useOrder() {
    const userStore = useUserStore();
 
    const fetchOrders = async (silent = false): Promise<void> => {
-      if (!userStore.openid) return;
+      if (!userStore.isAuthenticated) return;
       if (!silent) loading.value = true;
       try {
-         orderList.value = await getOrdersByUser(userStore.openid);
+         orderList.value = await getOrdersByUser();
       } catch {
          orderList.value = [];
       } finally {

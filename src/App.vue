@@ -1,12 +1,21 @@
 <script setup lang="ts">
-import { onLaunch, onShow } from '@dcloudio/uni-app';
+import { onLaunch } from '@dcloudio/uni-app';
 import { useUserStore } from '@/stores';
+import { useEnvConfig } from '@/hooks/useEnvConfig';
 
-onLaunch(() => {
-   useUserStore().init();
-});
+const { cloudEnvId } = useEnvConfig();
 
-onShow(() => {
-   useUserStore().refreshTokenIfNeeded();
+onLaunch(async () => {
+   try {
+      wx.cloud.init({ env: cloudEnvId });
+   } catch (error) {
+      uni.showModal({
+         title: '初始化失败',
+         content: '云开发环境初始化失败，请重新打开小程序',
+         showCancel: false,
+      });
+      return;
+   }
+   await useUserStore().init();
 });
 </script>

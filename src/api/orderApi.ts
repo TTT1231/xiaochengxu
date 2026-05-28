@@ -1,25 +1,26 @@
-import { supabaseClient } from '@/utils/supabaseClient';
 import type { CartItem as CartItemType } from '@/stores/modules/cartStore';
 import type { Orders, OrderDetailItem } from '@/types';
+import { toProductImageFileID } from '@/utils/cloudStorage';
+
+function resolveOrderImages(order: Orders): Orders {
+   if (!order.oder_details) return order;
+   return {
+      ...order,
+      oder_details: order.oder_details.map(item => ({
+         ...item,
+         product_image: toProductImageFileID(item.product_image),
+      })),
+   };
+}
 
 interface CreateOrderParams {
-   userId: string;
    items: CartItemType[];
    totalAmount: number;
    discountAmount?: number;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function extractErrorMessage(error: any): string {
-   if (!error) return '未知错误';
-   if (typeof error === 'string') return error;
-   if (error.message) return error.message;
-   if (error.data?.message) return error.data.message;
-   return JSON.stringify(error);
-}
-
 export async function createOrder(params: CreateOrderParams): Promise<Orders> {
-   const { userId, items, totalAmount, discountAmount = 0 } = params;
+   const { items, totalAmount, discountAmount = 0 } = params;
 
    const oder_details: OrderDetailItem[] = items.map(item => ({
       product_id: item.product._id,
@@ -31,73 +32,53 @@ export async function createOrder(params: CreateOrderParams): Promise<Orders> {
       quantity: item.quantity,
    }));
 
-   const order_id = `DD${Date.now()}`;
+   const res = await wx.cloud.callFunction({
+      name: 'create-order',
+      data: { items: oder_details, totalAmount, discountAmount },
+   });
 
-   const client = supabaseClient.getClient();
-   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-   const db = client as any;
-   const { data, error } = await db
-      .from('orders')
-      .insert({
-         order_id,
-         user_id: userId,
-         order_status: 'pending',
-         total_amount: totalAmount,
-         discount_amount: discountAmount,
-         oder_details,
-      })
-      .select()
-      .single();
-
-   if (error) {
-      throw new Error(`创建订单失败: ${extractErrorMessage(error)}`);
+   const result = res.result as { success: boolean; data?: { order_id: string }; message: string };
+   if (!result.success) {
+      throw new Error(result.message || '创建订单失败');
    }
 
-   return data as unknown as Orders;
+   return { order_id: result.data!.order_id } as Orders;
 }
 
-export async function getOrdersByUser(openid: string): Promise<Orders[]> {
-   const client = supabaseClient.getClient();
-   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-   const db = client as any;
-   const { data, error } = await db
-      .from('orders')
-      .select('*')
-      .eq('user_id', openid)
-      .order('created_at', { ascending: false });
+export async function getOrdersByUser(): Promise<Orders[]> {
+   const res = await wx.cloud.callFunction({
+      name: 'get-orders',
+      data: {},
+   });
 
-   if (error) {
-      throw new Error(`获取订单列表失败: ${extractErrorMessage(error)}`);
+   const result = res.result as { success: boolean; data?: { orders: Orders[] }; message: string };
+   if (!result.success) {
+      throw new Error(result.message || '获取订单列表失败');
    }
-
-   return (data ?? []) as unknown as Orders[];
+   return (result.data?.orders || []).map(resolveOrderImages);
 }
 
 export async function getOrderDetail(orderId: string): Promise<Orders | null> {
-   const client = supabaseClient.getClient();
-   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-   const db = client as any;
-   const { data, error } = await db.from('orders').select('*').eq('order_id', orderId).single();
+   const res = await wx.cloud.callFunction({
+      name: 'get-orders',
+      data: { orderId },
+   });
 
-   if (error) {
-      // PGRST116 = 查询无结果
-      if (error.code === 'PGRST116') return null;
-      throw new Error(`获取订单详情失败: ${extractErrorMessage(error)}`);
+   const result = res.result as { success: boolean; data?: { order: Orders }; message: string };
+   if (!result.success || !result.data) {
+      return null;
    }
-
-   return data as unknown as Orders;
+   return resolveOrderImages(result.data.order);
 }
 
 export async function cancelOrder(orderId: string): Promise<void> {
-   const client = supabaseClient.getClient();
-   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-   const db = client as any;
-   const { error } = await db
-      .from('orders')
-      .update({ order_status: 'cancelled' })
-      .eq('order_id', orderId);
+   const res = await wx.cloud.callFunction({
+      name: 'cancel-order',
+      data: { orderId },
+   });
 
-   if (error) {
-      throw new Error(`取消订单失败: ${extractErrorMessage(error)}`);
+   const result = res.result as { success: boolean; message: string };
+   if (!result.success) {
+      throw new Error(result.message || '取消订单失败');
    }
 }

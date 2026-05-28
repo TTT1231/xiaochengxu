@@ -5,7 +5,6 @@
    "allowCompoundWords": true,
    "words": [
       "dcloudio",
-      "supabase",
       "weixin",
       "rpx",
       "nvue",
@@ -13,9 +12,14 @@
       "toutiao",
       "automator",
       "categoried",
-      "qrcode"
+      "qrcode",
+      "shime",
+      "postgrest"
    ],
    "ignorePaths": [
+      ".claude/CLAUDE.md",
+      ".env",
+      ".env.example",
       "**/node_modules/**",
       "**/dist/**",
       "pnpm-lock.yaml",

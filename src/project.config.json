@@ -3,6 +3,7 @@
    "packOptions": {
       "ignore": []
    },
+   "cloudfunctionRoot": "weixin-cloud/",
    "setting": {
       "urlCheck": false,
       "es6": true,

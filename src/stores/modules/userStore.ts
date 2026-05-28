@@ -1,14 +1,12 @@
 import { defineStore } from 'pinia';
-import { login as wxLogin, getUserProfile } from '@/api/userApi';
-import { supabaseClient } from '@/utils/supabaseClient';
+import { cloudLogin, getCloudProfile } from '@/api/userApi';
 import type { Users, Credits } from '@/types';
 
 interface AuthState {
-   accessToken: string;
-   refreshToken: string;
    openid: string;
    isLoggedIn: boolean;
    isLoading: boolean;
+   cloudReady: boolean;
    user: Users | null;
    credits: Credits | null;
 }
@@ -19,114 +17,39 @@ interface LoginResult {
    isNewUser?: boolean;
 }
 
-interface JwtPayload {
-   exp?: number;
-}
-
-const TOKEN_KEY = 'wx_access_token';
-const REFRESH_TOKEN_KEY = 'wx_refresh_token';
-const OPENID_KEY = 'wx_openid';
-
-const TOKEN_EXPIRY_BUFFER_SECONDS = 60; // 提前 60 秒视为过期
-const TOKEN_REFRESH_THRESHOLD_SECONDS = 300; // 剩余 5 分钟时刷新
-
-function clearAuthStorage(): void {
-   uni.removeStorageSync(TOKEN_KEY);
-   uni.removeStorageSync(REFRESH_TOKEN_KEY);
-   uni.removeStorageSync(OPENID_KEY);
-}
-
-function parseJwtPayload(token: string): JwtPayload | null {
-   try {
-      const payload = token.split('.')[1];
-      if (!payload) return null;
-      return JSON.parse(atob(payload)) as JwtPayload;
-   } catch {
-      return null;
-   }
-}
-
-function getTokenRemainingSeconds(token: string): number {
-   const payload = parseJwtPayload(token);
-   if (!payload?.exp) return 0;
-   return Math.max(0, payload.exp - Date.now() / 1000);
-}
-
-function isTokenExpired(token: string): boolean {
-   return getTokenRemainingSeconds(token) < TOKEN_EXPIRY_BUFFER_SECONDS;
-}
-
-function isTokenExpiringSoon(token: string): boolean {
-   return getTokenRemainingSeconds(token) < TOKEN_REFRESH_THRESHOLD_SECONDS;
-}
-
 export const useUserStore = defineStore('user', {
    state: (): AuthState => ({
-      accessToken: '',
-      refreshToken: '',
       openid: '',
       isLoggedIn: false,
       isLoading: false,
+      cloudReady: false,
       user: null,
       credits: null,
    }),
 
    getters: {
-      isAuthenticated: state => Boolean(state.accessToken && state.isLoggedIn),
+      isAuthenticated: state => state.isLoggedIn,
    },
 
    actions: {
-      /** 初始化认证状态，恢复登录态或静默登录 */
       async init(): Promise<void> {
-         const token = uni.getStorageSync(TOKEN_KEY) as string;
-         const refreshToken = uni.getStorageSync(REFRESH_TOKEN_KEY) as string;
-         const openid = uni.getStorageSync(OPENID_KEY) as string;
-
-         if (token && refreshToken && openid && !isTokenExpired(token)) {
-            this.accessToken = token;
-            this.refreshToken = refreshToken;
-            this.openid = openid;
-            this.isLoggedIn = true;
-            supabaseClient.setAccessToken(token);
-            return;
-         }
-
-         // 凭证不完整或过期，清理后静默登录
-         if (token || refreshToken || openid) {
-            clearAuthStorage();
-         }
-         await this.loginWithWeChat();
+         this.cloudReady = true;
+         await this.login();
       },
 
-      async loginWithWeChat(): Promise<LoginResult> {
+      async login(): Promise<LoginResult> {
          this.isLoading = true;
          try {
-            const code = await new Promise<string>((resolve, reject) => {
-               uni.login({
-                  provider: 'weixin',
-                  success: res => resolve(res.code),
-                  fail: err => reject(new Error(err.errMsg ?? '微信登录失败')),
-               });
-            });
-
-            const result = await wxLogin(code);
+            const result = await cloudLogin();
             if (!result.success) {
                return { success: false, message: result.message };
             }
 
-            const { accessToken, openid, isNewUser, refreshToken } = result.data;
-
-            this.accessToken = accessToken;
-            this.refreshToken = refreshToken;
-            this.openid = openid;
+            const { user, credits, isNewUser } = result.data!;
+            this.user = user;
+            this.credits = credits;
+            this.openid = user._id;
             this.isLoggedIn = true;
-            supabaseClient.setAccessToken(accessToken);
-
-            uni.setStorageSync(TOKEN_KEY, accessToken);
-            uni.setStorageSync(REFRESH_TOKEN_KEY, refreshToken);
-            uni.setStorageSync(OPENID_KEY, openid);
-
-            await this.fetchProfile();
 
             return { success: true, message: result.message, isNewUser };
          } catch (error) {
@@ -140,30 +63,17 @@ export const useUserStore = defineStore('user', {
       },
 
       logout(): void {
-         this.accessToken = '';
-         this.refreshToken = '';
          this.openid = '';
          this.isLoggedIn = false;
          this.user = null;
          this.credits = null;
-         supabaseClient.clearAccessToken();
-         clearAuthStorage();
       },
 
       async fetchProfile(): Promise<void> {
-         if (!this.openid) return;
-         try {
-            const profile = await getUserProfile(this.openid);
+         const profile = await getCloudProfile();
+         if (profile) {
             this.user = profile.user;
             this.credits = profile.credits;
-         } catch {
-            // 静默失败，不影响使用
-         }
-      },
-
-      async refreshTokenIfNeeded(): Promise<void> {
-         if (!this.accessToken || isTokenExpiringSoon(this.accessToken)) {
-            await this.loginWithWeChat();
          }
       },
    },

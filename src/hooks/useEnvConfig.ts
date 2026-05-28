@@ -1,6 +1,11 @@
-export function useEnvConfig() {
+interface CloudConfig {
+   cloudEnvId: string;
+   cloudStoragePrefix: string;
+}
+
+export function useEnvConfig(): CloudConfig {
    return {
-      supabaseUrl: import.meta.env.VITE_SUPABASE_URL as string,
-      supabasePublishableKey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string,
-   } as const;
+      cloudEnvId: import.meta.env.VITE_CLOUD_ENV_ID,
+      cloudStoragePrefix: import.meta.env.VITE_CLOUD_STORAGE_PREFIX,
+   };
 }

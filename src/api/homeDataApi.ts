@@ -1,28 +1,61 @@
-import { useEnvConfig } from '../hooks/useEnvConfig';
 import type { Categoried } from '../types/db-scheme/categoried';
 import type { Products } from '../types';
-import { supabaseClient } from '../utils/supabaseClient';
-
-const envConfig = useEnvConfig();
+import { resolveFileIDs, toProductFileID, toIconFileID } from '@/utils/cloudStorage';
 
 export async function getLeftMenuData(): Promise<Categoried[]> {
-   const { data, error } = await supabaseClient.query<Categoried>('categoried');
-   if (error) throw error;
-   return data;
+   const db = wx.cloud.database();
+   const { data } = await db.collection('categoried').limit(100).get();
+   const categories = (data as unknown as Categoried[]) || [];
+
+   const fileIDs = [
+      ...new Set(
+         categories.flatMap(c =>
+            [c.icon, c.active_icon]
+               .map(id => (id ? toIconFileID(id) : ''))
+               .filter(id => id.startsWith('cloud://')),
+         ),
+      ),
+   ];
+
+   if (fileIDs.length === 0) return categories;
+
+   const urlMap = await resolveFileIDs(fileIDs);
+
+   return categories.map(c => ({
+      ...c,
+      icon: c.icon ? urlMap.get(toIconFileID(c.icon)) || c.icon : c.icon,
+      active_icon: c.active_icon
+         ? urlMap.get(toIconFileID(c.active_icon)) || c.active_icon
+         : c.active_icon,
+   }));
 }
 
 export async function getRightProductData(): Promise<Products[]> {
-   const { data, error } = await supabaseClient.query<Products>('products');
+   const db = wx.cloud.database();
+   const { data } = await db.collection('products').limit(100).get();
+   const products = (data as unknown as Products[]) || [];
 
-   if (error) throw error;
+   const fileIDs = [
+      ...new Set(
+         products.flatMap(p =>
+            (p.images ? p.images.split('&') : [])
+               .map(toProductFileID)
+               .filter(id => id.startsWith('cloud://')),
+         ),
+      ),
+   ];
 
-   const storagePrefix = `${envConfig.supabaseUrl}/storage/v1/object/public/products-img/`;
+   if (fileIDs.length === 0) return products;
 
-   return data.map(product => {
-      const imageList = product.images.split('&');
-      const fullImageList = imageList.map(image =>
-         image.startsWith('http') ? image : `${storagePrefix}${image}`,
-      );
-      return { ...product, images: fullImageList.join('&') };
-   });
+   const urlMap = await resolveFileIDs(fileIDs);
+
+   return products.map(p => ({
+      ...p,
+      images: p.images
+         ? p.images
+              .split('&')
+              .map(name => urlMap.get(toProductFileID(name)) || name)
+              .join('&')
+         : '',
+   }));
 }

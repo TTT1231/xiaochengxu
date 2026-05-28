@@ -28,7 +28,7 @@ const handleCheckout = async () => {
       return;
    }
 
-   if (!userStore.isAuthenticated || !userStore.openid) {
+   if (!userStore.isAuthenticated) {
       uni.showToast({ title: '请先登录', icon: 'none' });
       return;
    }
@@ -36,7 +36,6 @@ const handleCheckout = async () => {
    submitting.value = true;
    try {
       const order = await createOrder({
-         userId: userStore.openid,
          items: cartItems,
          totalAmount: cartStore.originalAmount,
          discountAmount: cartStore.totalDiscount,
