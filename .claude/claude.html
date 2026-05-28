@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="zh-CN">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>CLAUDE.md - 甜品点单小程序</title>
+      <link rel="stylesheet" href="claude.css" />
+   </head>
+   <body>
+      <div class="container">
+         <!-- Hero -->
+         <div class="hero">
+            <h1>CLAUDE.md</h1>
+            <p class="subtitle">微信小程序 &middot; 甜品点单小程序</p>
+            <span class="badge">Project Guide</span>
+         </div>
+
+         <!-- 命令 -->
+         <div class="section">
+            <h2>命令</h2>
+            <pre><span class="comment"># 开发（编译 + 打开微信开发者工具 + 热更新）</span>
+<span class="cmd">node scripts/dev.mjs dev</span>    <span class="comment"># 启动开发服务器，自动打开开发者工具</span>
+<span class="cmd">node scripts/dev.mjs stop</span>   <span class="comment"># 关闭微信开发者工具中的项目</span>
+
+<span class="comment"># 构建（输出到 dist/dev/mp-weixin）</span>
+<span class="cmd">pnpm build:mp-weixin</span>       <span class="comment"># 生产构建</span></pre>
+         </div>
+
+         <!-- 技术选型 -->
+         <div class="section">
+            <h2>技术选型</h2>
+            <div class="table-wrap">
+               <table>
+                  <thead>
+                     <tr>
+                        <th>分类</th>
+                        <th>技术</th>
+                        <th>版本</th>
+                        <th>说明</th>
+                     </tr>
+                  </thead>
+                  <tbody>
+                     <tr>
+                        <td>框架</td>
+                        <td>uni-app (Vue 3)</td>
+                        <td>3.0.0-alpha</td>
+                        <td>跨平台小程序开发框架，编译为微信小程序</td>
+                     </tr>
+                     <tr>
+                        <td>语言</td>
+                        <td>TypeScript</td>
+                        <td>4.9</td>
+                        <td>类型安全</td>
+                     </tr>
+                     <tr>
+                        <td>构建</td>
+                        <td>Vite</td>
+                        <td>5.2.8</td>
+                        <td>通过 <code>@dcloudio/vite-plugin-uni</code> 集成</td>
+                     </tr>
+                     <tr>
+                        <td>状态管理</td>
+                        <td>Pinia</td>
+                        <td>3.0</td>
+                        <td>模块化 store（cartStore, homeStore, userStore）</td>
+                     </tr>
+                     <tr>
+                        <td>样式</td>
+                        <td>SCSS</td>
+                        <td>—</td>
+                        <td>全局设计变量在 <code>uni.scss</code>，rpx 响应式布局</td>
+                     </tr>
+                     <tr>
+                        <td>后端</td>
+                        <td>Supabase</td>
+                        <td>supabase-wechat-stable-v2</td>
+                        <td>数据库 + 存储，微信小程序专用 SDK</td>
+                     </tr>
+                     <tr>
+                        <td>国际化</td>
+                        <td>vue-i18n</td>
+                        <td>9.x</td>
+                        <td>多语言支持</td>
+                     </tr>
+                     <tr>
+                        <td>代码规范</td>
+                        <td>ESLint + Prettier</td>
+                        <td>—</td>
+                        <td>TypeScript / Vue 统一风格</td>
+                     </tr>
+                     <tr>
+                        <td>拼写检查</td>
+                        <td>cSpell</td>
+                        <td>—</td>
+                        <td>提交时校验</td>
+                     </tr>
+                     <tr>
+                        <td>Git Hooks</td>
+                        <td>Husky</td>
+                        <td>9.x</td>
+                        <td>提交前自动 lint</td>
+                     </tr>
+                  </tbody>
+               </table>
+            </div>
+         </div>
+
+         <!-- 项目目录 -->
+         <div class="section">
+            <h2>项目目录</h2>
+            <pre class="tree">docs/
+└── superpowers/
+    ├── specs/        <span class="comment"># 轻量级功能设计文档</span>
+    └── plans/        <span class="comment"># 对应实现计划</span>
+openspec/
+├── config.yaml       <span class="comment"># openspec 配置</span>
+├── changes/archive/  <span class="comment"># 已归档变更</span>
+└── specs/            <span class="comment"># 功能模块权威 spec</span>
+weixin-cloud/         <span class="comment"># 微信云函<span class="comment"># 功能模块权威 spec</span>数</span>
+src/
+├── pages/                    <span class="comment"># 页面组件（路由在 pages.json 中配置）</span>
+│   ├── index/               <span class="comment"># 首页/点单</span>
+│   ├── order/               <span class="comment"># 订单页 + order/detail.vue</span>
+│   ├── profile/             <span class="comment"># 我的</span>
+│   ├── points/              <span class="comment"># 积分商城</span>
+│   ├── cart/                <span class="comment"># 购物车</span>
+│   └── show-product-details/ <span class="comment"># 商品详情页</span>
+├── components/               <span class="comment"># 按功能模块组织</span>
+│   ├── common/              <span class="comment"># 公共组件：Header, TabBar</span>
+│   ├── home/                <span class="comment"># 首页组件：Banner, ProductCard, FloatingCart</span>
+│   ├── order/               <span class="comment"># 订单组件：OrderCard, OrderToggle, HistoryCard</span>
+│   ├── points/              <span class="comment"># 积分组件：PointsCard, RewardCard</span>
+│   └── profile/             <span class="comment"># 个人中心组件：UserCard, StatsCard, MenuList</span>
+├── stores/modules/           <span class="comment"># Pinia 状态管理</span>
+├── composables/              <span class="comment"># 组合式函数</span>
+├── types/                    <span class="comment"># TypeScript 类型定义 + db-scheme/</span>
+├── api/                      <span class="comment"># 数据查询层（微信云开发）</span>
+├── hooks/                    <span class="comment"># useEnvConfig（环境变量配置）</span>
+├── data/                     <span class="comment"># 静态常量（imgPaths）</span>
+├── utils/                    <span class="comment"># 工具函数：format, supabaseClient</span>
+├── static/                   <span class="comment"># 图片、图标资源</span>
+├── pages.json                <span class="comment"># 页面路由 &amp; tabBar 配置</span>
+├── manifest.json             <span class="comment"># 应用元数据 &amp; 平台配置</span>
+├── uni.scss                  <span class="comment"># 全局 SCSS 设计变量</span>
+├── shime-uni.d.ts            <span class="comment"># uni-app Vue 类型增强</span>
+├── env.d.ts                  <span class="comment"># 环境变量类型声明</span>
+└── App.vue                   <span class="comment"># 应用根组件，含生命周期钩子</span></pre>
+         </div>
+
+         <!-- 设计文档参考 -->
+         <div class="section">
+            <h2>设计文档参考（Agent 必读）</h2>
+            <p>
+               当任务涉及<strong>重构、架构调整、功能扩展</strong>等影响设计意图的改动时，先按文件名匹配相关文档，理解当初的设计决策和方案取舍后再改代码。
+            </p>
+            <ul>
+               <li>
+                  <code>openspec/specs/&lt;capability&gt;/spec.md</code> — 功能模块权威
+                  spec（需求场景、边界条件）
+               </li>
+               <li><code>openspec/changes/archive/</code> — 历史变更记录（设计动机、方案取舍）</li>
+               <li>
+                  <code>docs/superpowers/specs/</code> — 轻量级功能设计文档（架构决策、数据流）
+               </li>
+               <li><code>docs/superpowers/plans/</code> — 实现计划（task 拆分、执行步骤）</li>
+            </ul>
+            <div class="callout">小 bug 修复、格式调整等局部改动无需查阅。</div>
+         </div>
+
+         <!-- 数据类型 -->
+         <div class="section">
+            <h2>数据类型</h2>
+            <p>所有类型定义在 <code>src/types/</code> 中：</p>
+            <ul>
+               <li>
+                  <code>src/types/constants.ts</code> — <code>OrderStatus</code>（含
+                  <code>cancelled</code>）、<code>ORDER_STATUS_TEXT</code>
+               </li>
+               <li>
+                  <code>src/types/db-scheme/</code> — 数据库表类型（<code>Products</code>,
+                  <code>Categoried</code>, <code>Orders</code>, <code>Users</code>,
+                  <code>Credits</code>）
+               </li>
+            </ul>
+         </div>
+      </div>
+   </body>
+</html>
