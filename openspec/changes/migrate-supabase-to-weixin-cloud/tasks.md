@@ -23,15 +23,15 @@
 
 ## 3. Auth Migration (G3)
 
-- [ ] 3.1 Rewrite `src/stores/modules/userStore.ts`: remove JWT parsing (`parseJwtPayload`, `getTokenRemainingSeconds`, `isTokenExpired`, `isTokenExpiringSoon`), remove token storage (`TOKEN_KEY`, `REFRESH_TOKEN_KEY`), replace login flow with `wx.cloud.callFunction('user-login')`. On app restart, simply call `wx.cloud.callFunction('user-login')` again — no `wx.login()` needed since cloud function call inherently carries user identity.
-- [ ] 3.2 Rewrite `src/api/userApi.ts`: replace `uni.request` to Edge Function with `wx.cloud.callFunction('user-login')`, replace Supabase queries with `wx.cloud.callFunction('get-profile')`
-- [ ] 3.3 Update `src/App.vue` lifecycle: call `wx.cloud.init({ env: '<env-id>' })` in `onLaunch` before auth flow, with try-catch wrapping. On init failure: show retry prompt to user, don't crash. Store init success state for pages to check before making cloud API calls.
+- [x] 3.1 Rewrite `src/stores/modules/userStore.ts`: remove JWT parsing (`parseJwtPayload`, `getTokenRemainingSeconds`, `isTokenExpired`, `isTokenExpiringSoon`), remove token storage (`TOKEN_KEY`, `REFRESH_TOKEN_KEY`), replace login flow with `wx.cloud.callFunction('user-login')`. On app restart, simply call `wx.cloud.callFunction('user-login')` again — no `wx.login()` needed since cloud function call inherently carries user identity.
+- [x] 3.2 Rewrite `src/api/userApi.ts`: replace `uni.request` to Edge Function with `wx.cloud.callFunction('user-login')`, replace Supabase queries with `wx.cloud.callFunction('get-profile')`
+- [x] 3.3 Update `src/App.vue` lifecycle: call `wx.cloud.init({ env: '<env-id>' })` in `onLaunch` before auth flow, with try-catch wrapping. On init failure: show retry prompt to user, don't crash. Store init success state for pages to check before making cloud API calls.
 
 ## 4. API Layer Rewrite (G4)
 
-- [ ] 4.1 Rewrite `src/api/homeDataApi.ts`: replace `supabaseClient.query()` with `wx.cloud.database()` client-side queries for `categoried` and `products`, replace Supabase Storage URL construction with WeChat Cloud fileID resolution via `wx.cloud.getTempFileURL()`
-- [ ] 4.2 Rewrite `src/api/orderApi.ts`: replace direct Supabase CRUD with `wx.cloud.callFunction()` calls to `create-order`, `cancel-order`, `get-orders` cloud functions. Send `totalAmount` as pre-discount sum (matching `cartStore.originalAmount`) and `discountAmount` as discount.
-- [ ] 4.3 Create `src/utils/cloudStorage.ts`: shared helper to resolve WeChat Cloud fileIDs to displayable URLs via `wx.cloud.getTempFileURL()`. Must handle: (1) multi-fileID strings with `&` separator (products), (2) single fileIDs (categoried icons/active_icons), (3) fileIDs in order detail `oder_details.product_image`, (4) batching for multiple fileIDs (API accepts arrays), (5) caching resolved URLs with TTL (2-hour expiry), (6) partial failure handling (return resolved URLs for succeeded, placeholder for failed)
+- [x] 4.1 Rewrite `src/api/homeDataApi.ts`: replace `supabaseClient.query()` with `wx.cloud.database()` client-side queries for `categoried` and `products`, replace Supabase Storage URL construction with WeChat Cloud fileID resolution via `wx.cloud.getTempFileURL()`
+- [x] 4.2 Rewrite `src/api/orderApi.ts`: replace direct Supabase CRUD with `wx.cloud.callFunction()` calls to `create-order`, `cancel-order`, `get-orders` cloud functions. Send `totalAmount` as pre-discount sum (matching `cartStore.originalAmount`) and `discountAmount` as discount.
+- [x] 4.3 Create `src/utils/cloudStorage.ts`: shared helper to resolve WeChat Cloud fileIDs to displayable URLs via `wx.cloud.getTempFileURL()`. Must handle: (1) multi-fileID strings with `&` separator (products), (2) single fileIDs (categoried icons/active_icons), (3) fileIDs in order detail `oder_details.product_image`, (4) batching for multiple fileIDs (API accepts arrays), (5) caching resolved URLs with TTL (2-hour expiry), (6) partial failure handling (return resolved URLs for succeeded, placeholder for failed)
 - [ ] 4.4 Verify all pages work: home (products + categories load), order creation, order list, order detail (with images), order cancellation, profile with credits/level display
 
 ## 5. Storage Migration (G5)
