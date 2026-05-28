@@ -10,14 +10,14 @@ export function toProductFileID(filename: string): string {
    return cloudStoragePrefix + 'products-img/' + filename;
 }
 
-/** Convert a Supabase icon URL or bare filename to a cloud fileID. */
+/** Convert an icon URL or bare filename to a cloud fileID. */
 export function toIconFileID(url: string): string {
    if (!url || url.startsWith('cloud://')) return url;
    const filename = url.startsWith('http') ? url.split('/').pop() || url : url;
    return cloudStoragePrefix + 'project-icons/' + filename;
 }
 
-/** Convert a Supabase product image URL to a cloud fileID. */
+/** Convert a product image URL to a cloud fileID. */
 export function toProductImageFileID(url: string): string {
    if (!url || url.startsWith('cloud://')) return url;
    const filename = url.startsWith('http') ? url.split('/').pop() || url : url;

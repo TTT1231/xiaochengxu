@@ -5,7 +5,7 @@ import { resolveFileIDs, toProductFileID, toIconFileID } from '@/utils/cloudStor
 export async function getLeftMenuData(): Promise<Categoried[]> {
    const db = wx.cloud.database();
    const { data } = await db.collection('categoried').limit(100).get();
-   const categories = (data as Categoried[]) || [];
+   const categories = (data as unknown as Categoried[]) || [];
 
    const fileIDs = [
       ...new Set(
@@ -24,14 +24,16 @@ export async function getLeftMenuData(): Promise<Categoried[]> {
    return categories.map(c => ({
       ...c,
       icon: c.icon ? urlMap.get(toIconFileID(c.icon)) || c.icon : c.icon,
-      active_icon: c.active_icon ? urlMap.get(toIconFileID(c.active_icon)) || c.active_icon : c.active_icon,
+      active_icon: c.active_icon
+         ? urlMap.get(toIconFileID(c.active_icon)) || c.active_icon
+         : c.active_icon,
    }));
 }
 
 export async function getRightProductData(): Promise<Products[]> {
    const db = wx.cloud.database();
    const { data } = await db.collection('products').limit(100).get();
-   const products = (data as Products[]) || [];
+   const products = (data as unknown as Products[]) || [];
 
    const fileIDs = [
       ...new Set(

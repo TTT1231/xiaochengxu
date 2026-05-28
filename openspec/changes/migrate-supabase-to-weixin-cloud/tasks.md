@@ -32,25 +32,25 @@
 - [x] 4.1 Rewrite `src/api/homeDataApi.ts`: replace `supabaseClient.query()` with `wx.cloud.database()` client-side queries for `categoried` and `products`, replace Supabase Storage URL construction with WeChat Cloud fileID resolution via `wx.cloud.getTempFileURL()`
 - [x] 4.2 Rewrite `src/api/orderApi.ts`: replace direct Supabase CRUD with `wx.cloud.callFunction()` calls to `create-order`, `cancel-order`, `get-orders` cloud functions. Send `totalAmount` as pre-discount sum (matching `cartStore.originalAmount`) and `discountAmount` as discount.
 - [x] 4.3 Create `src/utils/cloudStorage.ts`: shared helper to resolve WeChat Cloud fileIDs to displayable URLs via `wx.cloud.getTempFileURL()`. Must handle: (1) multi-fileID strings with `&` separator (products), (2) single fileIDs (categoried icons/active_icons), (3) fileIDs in order detail `oder_details.product_image`, (4) batching for multiple fileIDs (API accepts arrays), (5) caching resolved URLs with TTL (2-hour expiry), (6) partial failure handling (return resolved URLs for succeeded, placeholder for failed)
-- [ ] 4.4 Verify all pages work: home (products + categories load), order creation, order list, order detail (with images), order cancellation, profile with credits/level display
+- [x] 4.4 Verify all pages work: home (products + categories load), order creation, order list, order detail (with images), order cancellation, profile with credits/level display
 
 ## 5. Storage Migration (G5)
 
-- [ ] 5.1 Upload all product images from Supabase `products-img` bucket to WeChat Cloud Storage, record fileID mapping
-- [ ] 5.2 Upload all category icons from Supabase `project-icons` bucket to WeChat Cloud Storage, record fileID mapping
-- [ ] 5.3 Update `products` collection `images` field: replace filenames with WeChat Cloud fileIDs
-- [ ] 5.4 Update `categoried` collection `icon` and `active_icon` fields: replace full Supabase URLs with WeChat Cloud fileIDs
-- [ ] 5.5 Update historical `orders.oder_details` records: replace all Supabase Storage image URLs with WeChat Cloud fileIDs
+- [x] 5.1 Upload all product images from Supabase `products-img` bucket to WeChat Cloud Storage, record fileID mapping
+- [x] 5.2 Upload all category icons from Supabase `project-icons` bucket to WeChat Cloud Storage, record fileID mapping
+- [x] 5.3 Update `products` collection `images` field: replace filenames with WeChat Cloud fileIDs
+- [x] 5.4 Update `categoried` collection `icon` and `active_icon` fields: replace full Supabase URLs with WeChat Cloud fileIDs
+- [x] 5.5 Update historical `orders.oder_details` records: replace all Supabase Storage image URLs with WeChat Cloud fileIDs
 
 ## 6. Data Migration (G6)
 
-- [ ] 6.1 Create data migration script: export all data from Supabase PostgreSQL (using the exported SQL files in `C:\Users\Tu1231\Desktop\superbase\表数据\`), transform to WeChat Cloud Database document format. Script must run AFTER storage upload (G5) to have fileID mappings available.
-- [ ] 6.2 Migrate `categoried` data: transform rows, update icon URLs to WeChat Cloud fileIDs
-- [ ] 6.3 Migrate `products` data: transform rows, update image references to WeChat Cloud fileIDs, preserve original numeric ID as `_id`
-- [ ] 6.4 Migrate `users` data: transform rows, use `openid` as document `_id`, fix display ID comment (7-digit)
-- [ ] 6.5 Migrate `credits` data: transform rows, link to users by `openid`
-- [ ] 6.6 Migrate `orders` data: transform rows, update `oder_details` image URLs to WeChat Cloud fileIDs, use `order_id` as document `_id`
-- [ ] 6.7 Verify migration completeness: (1) record count comparison for all 5 collections, (2) verify every user has a corresponding credits record, (3) verify every order's `user_id` matches an existing user, (4) verify all product image fileIDs resolve via `getTempFileURL()`, (5) verify all category icon fileIDs resolve, (6) check for duplicate `order_id` or display `id`, (7) spot-check `total_amount` / `discount_amount` calculations
+- [x] 6.1 Create data migration script: export all data from Supabase PostgreSQL (using the exported SQL files in `C:\Users\Tu1231\Desktop\superbase\表数据\`), transform to WeChat Cloud Database document format. Script must run AFTER storage upload (G5) to have fileID mappings available.
+- [x] 6.2 Migrate `categoried` data: transform rows, update icon URLs to WeChat Cloud fileIDs
+- [x] 6.3 Migrate `products` data: transform rows, update image references to WeChat Cloud fileIDs, preserve original numeric ID as `_id`
+- [x] 6.4 Migrate `users` data: transform rows, use `openid` as document `_id`, fix display ID comment (7-digit)
+- [x] 6.5 Migrate `credits` data: transform rows, link to users by `openid`
+- [x] 6.6 Migrate `orders` data: transform rows, update `oder_details` image URLs to WeChat Cloud fileIDs, use `order_id` as document `_id`
+- [x] 6.7 Verify migration completeness: (1) record count comparison for all 5 collections, (2) verify every user has a corresponding credits record, (3) verify every order's `user_id` matches an existing user, (4) verify all product image fileIDs resolve via `getTempFileURL()`, (5) verify all category icon fileIDs resolve, (6) check for duplicate `order_id` or display `id`, (7) spot-check `total_amount` / `discount_amount` calculations
 
 ## 7. Cleanup
 
@@ -58,11 +58,15 @@
    - **Layer 1 — Cloud function business logic (automated)**: credits calculation (add/subtract with floor at 0 for both `total_scores` and `available_scores`), level thresholds (4 tiers), order total validation (pre-discount amount + discount = credits earned), order status validation, display ID generation + collision retry. These are pure TypeScript functions, no mini program runtime needed.
    - **Layer 2 — Frontend API layer (automated)**: mock `wx.cloud.callFunction` and `wx.cloud.database()` to verify `orderApi.ts`, `homeDataApi.ts`, `userApi.ts` call correct cloud functions with correct parameters and handle responses/errors properly.
    - **Layer 3 — Mini program pages (manual only)**: WeChat Mini Program cannot be automated with browser testing tools (Playwright/Cypress). Manual verification in WeChat DevTools: page rendering, navigation, image loading, touch interactions. Covered by task 4.4.
-- [ ] 7.1 Delete `src/utils/supabaseClient.ts`
-- [ ] 7.2 Remove all Supabase-related code comments and references
+- [ ] 7.0 Add test coverage using **vitest** (or any minimal test runner). Testing strategy by layer:
+   - **Layer 1 — Cloud function business logic (automated)**: credits calculation (add/subtract with floor at 0 for both `total_scores` and `available_scores`), level thresholds (4 tiers), order total validation (pre-discount amount + discount = credits earned), order status validation, display ID generation + collision retry. These are pure TypeScript functions, no mini program runtime needed.
+   - **Layer 2 — Frontend API layer (automated)**: mock `wx.cloud.callFunction` and `wx.cloud.database()` to verify `orderApi.ts`, `homeDataApi.ts`, `userApi.ts` call correct cloud functions with correct parameters and handle responses/errors properly.
+   - **Layer 3 — Mini program pages (manual only)**: WeChat Mini Program cannot be automated with browser testing tools (Playwright/Cypress). Manual verification in WeChat DevTools: page rendering, navigation, image loading, touch interactions. Covered by task 4.4.
+- [x] 7.1 Delete `src/utils/supabaseClient.ts`
+- [x] 7.2 Remove all Supabase-related code comments and references
 - [ ] 7.3 Update `README.md`: replace Supabase backend documentation with WeChat Cloud
 - [ ] 7.4 Update `CLAUDE.md`: replace Supabase references with WeChat Cloud development setup
-- [ ] 7.5 Remove `.env` Supabase entries (keep only if other vars exist)
-- [ ] 7.6 Run `pnpm type-check` and `pnpm lint:fix` to verify clean build
-- [ ] 7.7 Remove `cspell.json` Supabase-related word entries if any
+- [x] 7.5 Remove `.env` Supabase entries (keep only if other vars exist)
+- [x] 7.6 Run `pnpm type-check` and `pnpm lint:fix` to verify clean build
+- [x] 7.7 Remove `cspell.json` Supabase-related word entries if any
 - [ ] 7.8 Clean up H5 platform config in `manifest.json`: remove or disable H5 platform declaration since `wx.cloud.*` APIs are WeChat-only
