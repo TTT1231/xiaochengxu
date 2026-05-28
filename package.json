@@ -1,16 +1,16 @@
 {
-   "name": "uni-preset-vue",
+   "name": "",
    "version": "0.0.0",
    "scripts": {
-      "dev": "node scripts/inject-env.mjs && uni -p mp-weixin",
-      "build": "uni build -p mp-weixin",
-      "type-check": "vue-tsc --noEmit",
+      "dev": "node scripts/dev.mjs dev",
+      "dev:stop": "node scripts/dev.mjs stop",
+      "build": "node scripts/inject-env.mjs && uni build -p mp-weixin",
+      "type:check": "vue-tsc --noEmit",
       "lint": "eslint \"src/**/*.{js,ts,vue}\"",
       "lint:fix": "eslint \"src/**/*.{js,ts,vue}\" --fix",
       "format": "prettier --write \"src/**/*.{js,ts,vue,json,css,scss}\"",
       "test": "vitest run",
-      "spell:check": "cspell \"**\"",
-      "spell:check-staged": "git diff --cached --diff-filter=d --name-only | cspell --file-list stdin"
+      "cspell": "cspell \"**\""
    },
    "dependencies": {
       "@dcloudio/uni-app": "3.0.0-4080420251103001",

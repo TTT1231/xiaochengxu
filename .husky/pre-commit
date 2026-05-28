@@ -2,6 +2,6 @@
 pnpm run format
 pnpm run lint:fix
 pnpm run lint
-pnpm run type-check
-pnpm run spell:check-staged
+pnpm run type:check
+pnpm run cspell
 pnpm run test

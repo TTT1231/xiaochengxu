@@ -1,7 +1,7 @@
 import { spawn, execSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { homedir } from 'node:os';
 
 const PROJECT_DIR = dirname(dirname(fileURLToPath(import.meta.url)));
@@ -64,9 +64,42 @@ function runCli(args) {
    });
 }
 
+function injectEnv() {
+   const envPath = resolve(PROJECT_DIR, '.env');
+   if (existsSync(envPath)) {
+      for (const line of readFileSync(envPath, 'utf-8').split('\n')) {
+         const trimmed = line.trim();
+         if (!trimmed || trimmed.startsWith('#')) continue;
+         const eqIndex = trimmed.indexOf('=');
+         if (eqIndex === -1) continue;
+         const key = trimmed.slice(0, eqIndex).trim();
+         const value = trimmed.slice(eqIndex + 1).trim();
+         if (!process.env[key]) process.env[key] = value;
+      }
+   }
+
+   const manifestPath = resolve(PROJECT_DIR, 'src', 'manifest.json');
+   const REPLACEMENTS = { YOUR_WEIXIN_APPID: 'VITE_WEIXIN_APPID' };
+   let raw = readFileSync(manifestPath, 'utf-8');
+
+   for (const [placeholder, envKey] of Object.entries(REPLACEMENTS)) {
+      const value = process.env[envKey];
+      if (!value) continue;
+      const pattern = `"${placeholder}"`;
+      if (raw.includes(pattern)) {
+         raw = raw.replace(pattern, `"${value}"`);
+         console.log(`[inject-env] ${placeholder} → ${value}`);
+      }
+   }
+
+   writeFileSync(manifestPath, raw, 'utf-8');
+}
+
 function dev() {
+   injectEnv();
+
    return new Promise((resolve, reject) => {
-      const buildProc = spawn('pnpm', ['dev:mp-weixin'], {
+      const buildProc = spawn('uni', ['-p', 'mp-weixin'], {
          cwd: PROJECT_DIR,
          stdio: ['ignore', 'pipe', 'pipe'],
          shell: true,
