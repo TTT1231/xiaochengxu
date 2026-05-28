@@ -18,7 +18,12 @@ export async function main(): Promise<LoginResult> {
    }
 
    // Check if user already exists
-   const { data: user } = await db.collection('users').doc(openid).get();
+   let user: Record<string, unknown> | null = null;
+   try {
+      ({ data: user } = await db.collection('users').doc(openid).get());
+   } catch {
+      // Document doesn't exist — new user
+   }
    if (user) {
       const { data: creditsList } = await db.collection('credits').where({ users_id: openid }).get();
       const credits = creditsList[0] || { users_id: openid, total_scores: 0, available_scores: 0 };

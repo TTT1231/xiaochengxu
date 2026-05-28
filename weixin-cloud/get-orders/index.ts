@@ -15,7 +15,12 @@ export async function main(event: GetOrdersParams) {
    try {
       // Get single order detail
       if (orderId) {
-         const { data: order } = await db.collection('orders').doc(orderId).get();
+         let order: Record<string, unknown> | null = null;
+         try {
+            ({ data: order } = await db.collection('orders').doc(orderId).get());
+         } catch {
+            // Document doesn't exist
+         }
          if (!order) {
             return { success: false, message: 'Order not found' };
          }

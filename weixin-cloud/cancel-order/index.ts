@@ -18,7 +18,12 @@ export async function main(event: CancelOrderParams) {
 
    try {
       return await db.runTransaction(async (transaction) => {
-         const { data: order } = await transaction.collection('orders').doc(orderId).get();
+         let order: Record<string, unknown> | null = null;
+         try {
+            ({ data: order } = await transaction.collection('orders').doc(orderId).get());
+         } catch {
+            // Document doesn't exist
+         }
          if (!order) {
             return { success: false, message: 'Order not found' };
          }

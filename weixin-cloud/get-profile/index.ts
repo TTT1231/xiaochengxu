@@ -7,7 +7,12 @@ export async function main() {
    }
 
    try {
-      const { data: user } = await db.collection('users').doc(openid).get();
+      let user: Record<string, unknown> | null = null;
+      try {
+         ({ data: user } = await db.collection('users').doc(openid).get());
+      } catch {
+         // Document doesn't exist
+      }
       if (!user) {
          return { success: false, message: 'User not found' };
       }
