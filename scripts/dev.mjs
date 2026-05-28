@@ -14,11 +14,7 @@ function resolveCliPath() {
    }
 
    const candidates = [
-      'D:/Tencent/wechat-dev-tools/' + CLI_FILENAME,
-      'C:/Tencent/wechat-dev-tools/' + CLI_FILENAME,
-      'D:/Program Files/Tencent/微信web开发者工具/' + CLI_FILENAME,
-      'C:/Program Files/Tencent/微信web开发者工具/' + CLI_FILENAME,
-      'C:/Program Files (x86)/Tencent/微信web开发者工具/' + CLI_FILENAME,
+      join('D:/soft/Tencent', 'wei-chat-devtools', CLI_FILENAME),
       join(homedir(), 'AppData/Local/Programs/Tencent/微信web开发者工具', CLI_FILENAME),
    ];
 
@@ -60,7 +56,7 @@ function runCli(args) {
          stdio: 'inherit',
          windowsHide: false,
       });
-      proc.on('close', (code) => {
+      proc.on('close', code => {
          if (code === 0) return resolve();
          reject(new Error(`exit code ${code}`));
       });
@@ -87,7 +83,7 @@ function dev() {
 
       let compiled = false;
 
-      buildProc.stdout.on('data', (data) => {
+      buildProc.stdout.on('data', data => {
          const msg = data.toString();
          process.stdout.write(msg);
 
@@ -98,16 +94,16 @@ function dev() {
          }
       });
 
-      buildProc.stderr.on('data', (data) => {
+      buildProc.stderr.on('data', data => {
          process.stderr.write(data);
       });
 
-      buildProc.on('error', (err) => {
+      buildProc.on('error', err => {
          console.error('Build failed:', err.message);
          reject(err);
       });
 
-      buildProc.on('close', (code) => {
+      buildProc.on('close', code => {
          if (code === 0) resolve();
          else reject(new Error(`build exited with code ${code}`));
       });
@@ -129,7 +125,7 @@ if (!command || !{ dev, stop }[command]) {
 }
 
 const commands = { dev, stop };
-commands[command]().catch((err) => {
+commands[command]().catch(err => {
    console.error('Error:', err.message);
    process.exit(1);
 });
