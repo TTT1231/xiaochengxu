@@ -15,7 +15,7 @@ const userStore = useUserStore();
 const userProfile = computed(() => userStore.user);
 const credits = computed(() => userStore.credits);
 
-const levelConfig = computed(() => useUserLevel(userProfile.value?.level ?? '普通会员'));
+const levelConfig = computed(() => useUserLevel(userProfile.value?.level ?? '普通用户'));
 
 onShow(() => {
    userStore.fetchProfile();
@@ -45,7 +45,6 @@ function handleUserCardClick(): void {
       <Header title="个人中心" :show-back="false" />
 
       <view
-         v-if="levelConfig.isVip"
          class="tier-accent"
          :style="{ background: `linear-gradient(to right, ${levelConfig.color}, transparent)` }"
       ></view>
@@ -56,14 +55,14 @@ function handleUserCardClick(): void {
             background: levelConfig.bannerGradient,
          }"
       >
+         <view class="banner-glow" :style="{ backgroundColor: levelConfig.color }"></view>
          <view
-            v-if="levelConfig.isVip"
-            class="banner-glow"
+            class="banner-glow banner-glow--secondary"
             :style="{ backgroundColor: levelConfig.color }"
          ></view>
          <view
             v-if="levelConfig.isVip"
-            class="banner-glow banner-glow--secondary"
+            class="banner-glow banner-glow--tertiary"
             :style="{ backgroundColor: levelConfig.color }"
          ></view>
          <view class="banner-content">
@@ -76,7 +75,7 @@ function handleUserCardClick(): void {
                      _id: '',
                      name: '加载中...',
                      id: '--',
-                     level: '普通会员',
+                     level: '普通用户',
                      created_at: '',
                   }"
                />
@@ -137,6 +136,14 @@ function handleUserCardClick(): void {
       width: 160rpx;
       height: 160rpx;
       opacity: 0.08;
+   }
+
+   &--tertiary {
+      top: 50%;
+      right: 30%;
+      width: 280rpx;
+      height: 280rpx;
+      opacity: 0.06;
    }
 }
 

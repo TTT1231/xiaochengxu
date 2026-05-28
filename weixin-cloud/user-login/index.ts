@@ -41,7 +41,7 @@ export async function main(): Promise<LoginResult> {
    try {
       await db.runTransaction(async (transaction) => {
          await transaction.collection('users').add({
-            data: { _id: openid, name: '微信用户', id: displayId, level: '普通会员', created_at: now },
+            data: { _id: openid, name: '微信用户', id: displayId, level: '普通用户', created_at: now },
          });
          await transaction.collection('credits').add({ data: defaultCredits });
       });
@@ -49,7 +49,7 @@ export async function main(): Promise<LoginResult> {
       return {
          success: true,
          data: {
-            user: { _id: openid, name: '微信用户', id: displayId, level: '普通会员', created_at: now },
+            user: { _id: openid, name: '微信用户', id: displayId, level: '普通用户', created_at: now },
             credits: defaultCredits,
             isNewUser: true,
          },

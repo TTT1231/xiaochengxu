@@ -11,7 +11,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const levelConfig = computed(() => useUserLevel(props.level ?? '普通会员'));
+const levelConfig = computed(() => useUserLevel(props.level ?? '普通用户'));
 
 const emit = defineEmits<{
    'click:points': [];
@@ -23,7 +23,7 @@ const emit = defineEmits<{
       class="stats-container"
       :style="{
          borderColor: levelConfig.color,
-         ...(levelConfig.isVip ? { boxShadow: `0 2rpx 16rpx ${levelConfig.lightBg}` } : {}),
+         boxShadow: `0 2rpx 16rpx ${levelConfig.lightBg}`,
       }"
    >
       <view class="stat-item" @click="emit('click:points')">

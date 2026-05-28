@@ -17,7 +17,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const levelConfig = computed(() => useUserLevel(props.level ?? '普通会员'));
+const levelConfig = computed(() => useUserLevel(props.level ?? '普通用户'));
 
 const menuItems: MenuItem[] = [
    {
@@ -48,10 +48,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-   <view
-      class="menu-list"
-      :style="levelConfig.isVip ? { boxShadow: `0 2rpx 16rpx ${levelConfig.lightBg}` } : {}"
-   >
+   <view class="menu-list" :style="{ boxShadow: `0 2rpx 16rpx ${levelConfig.lightBg}` }">
       <view
          v-for="(item, index) in menuItems"
          :key="item.key"

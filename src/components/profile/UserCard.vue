@@ -20,11 +20,11 @@ const levelConfig = computed(() => useUserLevel(props.user.level));
 <template>
    <view
       class="user-card"
-      :class="[levelConfig.isVip ? `tier-${levelConfig.tier}` : '']"
+      :class="[`tier-${levelConfig.tier}`]"
       :style="{
          borderColor: levelConfig.color,
          boxShadow: levelConfig.shadow,
-         ...(levelConfig.isVip ? { background: levelConfig.gradientBg } : {}),
+         background: levelConfig.gradientBg,
       }"
       @click="emit('click')"
    >
@@ -32,7 +32,7 @@ const levelConfig = computed(() => useUserLevel(props.user.level));
          class="avatar-wrap"
          :style="{
             borderColor: levelConfig.color,
-            boxShadow: levelConfig.tier === 'gold' ? `0 0 20rpx ${levelConfig.lightBg}` : 'none',
+            boxShadow: levelConfig.tier === 'vip' ? `0 0 20rpx ${levelConfig.lightBg}` : 'none',
          }"
       >
          <image :src="DEFAULT_AVATAR" class="avatar" mode="aspectFill" />
@@ -40,13 +40,15 @@ const levelConfig = computed(() => useUserLevel(props.user.level));
       <view class="user-info">
          <text class="nickname">{{ user.name }}</text>
          <view
-            v-if="levelConfig.isVip"
             class="member-badge"
+            :class="[levelConfig.isVip ? 'member-badge--vip' : 'member-badge--normal']"
             :style="{
                background: levelConfig.badgeGradient,
             }"
          >
-            <text class="member-text">{{ levelConfig.displayLabel }}</text>
+            <text class="member-text" :style="{ color: levelConfig.badgeTextColor }">{{
+               levelConfig.displayLabel
+            }}</text>
          </view>
          <text class="user-id">ID: {{ user.id }}</text>
       </view>
@@ -64,6 +66,10 @@ const levelConfig = computed(() => useUserLevel(props.user.level));
    transition:
       border-color 0.2s ease,
       box-shadow 0.2s ease;
+}
+
+.tier-vip {
+   border: 2rpx solid rgba(161, 98, 7, 0.2);
 }
 
 .avatar-wrap {
@@ -106,14 +112,24 @@ const levelConfig = computed(() => useUserLevel(props.user.level));
    align-self: flex-start;
    border-radius: $radius-full;
    padding: 6rpx 20rpx;
+
+   &--normal {
+      border: 1rpx solid rgba(232, 135, 58, 0.15);
+   }
+
+   &--vip {
+      border: none;
+   }
 }
 
 .member-text {
    font-size: 22rpx;
    font-weight: 600;
-   color: #ffffff;
    line-height: 30rpx;
-   text-shadow: 0 1rpx 2rpx rgba(0, 0, 0, 0.15);
+
+   .member-badge--vip & {
+      text-shadow: 0 1rpx 2rpx rgba(0, 0, 0, 0.15);
+   }
 }
 
 .user-id {

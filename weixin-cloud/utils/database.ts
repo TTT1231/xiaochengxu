@@ -7,13 +7,11 @@ const db = cloud.database();
 const VALID_ORDER_STATUSES = ['pending', 'preparing', 'ready', 'completed', 'cancelled'] as const;
 export type OrderStatus = (typeof VALID_ORDER_STATUSES)[number];
 
-const VALID_USER_LEVELS = ['普通会员', '黄铜会员', '白银会员', '黄金会员'] as const;
+const VALID_USER_LEVELS = ['普通用户', '会员用户'] as const;
 export type UserLevel = (typeof VALID_USER_LEVELS)[number];
 
 const LEVEL_THRESHOLDS: { min: number; level: UserLevel }[] = [
-   { min: 300, level: '黄金会员' },
-   { min: 200, level: '白银会员' },
-   { min: 100, level: '黄铜会员' },
+   { min: 100, level: '会员用户' },
 ];
 
 export function isValidOrderStatus(status: string): status is OrderStatus {
@@ -28,7 +26,7 @@ export function getLevelForScore(totalScores: number): UserLevel {
    for (const { min, level } of LEVEL_THRESHOLDS) {
       if (totalScores >= min) return level;
    }
-   return '普通会员';
+   return '普通用户';
 }
 
 export interface CloudContext {

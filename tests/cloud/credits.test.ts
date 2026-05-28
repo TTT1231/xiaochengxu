@@ -67,18 +67,14 @@ describe('calculateCreditsEarned', () => {
 
 describe('getUpdatedLevel', () => {
    it('returns null when level unchanged', () => {
-      expect(getUpdatedLevel('普通会员', 50)).toBeNull();
+      expect(getUpdatedLevel('普通用户', 50)).toBeNull();
    });
 
    it('returns new level when threshold crossed', () => {
-      expect(getUpdatedLevel('普通会员', 100)).toBe('黄铜会员');
+      expect(getUpdatedLevel('普通用户', 100)).toBe('会员用户');
    });
 
    it('returns null when already at matching level', () => {
-      expect(getUpdatedLevel('黄铜会员', 150)).toBeNull();
-   });
-
-   it('returns higher level crossing multiple thresholds', () => {
-      expect(getUpdatedLevel('普通会员', 300)).toBe('黄金会员');
+      expect(getUpdatedLevel('会员用户', 150)).toBeNull();
    });
 });

@@ -17,7 +17,7 @@ interface UserDocument {
   _id: string;          // openid (WeChat unique user ID)
   name: string;         // User display name
   id: string;           // 唯一7位用户ID (7-digit display ID)
-  level: string;        // '普通会员' | '黄铜会员' | '白银会员' | '黄金会员'
+  level: string;        // '普通用户' | '会员用户'
   created_at: string;   // ISO timestamp
 }
 ```
@@ -29,7 +29,7 @@ interface UserDocument {
 **Validation Rules:**
 - `_id` must be non-empty string (openid)
 - `id` must be unique 7-digit string
-- `level` must be one of the 4 valid values
+- `level` must be one of the 2 valid values
 
 ## Collection: `products`
 
