@@ -55,9 +55,9 @@
 ## 7. Cleanup
 
 - [ ] 7.0 Add test coverage using **vitest** (or any minimal test runner). Testing strategy by layer:
-  - **Layer 1 — Cloud function business logic (automated)**: credits calculation (add/subtract with floor at 0 for both `total_scores` and `available_scores`), level thresholds (4 tiers), order total validation (pre-discount amount + discount = credits earned), order status validation, display ID generation + collision retry. These are pure TypeScript functions, no mini program runtime needed.
-  - **Layer 2 — Frontend API layer (automated)**: mock `wx.cloud.callFunction` and `wx.cloud.database()` to verify `orderApi.ts`, `homeDataApi.ts`, `userApi.ts` call correct cloud functions with correct parameters and handle responses/errors properly.
-  - **Layer 3 — Mini program pages (manual only)**: WeChat Mini Program cannot be automated with browser testing tools (Playwright/Cypress). Manual verification in WeChat DevTools: page rendering, navigation, image loading, touch interactions. Covered by task 4.4.
+   - **Layer 1 — Cloud function business logic (automated)**: credits calculation (add/subtract with floor at 0 for both `total_scores` and `available_scores`), level thresholds (4 tiers), order total validation (pre-discount amount + discount = credits earned), order status validation, display ID generation + collision retry. These are pure TypeScript functions, no mini program runtime needed.
+   - **Layer 2 — Frontend API layer (automated)**: mock `wx.cloud.callFunction` and `wx.cloud.database()` to verify `orderApi.ts`, `homeDataApi.ts`, `userApi.ts` call correct cloud functions with correct parameters and handle responses/errors properly.
+   - **Layer 3 — Mini program pages (manual only)**: WeChat Mini Program cannot be automated with browser testing tools (Playwright/Cypress). Manual verification in WeChat DevTools: page rendering, navigation, image loading, touch interactions. Covered by task 4.4.
 - [ ] 7.1 Delete `src/utils/supabaseClient.ts`
 - [ ] 7.2 Remove all Supabase-related code comments and references
 - [ ] 7.3 Update `README.md`: replace Supabase backend documentation with WeChat Cloud
@@ -66,4 +66,3 @@
 - [ ] 7.6 Run `pnpm type-check` and `pnpm lint:fix` to verify clean build
 - [ ] 7.7 Remove `cspell.json` Supabase-related word entries if any
 - [ ] 7.8 Clean up H5 platform config in `manifest.json`: remove or disable H5 platform declaration since `wx.cloud.*` APIs are WeChat-only
-- [ ] 7.9 Disable Supabase `wx-login` Edge Function: either delete or disable the deployed Edge Function in Supabase dashboard after migration is verified complete. Keep Supabase project running as rollback backup.
