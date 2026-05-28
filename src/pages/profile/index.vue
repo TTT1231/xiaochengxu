@@ -25,28 +25,12 @@ function handlePointsClick(): void {
    uni.navigateTo({ url: '/pages/points/index' });
 }
 
-function handleCouponsClick(): void {
-   // TODO: Navigate to coupons page
-}
-
 function handleMenuClick(_key: string): void {
    // TODO: Implement menu navigation
 }
 
-function handleLogout(): void {
-   uni.showModal({
-      title: '提示',
-      content: '确定要退出登录吗？',
-      success: res => {
-         if (res.confirm) {
-            userStore.logout();
-            uni.showToast({
-               title: '已退出登录',
-               icon: 'success',
-            });
-         }
-      },
-   });
+function handleUserCardClick(): void {
+   uni.navigateTo({ url: '/pages/profile/edit' });
 }
 </script>
 
@@ -84,7 +68,7 @@ function handleLogout(): void {
          ></view>
          <view class="banner-content">
             <view v-if="userProfile" class="user-card-wrap">
-               <UserCard :user="userProfile" />
+               <UserCard :user="userProfile" @click="handleUserCardClick" />
             </view>
             <view v-else class="user-card-wrap">
                <UserCard
@@ -104,15 +88,13 @@ function handleLogout(): void {
          <view class="card-spacing">
             <StatsCard
                :points="credits?.available_scores ?? 0"
-               :coupons="0"
                :level="userProfile?.level"
                @click:points="handlePointsClick"
-               @click:coupons="handleCouponsClick"
             />
          </view>
 
          <view class="card-spacing">
-            <MenuList :level="userProfile?.level" @click="handleMenuClick" @logout="handleLogout" />
+            <MenuList :level="userProfile?.level" @click="handleMenuClick" />
          </view>
 
          <view class="bottom-spacer"></view>

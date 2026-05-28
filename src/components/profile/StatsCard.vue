@@ -5,7 +5,6 @@ import { useUserLevel } from '@/composables/useUserLevel';
 
 interface Props {
    points: number;
-   coupons: number;
    /** 用户等级，用于左侧竖线颜色 */
    level?: string;
 }
@@ -16,7 +15,6 @@ const levelConfig = computed(() => useUserLevel(props.level ?? '普通会员'));
 
 const emit = defineEmits<{
    'click:points': [];
-   'click:coupons': [];
 }>();
 </script>
 
@@ -29,21 +27,14 @@ const emit = defineEmits<{
       }"
    >
       <view class="stat-item" @click="emit('click:points')">
-         <text class="stat-label">我的积分</text>
+         <text class="stat-label">我的余额</text>
          <view class="stat-value-row">
             <text
                class="stat-value"
                :style="levelConfig.color ? { color: levelConfig.color } : {}"
                >{{ formatPoints(points) }}</text
             >
-            <text class="stat-unit">分</text>
-         </view>
-      </view>
-      <view class="stat-item" @click="emit('click:coupons')">
-         <text class="stat-label">优惠券</text>
-         <view class="stat-value-row">
-            <text class="stat-value">{{ coupons.toLocaleString() }}</text>
-            <text class="stat-unit">张</text>
+            <text class="stat-unit">元</text>
          </view>
       </view>
    </view>

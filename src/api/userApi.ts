@@ -43,3 +43,28 @@ export async function getCloudProfile(): Promise<UserProfile | null> {
       return null;
    }
 }
+
+export interface UpdateProfileParams {
+   name?: string;
+   phone?: string;
+   [key: string]: unknown;
+}
+
+export interface UpdateProfileResult {
+   success: boolean;
+   message: string;
+}
+
+export async function updateCloudProfile(
+   params: UpdateProfileParams,
+): Promise<UpdateProfileResult> {
+   try {
+      const res = await wx.cloud.callFunction({ name: 'update-profile', data: params });
+      return res.result as UpdateProfileResult;
+   } catch (error) {
+      return {
+         success: false,
+         message: error instanceof Error ? error.message : '更新失败',
+      };
+   }
+}

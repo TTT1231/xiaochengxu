@@ -10,6 +10,9 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+const emit = defineEmits<{
+   (e: 'click'): void;
+}>();
 
 const levelConfig = computed(() => useUserLevel(props.user.level));
 </script>
@@ -23,6 +26,7 @@ const levelConfig = computed(() => useUserLevel(props.user.level));
          boxShadow: levelConfig.shadow,
          ...(levelConfig.isVip ? { background: levelConfig.gradientBg } : {}),
       }"
+      @click="emit('click')"
    >
       <view
          class="avatar-wrap"

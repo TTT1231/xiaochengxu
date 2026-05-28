@@ -10,6 +10,8 @@ export interface Users {
    level: string;
    /** 创建时间 */
    created_at: string;
+   /** 手机号 */
+   phone?: string;
 }
 
 /** 用户积分表 */

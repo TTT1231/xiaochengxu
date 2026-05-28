@@ -59,20 +59,17 @@ export async function createOrder(params: CreateOrderParams): Promise<Orders> {
 }
 
 export async function getOrdersByUser(): Promise<Orders[]> {
-   console.log('[DEBUG getOrdersByUser] 调用 get-orders 云函数');
    const res = await wx.cloud.callFunction({
       name: 'get-orders',
       data: {},
    });
 
-   console.log('[DEBUG getOrdersByUser] 云函数原始返回:', JSON.stringify(res.result));
    const result = res.result as { success: boolean; data?: { orders: Orders[] }; message: string };
    if (!result.success) {
       console.error('[DEBUG getOrdersByUser] 云函数返回失败:', result.message);
       throw new Error(result.message || '获取订单列表失败');
    }
    const orders = (result.data?.orders || []).map(resolveOrderImages);
-   console.log('[DEBUG getOrdersByUser] 解析后订单数量:', orders.length, orders);
    return orders;
 }
 

@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
-import { cloudLogin, getCloudProfile } from '@/api/userApi';
+import { cloudLogin, getCloudProfile, updateCloudProfile } from '@/api/userApi';
+import type { UpdateProfileParams } from '@/api/userApi';
 import type { Users, Credits } from '@/types';
 
 interface AuthState {
@@ -75,6 +76,20 @@ export const useUserStore = defineStore('user', {
             this.user = profile.user;
             this.credits = profile.credits;
          }
+      },
+
+      async updateUserProfile(
+         params: UpdateProfileParams,
+      ): Promise<{ success: boolean; message: string }> {
+         const result = await updateCloudProfile(params);
+         if (result.success && this.user) {
+            this.user = {
+               ...this.user,
+               ...(params.name !== undefined ? { name: params.name } : {}),
+               ...(params.phone !== undefined ? { phone: params.phone } : {}),
+            };
+         }
+         return result;
       },
    },
 });
