@@ -1,12 +1,12 @@
 ## 1. Database Schema & Types (G1)
 
-- [ ] 1.1 Define WeChat Cloud Database collection schemas: create `weixin-cloud/database-schema.md` documenting all 5 collections (users, products, orders, credits, categoried) with field types, indexes, and validation rules. Note: `products._id` must preserve original numeric ID (used by cloud function transaction `doc(id).get()`), `orders._id` = generated `order_id`, `users._id` = `openid`
-- [ ] 1.2 Update TypeScript types in `src/types/db-scheme/`: remove PostgreSQL-specific types, adjust `_id` to `string`, ensure compatibility with document model. Fix display ID comment from "唯一6位" to "唯一7位" to match actual implementation.
-- [ ] 1.3 Remove `supabaseClient.ts` and create `src/utils/cloudDatabase.ts` — WeChat Cloud Database client wrapper with read-only client-side instance
-- [ ] 1.4 Update `src/hooks/useEnvConfig.ts`: remove `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`, remove Supabase config
-- [ ] 1.5 Update `vite.config.ts`: remove Supabase env vars from `define`, update `compileWeixinCloud()` plugin to recursively traverse subdirectories (currently skips directories with `if (!file.isFile()) continue`), output each cloud function as `weixin-cloud/<name>/index.js`
-- [ ] 1.6 Remove `supabase-wechat-stable-v2` from `package.json` dependencies
-- [ ] 1.7 Configure WeChat Cloud Database collection security rules: `products` and `categoried` = client read-only, `users`/`orders`/`credits` = client no access, all collections = cloud function admin access
+- [x] 1.1 Define WeChat Cloud Database collection schemas: create `weixin-cloud/database-schema.md` documenting all 5 collections (users, products, orders, credits, categoried) with field types, indexes, and validation rules. Note: `products._id` must preserve original numeric ID (used by cloud function transaction `doc(id).get()`), `orders._id` = generated `order_id`, `users._id` = `openid`
+- [x] 1.2 Update TypeScript types in `src/types/db-scheme/`: remove PostgreSQL-specific types, adjust `_id` to `string`, ensure compatibility with document model. Fix display ID comment from "唯一6位" to "唯一7位" to match actual implementation.
+- [x] 1.3 Remove `supabaseClient.ts` and create `src/utils/cloudDatabase.ts` — WeChat Cloud Database client wrapper with read-only client-side instance
+- [x] 1.4 Update `src/hooks/useEnvConfig.ts`: remove `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`, remove Supabase config
+- [x] 1.5 Update `vite.config.ts`: remove Supabase env vars from `define`, update `compileWeixinCloud()` plugin to recursively traverse subdirectories (currently skips directories with `if (!file.isFile()) continue`), output each cloud function as `weixin-cloud/<name>/index.js`
+- [x] 1.6 Remove `supabase-wechat-stable-v2` from `package.json` dependencies
+- [x] 1.7 Configure WeChat Cloud Database collection security rules: `products` and `categoried` = client read-only, `users`/`orders`/`credits` = client no access, all collections = cloud function admin access
 
 ## 2. Cloud Functions Core (G2)
 
