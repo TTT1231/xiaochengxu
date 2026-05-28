@@ -29,3 +29,5 @@ temp
 
 # env
 .env
+
+pnpm-lock.yaml
