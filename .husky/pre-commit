@@ -4,3 +4,4 @@ pnpm run lint:fix
 pnpm run lint
 pnpm run type-check
 pnpm run spell:check-staged
+pnpm run test
