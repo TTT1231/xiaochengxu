@@ -5,7 +5,7 @@ interface CloudConfig {
 
 export function useEnvConfig(): CloudConfig {
    return {
-      cloudEnvId: import.meta.env.VITE_CLOUD_ENV_ID,
+      cloudEnvId: import.meta.env.VITE_WEIXIN_CLOUD_ID,
       cloudStoragePrefix: import.meta.env.VITE_CLOUD_STORAGE_PREFIX,
    };
 }

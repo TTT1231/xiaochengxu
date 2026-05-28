@@ -17,7 +17,7 @@ export function useHeaderHeight(paddingBottomRpx = 20): HeaderHeightResult {
    const menuRight = ref(0);
 
    const calculateHeights = () => {
-      const windowInfo = uni.getSystemInfoSync();
+      const windowInfo = uni.getWindowInfo();
       const sbHeight = windowInfo.statusBarHeight || 0;
       let mTop = sbHeight;
       let mHeight = 32;

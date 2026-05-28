@@ -15,7 +15,7 @@
    },
    "compileType": "miniprogram",
    "libVersion": "",
-   "appid": "",
+   "appid": "<appid>",
    "projectname": "甜品屋",
    "condition": {
       "search": {

@@ -78,21 +78,29 @@ function injectEnv() {
       }
    }
 
-   const manifestPath = resolve(PROJECT_DIR, 'src', 'manifest.json');
    const REPLACEMENTS = { YOUR_WEIXIN_APPID: 'VITE_WEIXIN_APPID' };
-   let raw = readFileSync(manifestPath, 'utf-8');
+   const files = [
+      resolve(PROJECT_DIR, 'src', 'manifest.json'),
+      resolve(PROJECT_DIR, 'src', 'project.config.json'),
+   ];
 
-   for (const [placeholder, envKey] of Object.entries(REPLACEMENTS)) {
-      const value = process.env[envKey];
-      if (!value) continue;
-      const pattern = `"${placeholder}"`;
-      if (raw.includes(pattern)) {
-         raw = raw.replace(pattern, `"${value}"`);
-         console.log(`[inject-env] ${placeholder} → ${value}`);
+   for (const filePath of files) {
+      let raw = readFileSync(filePath, 'utf-8');
+      let changed = false;
+
+      for (const [placeholder, envKey] of Object.entries(REPLACEMENTS)) {
+         const value = process.env[envKey];
+         if (!value) continue;
+         const pattern = `"${placeholder}"`;
+         if (raw.includes(pattern)) {
+            raw = raw.replace(pattern, `"${value}"`);
+            console.log(`[inject-env] ${filePath} ${placeholder} → ${value}`);
+            changed = true;
+         }
       }
-   }
 
-   writeFileSync(manifestPath, raw, 'utf-8');
+      if (changed) writeFileSync(filePath, raw, 'utf-8');
+   }
 }
 
 function dev() {

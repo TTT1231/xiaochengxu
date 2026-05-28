@@ -20,7 +20,10 @@ if (existsSync(ENV_PATH)) {
    }
 }
 
-const MANIFEST_PATH = resolve(PROJECT_DIR, 'src', 'manifest.json');
+const TARGET_FILES = [
+   resolve(PROJECT_DIR, 'src', 'manifest.json'),
+   resolve(PROJECT_DIR, 'src', 'project.config.json'),
+];
 
 // Placeholder → env var mapping
 const REPLACEMENTS = {
@@ -28,28 +31,35 @@ const REPLACEMENTS = {
 };
 
 function injectEnv() {
-   let raw = readFileSync(MANIFEST_PATH, 'utf-8');
-   let changed = false;
+   let anyChanged = false;
 
-   for (const [placeholder, envKey] of Object.entries(REPLACEMENTS)) {
-      const value = process.env[envKey];
-      if (!value) {
-         console.warn(`[inject-env] skip: ${envKey} not set`);
-         continue;
+   for (const filePath of TARGET_FILES) {
+      let raw = readFileSync(filePath, 'utf-8');
+      let changed = false;
+
+      for (const [placeholder, envKey] of Object.entries(REPLACEMENTS)) {
+         const value = process.env[envKey];
+         if (!value) {
+            console.warn(`[inject-env] skip: ${envKey} not set`);
+            continue;
+         }
+
+         const pattern = `"${placeholder}"`;
+         if (raw.includes(pattern)) {
+            raw = raw.replace(pattern, `"${value}"`);
+            changed = true;
+            console.log(`[inject-env] ${placeholder} → ${value}`);
+         }
       }
 
-      // Replace quoted placeholder value: "YOUR_WEIXIN_APPID" → "wx..."
-      const pattern = `"${placeholder}"`;
-      if (raw.includes(pattern)) {
-         raw = raw.replace(pattern, `"${value}"`);
-         changed = true;
-         console.log(`[inject-env] ${placeholder} → ${value}`);
+      if (changed) {
+         writeFileSync(filePath, raw, 'utf-8');
+         anyChanged = true;
       }
    }
 
-   if (changed) {
-      writeFileSync(MANIFEST_PATH, raw, 'utf-8');
-      console.log('[inject-env] manifest.json updated');
+   if (anyChanged) {
+      console.log('[inject-env] files updated');
    } else {
       console.log('[inject-env] no changes needed');
    }
