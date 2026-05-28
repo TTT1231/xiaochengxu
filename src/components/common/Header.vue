@@ -129,6 +129,7 @@ const handleQrcodeClick = (): void => {
    display: flex;
    align-items: center;
    gap: 24rpx;
+   margin-right: 32rpx;
 }
 
 .icon-btn {

@@ -21,16 +21,6 @@ const levelConfig = computed(() => useUserLevel(props.level ?? '普通会员'));
 
 const menuItems: MenuItem[] = [
    {
-      key: 'address',
-      icon: `${MENU_ICONS}/menu-address.svg`,
-      label: '地址管理',
-   },
-   {
-      key: 'settings',
-      icon: `${MENU_ICONS}/menu-settings.svg`,
-      label: '系统设置',
-   },
-   {
       key: 'privacy',
       icon: `${MENU_ICONS}/menu-privacy.svg`,
       label: '隐私政策',

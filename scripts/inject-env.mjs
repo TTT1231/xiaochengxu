@@ -27,14 +27,15 @@ const TARGET_FILES = [
 
 // Placeholder → env var mapping
 const REPLACEMENTS = {
-   YOUR_WEIXIN_APPID: 'VITE_WEIXIN_APPID',
+   '<appid>': 'VITE_WEIXIN_APPID',
 };
 
 function injectEnv() {
-   let anyChanged = false;
+   const originals = new Map();
 
    for (const filePath of TARGET_FILES) {
-      let raw = readFileSync(filePath, 'utf-8');
+      const raw = readFileSync(filePath, 'utf-8');
+      let modified = raw;
       let changed = false;
 
       for (const [placeholder, envKey] of Object.entries(REPLACEMENTS)) {
@@ -45,28 +46,36 @@ function injectEnv() {
          }
 
          const pattern = `"${placeholder}"`;
-         if (raw.includes(pattern)) {
-            raw = raw.replace(pattern, `"${value}"`);
+         if (modified.includes(pattern)) {
+            modified = modified.replace(pattern, `"${value}"`);
             changed = true;
             console.log(`[inject-env] ${placeholder} → ${value}`);
          }
       }
 
       if (changed) {
-         writeFileSync(filePath, raw, 'utf-8');
-         anyChanged = true;
+         originals.set(filePath, raw);
+         writeFileSync(filePath, modified, 'utf-8');
       }
    }
 
-   if (anyChanged) {
+   if (originals.size > 0) {
       console.log('[inject-env] files updated');
    } else {
       console.log('[inject-env] no changes needed');
    }
+
+   return () => {
+      for (const [filePath, original] of originals) {
+         writeFileSync(filePath, original, 'utf-8');
+      }
+   };
 }
 
 try {
-   injectEnv();
+   const restore = injectEnv();
+   process.on('exit', restore);
+   process.on('SIGINT', () => { restore(); process.exit(0); });
 } catch (error) {
    console.error('[inject-env] failed:', error.message);
    process.exit(1);

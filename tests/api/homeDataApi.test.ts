@@ -3,8 +3,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 const mockGet = vi.fn();
 
 function createDbMock() {
-   const mockLimit = vi.fn().mockReturnValue({ get: mockGet });
-   const mockCollection = vi.fn().mockReturnValue({ limit: mockLimit });
+   const mockWhere = vi.fn().mockReturnValue({ limit: vi.fn().mockReturnValue({ get: mockGet }) });
+   const mockCollection = vi.fn().mockReturnValue({ where: mockWhere, limit: vi.fn().mockReturnValue({ get: mockGet }) });
    return {
       mockCollection,
       database: vi.fn().mockReturnValue({ collection: mockCollection }),
@@ -34,7 +34,7 @@ vi.mock('../../src/utils/cloudStorage', () => ({
 const { getLeftMenuData, getRightProductData } = await import('../../src/api/homeDataApi');
 
 describe('getLeftMenuData', () => {
-   it('queries categoried collection with limit(100)', async () => {
+   it('queries categoried collection with status filter', async () => {
       mockGet.mockResolvedValue({
          data: [{ icon: 'icon1.png', active_icon: 'icon2.png', name: 'Cake' }],
       });
@@ -47,7 +47,7 @@ describe('getLeftMenuData', () => {
 });
 
 describe('getRightProductData', () => {
-   it('queries products collection with limit(100)', async () => {
+   it('queries products collection with status filter', async () => {
       mockGet.mockResolvedValue({
          data: [{ images: 'img1.png&img2.png', name: 'Cookie', price: 10 }],
       });

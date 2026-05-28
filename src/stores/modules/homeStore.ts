@@ -1,6 +1,20 @@
 import { defineStore } from 'pinia';
 import type { Products, Categoried } from '@/types';
 import { getLeftMenuData, getRightProductData } from '@/api/homeDataApi';
+import { useUserStore } from './userStore';
+
+function waitForCloud(): Promise<void> {
+   const userStore = useUserStore();
+   if (userStore.cloudReady) return Promise.resolve();
+   return new Promise(resolve => {
+      const timer = setInterval(() => {
+         if (userStore.cloudReady) {
+            clearInterval(timer);
+            resolve();
+         }
+      }, 50);
+   });
+}
 
 interface HomeState {
    categories: Categoried[];
@@ -35,6 +49,7 @@ export const useHomeStore = defineStore('home', {
          this.loading = true;
          this.error = null;
          try {
+            await waitForCloud();
             const [categories, products] = await Promise.all([
                getLeftMenuData(),
                getRightProductData(),

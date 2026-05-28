@@ -78,33 +78,46 @@ function injectEnv() {
       }
    }
 
-   const REPLACEMENTS = { YOUR_WEIXIN_APPID: 'VITE_WEIXIN_APPID' };
+   const REPLACEMENTS = { '<appid>': 'VITE_WEIXIN_APPID' };
    const files = [
       resolve(PROJECT_DIR, 'src', 'manifest.json'),
       resolve(PROJECT_DIR, 'src', 'project.config.json'),
    ];
 
+   const originals = new Map();
+
    for (const filePath of files) {
-      let raw = readFileSync(filePath, 'utf-8');
+      const raw = readFileSync(filePath, 'utf-8');
+      let modified = raw;
       let changed = false;
 
       for (const [placeholder, envKey] of Object.entries(REPLACEMENTS)) {
          const value = process.env[envKey];
          if (!value) continue;
          const pattern = `"${placeholder}"`;
-         if (raw.includes(pattern)) {
-            raw = raw.replace(pattern, `"${value}"`);
+         if (modified.includes(pattern)) {
+            modified = modified.replace(pattern, `"${value}"`);
             console.log(`[inject-env] ${filePath} ${placeholder} → ${value}`);
             changed = true;
          }
       }
 
-      if (changed) writeFileSync(filePath, raw, 'utf-8');
+      if (changed) {
+         originals.set(filePath, raw);
+         writeFileSync(filePath, modified, 'utf-8');
+      }
    }
+
+   return () => {
+      for (const [filePath, original] of originals) {
+         writeFileSync(filePath, original, 'utf-8');
+         console.log(`[inject-env] restored ${filePath}`);
+      }
+   };
 }
 
 function dev() {
-   injectEnv();
+   const restore = injectEnv();
 
    return new Promise((resolve, reject) => {
       const buildProc = spawn('uni', ['-p', 'mp-weixin'], {
@@ -114,6 +127,7 @@ function dev() {
       });
 
       const cleanup = () => {
+         restore();
          buildProc.kill();
          process.exit(0);
       };

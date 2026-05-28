@@ -17,16 +17,15 @@ export async function main(): Promise<LoginResult> {
       return { success: false, message: 'Authentication failed: no OPENID' };
    }
 
-   // Check if user already exists
-   let user: Record<string, unknown> | null = null;
-   try {
-      ({ data: user } = await db.collection('users').doc(openid).get());
-   } catch {
-      // Document doesn't exist — new user
-   }
+   // Parallel: fetch user + credits in one round-trip
+   const [userRes, creditsRes] = await Promise.all([
+      db.collection('users').doc(openid).get().catch(() => null),
+      db.collection('credits').where({ users_id: openid }).limit(1).get(),
+   ]);
+
+   const user = userRes?.data;
    if (user) {
-      const { data: creditsList } = await db.collection('credits').where({ users_id: openid }).get();
-      const credits = creditsList[0] || { users_id: openid, total_scores: 0, available_scores: 0 };
+      const credits = creditsRes.data?.[0] || { users_id: openid, total_scores: 0, available_scores: 0 };
       return {
          success: true,
          data: { user, credits, isNewUser: false },
@@ -34,36 +33,24 @@ export async function main(): Promise<LoginResult> {
       };
    }
 
-   // New user: create user + credits in a transaction
+   // New user: generate ID, then create user + credits in transaction
    const displayId = await generateUniqueDisplayId();
    const now = new Date().toISOString();
+   const defaultCredits = { users_id: openid, total_scores: 0, available_scores: 0 };
 
    try {
       await db.runTransaction(async (transaction) => {
          await transaction.collection('users').add({
-            data: {
-               _id: openid,
-               name: '微信用户',
-               id: displayId,
-               level: '普通会员',
-               created_at: now,
-            },
+            data: { _id: openid, name: '微信用户', id: displayId, level: '普通会员', created_at: now },
          });
-         await transaction.collection('credits').add({
-            data: {
-               users_id: openid,
-               total_scores: 0,
-               available_scores: 0,
-            },
-         });
+         await transaction.collection('credits').add({ data: defaultCredits });
       });
 
-      const { data: newUser } = await db.collection('users').doc(openid).get();
       return {
          success: true,
          data: {
-            user: newUser,
-            credits: { users_id: openid, total_scores: 0, available_scores: 0 },
+            user: { _id: openid, name: '微信用户', id: displayId, level: '普通会员', created_at: now },
+            credits: defaultCredits,
             isNewUser: true,
          },
          message: 'Registration successful',

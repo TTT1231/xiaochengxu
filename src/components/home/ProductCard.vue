@@ -70,15 +70,23 @@ const handleClick = (): void => {
    top: 12rpx;
    left: 12rpx;
    background-color: $badge-error;
-   padding: 4rpx 14rpx;
+   padding: 6rpx 16rpx;
    border-radius: $radius-full;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   z-index: 2;
 }
 
 .discount-badge-text {
    font-size: 20rpx;
    color: #ffffff;
-   font-weight: 600;
-   line-height: 28rpx;
+   font-weight: bold; /* 加粗一点，避免塌陷感 */
+   line-height: 1.1; /* 使用较小且相对的行高搭配 flex 居中 */
+   font-family: 'Plus Jakarta Sans', sans-serif; /* 统一数字字体 */
+   transform: translateY(
+      1rpx
+   ); /* 如果数字和中文对齐有轻微视觉偏差可以适当微调，不过 flex-center 一般已经足够 */
 }
 
 .card-content {

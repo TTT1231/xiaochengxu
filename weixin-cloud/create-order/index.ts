@@ -70,10 +70,12 @@ export async function main(event: CreateOrderParams) {
    const expectedTotal = validatedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
    const expectedDiscount = validatedItems.reduce((sum, item) => sum + item.discount * item.quantity, 0);
 
-   if (totalAmount !== expectedTotal) {
+   // Use epsilon comparison — yuan values are floats, strict !== fails on rounding drift
+   const EPSILON = 0.01;
+   if (Math.abs(totalAmount - expectedTotal) > EPSILON) {
       return { success: false, message: 'Total amount mismatch' };
    }
-   if (discountAmount !== expectedDiscount) {
+   if (Math.abs(discountAmount - expectedDiscount) > EPSILON) {
       return { success: false, message: 'Discount amount mismatch' };
    }
 
@@ -81,10 +83,11 @@ export async function main(event: CreateOrderParams) {
    const orderId = generateOrderId();
    const now = new Date().toISOString();
 
-   // Step 3: Run transaction for writes only
+   // Step 3: Create order first (standalone, no transaction — order must always persist)
    try {
-      await db.runTransaction(async (transaction) => {
-         await transaction.collection('orders').add({
+      await db
+         .collection('orders')
+         .add({
             data: {
                _id: orderId,
                order_id: orderId,
@@ -96,41 +99,43 @@ export async function main(event: CreateOrderParams) {
                oder_details: validatedItems,
             },
          });
-
-         // Update credits
-         const { data: creditsList } = await transaction
-            .collection('credits')
-            .where({ users_id: openid })
-            .get();
-
-         if (creditsList.length > 0) {
-            const credits = creditsList[0];
-            const updated = addPoints(
-               { total_scores: credits.total_scores, available_scores: credits.available_scores },
-               creditsEarned,
-            );
-            await transaction
-               .collection('credits')
-               .doc(credits._id as string)
-               .update({ data: updated });
-
-            // Check level update
-            const { data: user } = await transaction.collection('users').doc(openid).get();
-            if (user) {
-               const newLevel = getUpdatedLevel(user.level as string, updated.total_scores);
-               if (newLevel) {
-                  await transaction
-                     .collection('users')
-                     .doc(openid)
-                     .update({ data: { level: newLevel } });
-               }
-            }
-         }
-      });
-
-      return { success: true, data: { order_id: orderId }, message: 'Order created' };
    } catch (error) {
       const msg = error instanceof Error ? error.message : 'Unknown error';
       return { success: false, message: 'Order creation failed: ' + msg };
    }
+
+   // Step 4: Update credits & level (best-effort, must NOT roll back the order)
+   try {
+      const { data: creditsList } = await db
+         .collection('credits')
+         .where({ users_id: openid })
+         .get();
+
+      if (creditsList.length > 0) {
+         const credits = creditsList[0];
+         const updated = addPoints(
+            { total_scores: credits.total_scores, available_scores: credits.available_scores },
+            creditsEarned,
+         );
+         await db
+            .collection('credits')
+            .doc(credits._id as string)
+            .update({ data: updated });
+
+         const { data: user } = await db.collection('users').doc(openid).get();
+         if (user) {
+            const newLevel = getUpdatedLevel(user.level as string, updated.total_scores);
+            if (newLevel) {
+               await db
+                  .collection('users')
+                  .doc(openid)
+                  .update({ data: { level: newLevel } });
+            }
+         }
+      }
+   } catch {
+      // Credits/level update failed — order is still valid, ignore
+   }
+
+   return { success: true, data: { order_id: orderId }, message: 'Order created' };
 }

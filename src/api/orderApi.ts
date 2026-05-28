@@ -2,11 +2,24 @@ import type { CartItem as CartItemType } from '@/stores/modules/cartStore';
 import type { Orders, OrderDetailItem } from '@/types';
 import { toProductImageFileID } from '@/utils/cloudStorage';
 
+function parseDetails(order: Orders): OrderDetailItem[] {
+   if (!order.oder_details) return [];
+   if (Array.isArray(order.oder_details)) return order.oder_details;
+   if (typeof order.oder_details === 'string') {
+      try {
+         return JSON.parse(order.oder_details);
+      } catch {
+         return [];
+      }
+   }
+   return [];
+}
+
 function resolveOrderImages(order: Orders): Orders {
-   if (!order.oder_details) return order;
+   const details = parseDetails(order);
    return {
       ...order,
-      oder_details: order.oder_details.map(item => ({
+      oder_details: details.map(item => ({
          ...item,
          product_image: toProductImageFileID(item.product_image),
       })),
@@ -46,16 +59,21 @@ export async function createOrder(params: CreateOrderParams): Promise<Orders> {
 }
 
 export async function getOrdersByUser(): Promise<Orders[]> {
+   console.log('[DEBUG getOrdersByUser] 调用 get-orders 云函数');
    const res = await wx.cloud.callFunction({
       name: 'get-orders',
       data: {},
    });
 
+   console.log('[DEBUG getOrdersByUser] 云函数原始返回:', JSON.stringify(res.result));
    const result = res.result as { success: boolean; data?: { orders: Orders[] }; message: string };
    if (!result.success) {
+      console.error('[DEBUG getOrdersByUser] 云函数返回失败:', result.message);
       throw new Error(result.message || '获取订单列表失败');
    }
-   return (result.data?.orders || []).map(resolveOrderImages);
+   const orders = (result.data?.orders || []).map(resolveOrderImages);
+   console.log('[DEBUG getOrdersByUser] 解析后订单数量:', orders.length, orders);
+   return orders;
 }
 
 export async function getOrderDetail(orderId: string): Promise<Orders | null> {

@@ -32,11 +32,18 @@ export function useOrder() {
    const userStore = useUserStore();
 
    const fetchOrders = async (silent = false): Promise<void> => {
-      if (!userStore.isAuthenticated) return;
+      if (!userStore.isAuthenticated) {
+         console.warn('[DEBUG fetchOrders] 用户未登录，跳过获取订单');
+         return;
+      }
       if (!silent) loading.value = true;
       try {
          orderList.value = await getOrdersByUser();
-      } catch {
+         console.log('[DEBUG fetchOrders] orderList 已更新:', orderList.value.length, '条');
+         console.log('[DEBUG fetchOrders] activeOrders:', activeOrders.value.length, '条');
+         console.log('[DEBUG fetchOrders] historyOrders:', historyOrders.value.length, '条');
+      } catch (err) {
+         console.error('[DEBUG fetchOrders] 获取失败:', err);
          orderList.value = [];
       } finally {
          if (!silent) loading.value = false;

@@ -7,7 +7,7 @@ const { cloudStoragePrefix } = useEnvConfig();
 /** Convert a bare filename to a full cloud fileID. */
 export function toProductFileID(filename: string): string {
    if (!filename || filename.startsWith('cloud://')) return filename;
-   return cloudStoragePrefix + 'products-img/' + filename;
+   return cloudStoragePrefix + 'product-imgs/' + filename;
 }
 
 /** Convert an icon URL or bare filename to a cloud fileID. */
@@ -21,7 +21,7 @@ export function toIconFileID(url: string): string {
 export function toProductImageFileID(url: string): string {
    if (!url || url.startsWith('cloud://')) return url;
    const filename = url.startsWith('http') ? url.split('/').pop() || url : url;
-   return cloudStoragePrefix + 'products-img/' + filename;
+   return cloudStoragePrefix + 'product-imgs/' + filename;
 }
 
 interface CacheEntry {
@@ -62,12 +62,12 @@ async function batchResolve(fileIDs: string[]): Promise<Map<string, string>> {
                   expiresAt: Date.now() + CACHE_TTL_MS,
                });
             } else {
-               result.set(item.fileID, '');
+               result.set(item.fileID, item.fileID);
             }
          }
       } catch {
          for (const id of batch) {
-            result.set(id, '');
+            result.set(id, id);
          }
       }
    }

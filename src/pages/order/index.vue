@@ -78,6 +78,13 @@ onShow(async () => {
    } else {
       await fetchOrders(true);
    }
+   console.log(
+      '[DEBUG order/index] onShow done — activeOrders:',
+      activeOrders.value.length,
+      'historyOrders:',
+      historyOrders.value.length,
+   );
+   console.log('[DEBUG order/index] showActive:', showActive.value);
 });
 </script>
 

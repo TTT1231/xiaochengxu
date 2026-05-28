@@ -22,7 +22,7 @@ describe('cloudLogin', () => {
 
       const result = await cloudLogin();
       expect(result.success).toBe(true);
-      expect(mockCallFunction).toHaveBeenCalledWith({ name: 'user-login' });
+      expect(mockCallFunction).toHaveBeenCalledWith({ name: 'user-login', timeout: 10000 });
    });
 
    it('returns failure on cloud function error', async () => {

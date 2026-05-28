@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
-import type { Products } from '@/types';
+import type { Products, ProductSpecs } from '@/types';
 import { useHomeStore, useCartStore } from '@/stores';
 
 const homeStore = useHomeStore();
@@ -22,7 +22,11 @@ const hasMultipleImages = computed(() => carouselImages.value.length > 1);
 /** 规格组列表 */
 const specGroups = computed(() => {
    if (!product.value?.specs) return [];
-   return Object.values(product.value.specs);
+   const specs: ProductSpecs =
+      typeof product.value.specs === 'string'
+         ? JSON.parse(product.value.specs as string)
+         : product.value.specs;
+   return Object.values(specs);
 });
 
 const discountedPrice = computed(() => {
@@ -40,7 +44,7 @@ const initDefaultSpecs = () => {
    if (!product.value?.specs) return;
    const defaults: Record<string, string> = {};
    for (const group of Object.values(product.value.specs)) {
-      const availableOption = group.options.find(opt => !opt.isSoldOut);
+      const availableOption = group.options?.find(opt => !opt.isSoldOut);
       if (availableOption) {
          defaults[group.name] = availableOption.value;
       }
@@ -61,7 +65,10 @@ onLoad(async options => {
 
    const found = homeStore.getProductById(productId);
    if (found) {
-      product.value = found;
+      product.value = {
+         ...found,
+         specs: typeof found.specs === 'string' ? JSON.parse(found.specs) : found.specs,
+      };
       initDefaultSpecs();
    } else {
       uni.showToast({ title: '商品不存在', icon: 'none' });

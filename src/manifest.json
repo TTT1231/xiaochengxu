@@ -6,7 +6,7 @@
    "versionCode": "100",
    /* 小程序特有相关 */
    "mp-weixin": {
-      "appid": "YOUR_WEIXIN_APPID",
+      "appid": "wx1709070219f37df6",
       "setting": {
          "urlCheck": false
       },

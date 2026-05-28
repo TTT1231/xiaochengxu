@@ -29,7 +29,7 @@ export interface Products {
    name: string;
    /** 产品描述 */
    description: string;
-   /** 价格 (单位: 分) */
+   /** 价格 (单位: 元) */
    price: number;
    /** 产品图片 (微信云 fileID，多个用 & 分隔) */
    images: string;

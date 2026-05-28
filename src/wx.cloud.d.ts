@@ -33,6 +33,7 @@ interface WxCloud {
    callFunction(options: {
       name: string;
       data?: Record<string, unknown>;
+      timeout?: number;
    }): Promise<CallFunctionResult>;
    database(): CloudDatabase;
    getTempFileURL(options: { fileList: string[] }): Promise<{ fileList: TempFileURLItem[] }>;

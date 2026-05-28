@@ -17,7 +17,7 @@ export interface CloudLoginResult {
 
 export async function cloudLogin(): Promise<CloudLoginResult> {
    try {
-      const res = await wx.cloud.callFunction({ name: 'user-login' });
+      const res = await wx.cloud.callFunction({ name: 'user-login', timeout: 10000 });
       return res.result as CloudLoginResult;
    } catch (error) {
       return {
