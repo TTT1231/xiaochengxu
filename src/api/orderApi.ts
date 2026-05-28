@@ -1,5 +1,17 @@
 import type { CartItem as CartItemType } from '@/stores/modules/cartStore';
 import type { Orders, OrderDetailItem } from '@/types';
+import { toProductImageFileID } from '@/utils/cloudStorage';
+
+function resolveOrderImages(order: Orders): Orders {
+   if (!order.oder_details) return order;
+   return {
+      ...order,
+      oder_details: order.oder_details.map(item => ({
+         ...item,
+         product_image: toProductImageFileID(item.product_image),
+      })),
+   };
+}
 
 interface CreateOrderParams {
    items: CartItemType[];
@@ -43,7 +55,7 @@ export async function getOrdersByUser(): Promise<Orders[]> {
    if (!result.success) {
       throw new Error(result.message || '获取订单列表失败');
    }
-   return result.data?.orders || [];
+   return (result.data?.orders || []).map(resolveOrderImages);
 }
 
 export async function getOrderDetail(orderId: string): Promise<Orders | null> {
@@ -56,7 +68,7 @@ export async function getOrderDetail(orderId: string): Promise<Orders | null> {
    if (!result.success || !result.data) {
       return null;
    }
-   return result.data.order;
+   return resolveOrderImages(result.data.order);
 }
 
 export async function cancelOrder(orderId: string): Promise<void> {

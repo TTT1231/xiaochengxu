@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { onLaunch } from '@dcloudio/uni-app';
 import { useUserStore } from '@/stores';
+import { useEnvConfig } from '@/hooks/useEnvConfig';
+
+const { cloudEnvId } = useEnvConfig();
 
 onLaunch(async () => {
    try {
-      wx.cloud.init({ env: 'YOUR_WEIXIN_CLOUD_ID' });
+      wx.cloud.init({ env: cloudEnvId });
    } catch (error) {
       uni.showModal({
          title: '初始化失败',

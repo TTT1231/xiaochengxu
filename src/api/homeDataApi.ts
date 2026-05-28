@@ -1,6 +1,6 @@
 import type { Categoried } from '../types/db-scheme/categoried';
 import type { Products } from '../types';
-import { resolveFileIDs } from '@/utils/cloudStorage';
+import { resolveFileIDs, toProductFileID, toIconFileID } from '@/utils/cloudStorage';
 
 export async function getLeftMenuData(): Promise<Categoried[]> {
    const db = wx.cloud.database();
@@ -10,7 +10,9 @@ export async function getLeftMenuData(): Promise<Categoried[]> {
    const fileIDs = [
       ...new Set(
          categories.flatMap(c =>
-            [c.icon, c.active_icon].filter((id): id is string => !!id && id.startsWith('cloud://')),
+            [c.icon, c.active_icon]
+               .map(id => (id ? toIconFileID(id) : ''))
+               .filter(id => id.startsWith('cloud://')),
          ),
       ),
    ];
@@ -21,8 +23,8 @@ export async function getLeftMenuData(): Promise<Categoried[]> {
 
    return categories.map(c => ({
       ...c,
-      icon: c.icon ? (urlMap.get(c.icon) || c.icon) : c.icon,
-      active_icon: c.active_icon ? (urlMap.get(c.active_icon) || c.active_icon) : c.active_icon,
+      icon: c.icon ? urlMap.get(toIconFileID(c.icon)) || c.icon : c.icon,
+      active_icon: c.active_icon ? urlMap.get(toIconFileID(c.active_icon)) || c.active_icon : c.active_icon,
    }));
 }
 
@@ -33,7 +35,11 @@ export async function getRightProductData(): Promise<Products[]> {
 
    const fileIDs = [
       ...new Set(
-         products.flatMap(p => (p.images ? p.images.split('&') : []).filter(id => id.startsWith('cloud://'))),
+         products.flatMap(p =>
+            (p.images ? p.images.split('&') : [])
+               .map(toProductFileID)
+               .filter(id => id.startsWith('cloud://')),
+         ),
       ),
    ];
 
@@ -43,6 +49,11 @@ export async function getRightProductData(): Promise<Products[]> {
 
    return products.map(p => ({
       ...p,
-      images: p.images ? p.images.split('&').map(id => urlMap.get(id) || id).join('&') : '',
+      images: p.images
+         ? p.images
+              .split('&')
+              .map(name => urlMap.get(toProductFileID(name)) || name)
+              .join('&')
+         : '',
    }));
 }

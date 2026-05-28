@@ -1,5 +1,29 @@
 /** WeChat Cloud fileID → temporary URL resolver with 2-hour cache */
 
+import { useEnvConfig } from '@/hooks/useEnvConfig';
+
+const { cloudStoragePrefix } = useEnvConfig();
+
+/** Convert a bare filename to a full cloud fileID. */
+export function toProductFileID(filename: string): string {
+   if (!filename || filename.startsWith('cloud://')) return filename;
+   return cloudStoragePrefix + 'products-img/' + filename;
+}
+
+/** Convert a Supabase icon URL or bare filename to a cloud fileID. */
+export function toIconFileID(url: string): string {
+   if (!url || url.startsWith('cloud://')) return url;
+   const filename = url.startsWith('http') ? url.split('/').pop() || url : url;
+   return cloudStoragePrefix + 'project-icons/' + filename;
+}
+
+/** Convert a Supabase product image URL to a cloud fileID. */
+export function toProductImageFileID(url: string): string {
+   if (!url || url.startsWith('cloud://')) return url;
+   const filename = url.startsWith('http') ? url.split('/').pop() || url : url;
+   return cloudStoragePrefix + 'products-img/' + filename;
+}
+
 interface CacheEntry {
    url: string;
    expiresAt: number;
