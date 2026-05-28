@@ -25,7 +25,7 @@
 **Non-Goals:**
 - 不重构 UI 或页面结构
 - 不增加新功能
-- 不做 H5 平台兼容（迁移后仅支持微信小程序）
+- 不做 H5 平台兼容（迁移后仅支持微信小程序，H5 清理后续单独处理）
 - 不做实时数据同步（当前未使用 Supabase Realtime）
 
 ## Architecture Visualization
@@ -203,12 +203,6 @@ PostgreSQL 的外键、唯一约束、CHECK 约束在微信云数据库中不存
 历史订单 `oder_details` 中的图片 URL 和 `categoried` 表中的图标 URL 都是完整 Supabase URL。迁移后这些 URL 会失效。
 
 **缓解**: 数据迁移脚本批量扫描并替换所有 Supabase Storage URL 为微信云 fileID。
-
-### [H5 平台不再支持] → 清理构建配置
-
-Supabase SDK 支持多平台，微信云仅支持微信小程序。迁移后 H5 构建目标将不可用。
-
-**缓解**: 在 CLAUDE.md 和 README 中声明仅支持微信小程序，并在 cleanup 阶段清理 `manifest.json` 中的 H5 平台配置，避免混淆。
 
 ### [云函数冷启动] → 首次请求延迟
 

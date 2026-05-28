@@ -12,7 +12,9 @@
       "toutiao",
       "automator",
       "categoried",
-      "qrcode"
+      "qrcode",
+      "shime",
+      "postgrest"
    ],
    "ignorePaths": [
       ".env",

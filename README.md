@@ -7,7 +7,7 @@
 [![Vue 3](https://img.shields.io/badge/Vue-3.4-42b883?logo=vue.js)](https://vuejs.org/)
 [![uni-app](https://img.shields.io/badge/uni--app-3.0-2b9939?logo=wechat)](https://uniapp.dcloud.net.cn/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-4.9-3178c6?logo=typescript)](https://www.typescriptlang.org/)
-[![Supabase](https://img.shields.io/badge/Supabase-Backend-3ecf8e?logo=supabase)](https://supabase.com/)
+[![WeChat Cloud](https://img.shields.io/badge/WeChat_Cloud-Backend-07c160?logo=wechat)](https://developers.weixin.qq.com/miniprogram/dev/wxcloud/basis/getting-started.html)
 [![Pinia](https://img.shields.io/badge/Pinia-State-fc6d26?logo=vue.js)](https://pinia.vuejs.org/)
 
 <br />
@@ -26,7 +26,7 @@
 
 ### What is 甜品屋?
 
-A cross-platform dessert ordering mini app built for **WeChat Mini Program** and **H5 Web**. Users can browse the menu, customize product specs, place orders, and earn loyalty points — all powered by a modern Vue 3 + Supabase stack.
+A dessert ordering mini app built for **WeChat Mini Program**. Users can browse the menu, customize product specs, place orders, and earn loyalty points — powered by Vue 3 + WeChat Cloud Development.
 
 <br />
 
@@ -39,7 +39,7 @@ A cross-platform dessert ordering mini app built for **WeChat Mini Program** and
 | 📋 **Order Tracking**   | Full order lifecycle — pending, preparing, ready, completed, cancelled           |
 | 🎁 **Points Mall**      | Loyalty points system with redeemable rewards to drive repeat purchases          |
 | 👤 **User Profile**     | Order history, points balance, and membership level management                   |
-| 🌐 **Cross-Platform**   | Single codebase compiles to WeChat Mini Program and H5 web                       |
+| 🌐 **Cross-Platform**   | WeChat Mini Program with cloud-based backend                                 |
 
 <br />
 
@@ -51,10 +51,10 @@ A cross-platform dessert ordering mini app built for **WeChat Mini Program** and
 | Build Tool       | Vite 5 + uni-app CLI                       |
 | Language         | TypeScript                                 |
 | State Management | Pinia                                      |
-| Backend          | Supabase (PostgreSQL + Auth + RLS)         |
+| Backend          | WeChat Cloud Development (Database + Functions + Storage) |
 | Styling          | SCSS with `rpx` responsive units           |
 | i18n             | vue-i18n                                   |
-| Code Quality     | ESLint + Prettier + vue-tsc + cspell       |
+| Code Quality     | ESLint + Prettier + vue-tsc + cspell + vitest |
 
 <br />
 
@@ -109,9 +109,9 @@ src/
 ├── stores/          # Pinia state modules
 ├── composables/     # Vue composables
 ├── types/           # TypeScript definitions + DB schema
-├── api/             # Supabase query layer
+├── api/             # WeChat Cloud query layer
 ├── hooks/           # Vue hooks (env config)
-├── utils/           # Utilities (format, Supabase client)
+├── utils/           # Utilities (format, cloud storage)
 ├── static/          # Static assets
 ├── data/            # Static data & constants
 ├── mock/            # Mock data for development
@@ -126,6 +126,7 @@ src/
 
 ```bash
 pnpm type-check    # TypeScript type checking
+pnpm test          # Run vitest tests
 pnpm lint          # ESLint check
 pnpm lint:fix      # ESLint auto-fix
 pnpm format        # Prettier format
@@ -152,7 +153,7 @@ Private project — all rights reserved.
 
 ### 什么是甜品屋？
 
-一款跨平台甜品点单小程序，支持**微信小程序**和 **H5 网页**。用户可以浏览菜单、自定义商品规格、下单、查看订单状态，并积累积分兑换奖励 —— 全部基于 Vue 3 + Supabase 现代技术栈构建。
+一款甜品点单小程序，基于**微信小程序**平台。用户可以浏览菜单、自定义商品规格、下单、查看订单状态，并积累积分兑换奖励 —— 全部基于 Vue 3 + 微信云开发现代技术栈构建。
 
 <br />
 
@@ -165,7 +166,7 @@ Private project — all rights reserved.
 | 📋 **订单追踪**   | 完整订单生命周期 — 待付款、制作中、待取餐、已完成、已取消 |
 | 🎁 **积分商城**   | 会员积分体系，可兑换奖励商品，促进复购                    |
 | 👤 **个人中心**   | 订单历史、积分余额、会员等级管理                          |
-| 🌐 **跨平台**     | 一套代码同时编译为微信小程序和 H5 网页                    |
+| 🌐 **跨平台**     | 微信小程序 + 云开发后端                                 |
 
 <br />
 
@@ -177,10 +178,10 @@ Private project — all rights reserved.
 | 构建工具 | Vite 5 + uni-app CLI                       |
 | 语言     | TypeScript                                 |
 | 状态管理 | Pinia                                      |
-| 后端     | Supabase (PostgreSQL + Auth + RLS)         |
+| 后端     | 微信云开发（云数据库 + 云函数 + 云存储）   |
 | 样式     | SCSS + `rpx` 响应式单位                    |
 | 国际化   | vue-i18n                                   |
-| 代码质量 | ESLint + Prettier + vue-tsc + cspell       |
+| 代码质量 | ESLint + Prettier + vue-tsc + cspell + vitest |
 
 <br />
 
@@ -235,9 +236,9 @@ src/
 ├── stores/          # Pinia 状态管理模块
 ├── composables/     # Vue 组合式函数
 ├── types/           # TypeScript 类型定义 + 数据库 Schema
-├── api/             # Supabase 查询层
+├── api/             # 微信云开发查询层
 ├── hooks/           # Vue Hooks（环境配置）
-├── utils/           # 工具函数（格式化、Supabase 客户端）
+├── utils/           # 工具函数（格式化、云存储）
 ├── static/          # 静态资源
 ├── data/            # 静态数据与常量
 ├── mock/            # 开发用模拟数据
@@ -252,6 +253,7 @@ src/
 
 ```bash
 pnpm type-check    # TypeScript 类型检查
+pnpm test          # 运行 vitest 测试
 pnpm lint          # ESLint 检查
 pnpm lint:fix      # ESLint 自动修复
 pnpm format        # Prettier 格式化
