@@ -1,5 +1,6 @@
+#!/bin/sh
 pnpm run format
-pnpm run eslint:fix
-pnpm run eslint
-pnpm run type:check
+pnpm run lint:fix
+pnpm run lint
+pnpm run type-check
 pnpm run spell:check-staged
