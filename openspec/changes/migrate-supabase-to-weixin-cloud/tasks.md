@@ -19,7 +19,7 @@
 - [x] 2.7 Create `weixin-cloud/cancel-order/index.ts`: order cancellation cloud function — verify ownership via OPENID, validate status (only `pending` or `preparing`), run transaction: update order status, deduct both `total_scores` and `available_scores` with floor at 0, update level
 - [x] 2.8 Create `weixin-cloud/get-orders/index.ts`: order query cloud function — get user's orders by OPENID, get single order detail (with ownership verification: OPENID must match order's `user_id` to prevent order ID enumeration)
 - [x] 2.9 Create `weixin-cloud/get-profile/index.ts`: user profile cloud function — get user + credits by OPENID
-- [ ] 2.10 Deploy all cloud functions to WeChat Cloud environment and verify each function responds correctly via `wx.cloud.callFunction` test calls
+- [x] 2.10 Deploy all cloud functions to WeChat Cloud environment and verify each function responds correctly via `wx.cloud.callFunction` test calls
 
 ## 3. Auth Migration (G3)
 
