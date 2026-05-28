@@ -21,8 +21,7 @@ const LEVEL_CONFIG: Record<string, LevelConfig> = {
       lightBg: 'rgba(232, 135, 58, 0.06)',
       gradientBg: 'linear-gradient(135deg, #FFF8F2, #FEF0E2)',
       shadow: '0 2rpx 12rpx rgba(232, 135, 58, 0.08)',
-      bannerGradient:
-         'linear-gradient(180deg, #FBBF7E 0%, #FDD9A8 30%, #FEF0E2 60%, #FFF8F2 100%)',
+      bannerGradient: 'linear-gradient(180deg, #FBBF7E 0%, #FDD9A8 30%, #FEF0E2 60%, #FFF8F2 100%)',
       pageBg: '#FFFAF6',
       serviceGradient: 'linear-gradient(to right, #ee862b, #f59e0b)',
       badgeGradient: 'rgba(232, 135, 58, 0.1)',
