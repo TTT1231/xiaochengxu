@@ -179,9 +179,9 @@ Change the function signature from `level: string` to `isVip: boolean`. Keep exi
 
 | Area | Change | Status |
 |------|--------|--------|
-| Database | New `wallets` table, modify `orders` (add wallet_deduct), deprecate `credits` | TODO |
-| Cloud Functions | New `recharge`, modify 4 existing functions, delete `utils/credits.ts` | TODO |
-| Frontend Pages | New `wallet/index`, remove `points/index` | TODO |
-| Frontend Components | Remove `points/*`, modify `StatsCard`, `UserCard`, `MenuList` | Partially done (visual 2-level), needs isVip boolean adaptation |
-| Frontend State | `userStore.credits` → `userStore.wallet` | TODO |
+| Database | New `wallets` table, modify `orders` (add wallet_deduct), deprecate `credits` | Done |
+| Cloud Functions | New `recharge`, modify 4 existing functions, delete `utils/credits.ts` | Done |
+| Frontend Pages | New `wallet/index`, remove `points/index` | Done |
+| Frontend Components | Remove `points/*`, modify `StatsCard`, `UserCard`, `MenuList` | Done |
+| Frontend State | `userStore.credits` → `userStore.wallet` | Done |
 | Frontend Composables | `useUserLevel(level: string)` → `useUserLevel(isVip: boolean)` | Partially done (2-level config), needs boolean signature |

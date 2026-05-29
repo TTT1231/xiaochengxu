@@ -61,8 +61,8 @@ interface OrderDocument {
   order_id: string;           // Generated unique order ID
   user_id: string;            // openid of the order owner
   order_status: string;       // 'pending' | 'preparing' | 'ready' | 'completed' | 'cancelled'
-  total_amount: number;       // Pre-discount total in cents (分)
-  discount_amount: number;    // Total discount in cents (分)
+  total_amount: number;       // Pre-discount total in yuan (元)
+  discount_amount: number;    // Total discount in yuan (元)
   wallet_deduct: number;      // Balance deduction amount in yuan (元), default 0
   created_at: string;         // ISO timestamp
   oder_details: OrderDetailItem[]; // Note: historical typo preserved
@@ -88,7 +88,7 @@ interface OrderDetailItem {
 - `order_status` must be a valid `OrderStatus` value
 - `total_amount` must equal sum of (price × quantity) for all items
 - `discount_amount` must equal sum of (discount × quantity) for all items
-- `wallet_deduct` must be >= 0 and <= wallet balance
+- `wallet_deduct` must be >= 0, <= wallet balance, and <= (total_amount - discount_amount)
 
 ## Collection: `wallets`
 

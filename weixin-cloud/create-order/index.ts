@@ -1,5 +1,5 @@
 import { db, getOpenId } from '../utils/database';
-import { deductWallet, findWalletByUserId } from '../utils/wallet';
+import { deductWallet } from '../utils/wallet';
 
 const MAX_CART_ITEMS = 20;
 
@@ -80,26 +80,41 @@ export async function main(event: CreateOrderParams) {
    if (Math.abs(discountAmount - expectedDiscount) > EPSILON) {
       return { success: false, message: 'Discount amount mismatch' };
    }
-
-   // Step 3: Validate wallet deduction if provided
-   if (walletDeduct > 0) {
-      const wallet = await findWalletByUserId(openid);
-      if (!wallet) {
-         return { success: false, message: 'Wallet not found' };
-      }
-      if (walletDeduct > (wallet.balance as number)) {
-         return { success: false, message: 'Insufficient balance' };
-      }
+   const payableAmount = Math.max(expectedTotal - expectedDiscount, 0);
+   if (walletDeduct - payableAmount > EPSILON) {
+      return { success: false, message: 'Wallet deduction exceeds payable amount' };
    }
 
    const orderId = generateOrderId();
    const now = new Date().toISOString();
 
-   // Step 4: Create order (standalone, no transaction)
+   // Step 3: Create order and deduct wallet balance atomically.
    try {
-      await db
-         .collection('orders')
-         .add({
+      await db.runTransaction(async (transaction) => {
+         if (walletDeduct > 0) {
+            const { data: wallets } = await transaction
+               .collection('wallets')
+               .where({ user_id: openid })
+               .limit(1)
+               .get();
+            const wallet = wallets[0];
+            if (!wallet) {
+               throw new Error('Wallet not found');
+            }
+            if (walletDeduct - (wallet.balance as number) > EPSILON) {
+               throw new Error('Insufficient balance');
+            }
+            const updated = deductWallet(
+               { balance: wallet.balance as number, total_recharged: wallet.total_recharged as number },
+               walletDeduct,
+            );
+            await transaction
+               .collection('wallets')
+               .doc(wallet._id as string)
+               .update({ data: { ...updated, updated_at: now } });
+         }
+
+         await transaction.collection('orders').add({
             data: {
                _id: orderId,
                order_id: orderId,
@@ -112,28 +127,10 @@ export async function main(event: CreateOrderParams) {
                oder_details: validatedItems,
             },
          });
+      });
    } catch (error) {
       const msg = error instanceof Error ? error.message : 'Unknown error';
       return { success: false, message: 'Order creation failed: ' + msg };
-   }
-
-   // Step 5: Deduct wallet balance (best-effort, must NOT roll back the order)
-   if (walletDeduct > 0) {
-      try {
-         const wallet = await findWalletByUserId(openid);
-         if (wallet) {
-            const updated = deductWallet(
-               { balance: wallet.balance as number, total_recharged: wallet.total_recharged as number },
-               walletDeduct,
-            );
-            await db
-               .collection('wallets')
-               .doc(wallet._id as string)
-               .update({ data: { ...updated, updated_at: new Date().toISOString() } });
-         }
-      } catch {
-         // Wallet deduction failed — order is still valid, ignore
-      }
    }
 
    return { success: true, data: { order_id: orderId }, message: 'Order created' };

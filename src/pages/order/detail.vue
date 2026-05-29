@@ -19,7 +19,12 @@ const canCancel = computed(() => order.value?.order_status === 'pending');
 
 const actualAmount = computed(() => {
    if (!order.value) return 0;
-   return order.value.total_amount - (order.value.discount_amount ?? 0);
+   return Math.max(
+      order.value.total_amount -
+         (order.value.discount_amount ?? 0) -
+         (order.value.wallet_deduct ?? 0),
+      0,
+   );
 });
 
 const statusColor = computed(() => (order.value ? getStatusColor(order.value.order_status) : ''));
@@ -163,6 +168,12 @@ onLoad(async options => {
                <text class="fee-label">优惠减免</text>
                <text class="fee-amount discount"
                   >-{{ formatPriceDisplay(order.discount_amount) }}</text
+               >
+            </view>
+            <view v-if="order.wallet_deduct > 0" class="fee-row">
+               <text class="fee-label">余额抵扣</text>
+               <text class="fee-amount discount"
+                  >-{{ formatPriceDisplay(order.wallet_deduct) }}</text
                >
             </view>
             <view class="fee-divider" />

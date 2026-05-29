@@ -26,9 +26,9 @@ export interface Orders {
    user_id: string;
    /** 订单状态 */
    order_status: string;
-   /** 总金额（分）- 折前金额 */
+   /** 总金额（元）- 折前金额 */
    total_amount: number;
-   /** 优惠金额（分） */
+   /** 优惠金额（元） */
    discount_amount: number;
    /** 创建时间 */
    created_at: string;

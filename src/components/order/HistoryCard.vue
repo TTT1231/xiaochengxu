@@ -25,6 +25,15 @@ const firstThumb = computed(() => {
    const items = props.order.oder_details ?? [];
    return items[0]?.product_image ?? '';
 });
+
+const actualAmount = computed(() =>
+   Math.max(
+      props.order.total_amount -
+         (props.order.discount_amount ?? 0) -
+         (props.order.wallet_deduct ?? 0),
+      0,
+   ),
+);
 </script>
 
 <template>
@@ -44,7 +53,7 @@ const firstThumb = computed(() => {
       <text class="items-summary">{{ itemsSummary }}</text>
 
       <view class="card-footer">
-         <text class="price">{{ formatPriceDisplay(order.total_amount) }}</text>
+         <text class="price">{{ formatPriceDisplay(actualAmount) }}</text>
          <view class="reorder-btn" @click.stop="emit('reorder', order)">
             <image class="refresh-icon" :src="commonIcons.refresh" mode="aspectFit" />
             <text class="reorder-text">再来一单</text>

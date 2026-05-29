@@ -451,7 +451,7 @@ Delete `tests/cloud/credits.test.ts`.
 
 - [ ] **Step 5: Run all tests**
 
-Run: `npx vitest run`
+Run: `pnpm test`
 Expected: All tests pass (database.test.ts 3 tests, wallet.test.ts 8 tests, plus existing API tests)
 
 - [ ] **Step 6: Commit**
@@ -981,8 +981,8 @@ interface OrderDocument {
   order_id: string;           // Generated unique order ID
   user_id: string;            // openid of the order owner
   order_status: string;       // 'pending' | 'preparing' | 'ready' | 'completed' | 'cancelled'
-  total_amount: number;       // Pre-discount total in cents (分)
-  discount_amount: number;    // Total discount in cents (分)
+  total_amount: number;       // Pre-discount total in yuan (元)
+  discount_amount: number;    // Total discount in yuan (元)
   wallet_deduct: number;      // Balance deduction amount in yuan (元), default 0
   created_at: string;         // ISO timestamp
   oder_details: OrderDetailItem[]; // Note: historical typo preserved
@@ -1008,7 +1008,7 @@ interface OrderDetailItem {
 - `order_status` must be a valid `OrderStatus` value
 - `total_amount` must equal sum of (price × quantity) for all items
 - `discount_amount` must equal sum of (discount × quantity) for all items
-- `wallet_deduct` must be >= 0 and <= wallet balance
+- `wallet_deduct` must be >= 0, <= wallet balance, and <= (total_amount - discount_amount)
 
 ## Collection: `wallets`
 
@@ -2182,17 +2182,17 @@ Expected: All tests pass
 
 - [ ] **Step 2: Run linter**
 
-Run: `npx eslint "src/**/*.{js,ts,vue}"`
+Run: `pnpm lint`
 Expected: No errors
 
 - [ ] **Step 3: Run type check**
 
-Run: `npx vue-tsc --noEmit`
+Run: `pnpm type:check`
 Expected: No type errors
 
 - [ ] **Step 4: Build check**
 
-Run: `npx vite build`
+Run: `pnpm build`
 Expected: Build succeeds
 
 - [ ] **Step 5: Final commit if any fixes needed**
@@ -2208,27 +2208,27 @@ git commit -m "fix: resolve lint/type/build issues from wallet migration"
 
 | Spec Requirement | Task | Status |
 |---|---|---|
-| New `wallets` collection | Task 2 (wallet.ts), Task 4 (recharge), Task 7 (user-login) | TODO |
-| `users` remove `level` | Task 1 (types), Task 7 (user-login) | TODO |
-| `orders` add `wallet_deduct` | Task 1 (types), Task 5 (create-order) | TODO |
-| Deprecate `credits` | Task 3 (cleanup), Task 7 (migration) | TODO |
-| New `recharge` cloud function | Task 4 | TODO |
-| Modified `create-order` | Task 5 | TODO |
-| Modified `cancel-order` | Task 6 | TODO |
-| Modified `user-login` | Task 7 | TODO |
-| Modified `get-profile` | Task 7 | TODO |
-| Delete `utils/credits.ts` | Task 3 | TODO |
-| Simplify `database.ts` | Task 3 | TODO |
-| New wallet page | Task 14 | TODO |
-| `useUserLevel(level)` → `useUserLevel(isVip)` | Task 9 | TODO |
-| Update `userStore` | Task 11 | TODO |
-| Update `StatsCard` | Task 12 | TODO |
-| Update `UserCard` | Task 12 | TODO |
-| Update `MenuList` | Task 12 | TODO |
-| Update profile page | Task 13 | TODO |
-| Order flow wallet deduction | Task 15 | TODO |
-| Remove points page/components | Task 17 | TODO |
-| Remove mock data | Task 17 | TODO |
-| Update `pages.json` | Task 14 | TODO |
-| Update `database-schema.md` | Task 8 | TODO |
-| Rename `formatPoints` → `formatBalance` | Task 16 | TODO |
+| New `wallets` collection | Task 2 (wallet.ts), Task 4 (recharge), Task 7 (user-login) | Done |
+| `users` remove `level` | Task 1 (types), Task 7 (user-login) | Done |
+| `orders` add `wallet_deduct` | Task 1 (types), Task 5 (create-order) | Done |
+| Deprecate `credits` | Task 3 (cleanup), Task 7 (migration) | Done |
+| New `recharge` cloud function | Task 4 | Done |
+| Modified `create-order` | Task 5 | Done; wallet validation and deduction are transactional |
+| Modified `cancel-order` | Task 6 | Done |
+| Modified `user-login` | Task 7 | Done |
+| Modified `get-profile` | Task 7 | Done |
+| Delete `utils/credits.ts` | Task 3 | Done |
+| Simplify `database.ts` | Task 3 | Done |
+| New wallet page | Task 14 | Done |
+| `useUserLevel(level)` → `useUserLevel(isVip)` | Task 9 | Done |
+| Update `userStore` | Task 11 | Done |
+| Update `StatsCard` | Task 12 | Done |
+| Update `UserCard` | Task 12 | Done |
+| Update `MenuList` | Task 12 | Done |
+| Update profile page | Task 13 | Done |
+| Order flow wallet deduction | Task 15 | Done; order detail/history display wallet deduction |
+| Remove points page/components | Task 17 | Done |
+| Remove mock data | Task 17 | Done |
+| Update `pages.json` | Task 14 | Done |
+| Update `database-schema.md` | Task 8 | Done |
+| Rename `formatPoints` → `formatBalance` | Task 16 | Done |
