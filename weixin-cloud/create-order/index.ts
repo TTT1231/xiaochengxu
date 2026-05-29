@@ -1,7 +1,8 @@
 import { db, getOpenId } from '../utils/database';
-import { deductWallet } from '../utils/wallet';
+import { deductWallet, findWalletByUserId } from '../utils/wallet';
 
 const MAX_CART_ITEMS = 20;
+const EPSILON = 0.01;
 
 interface CartItem {
    product_id: string;
@@ -20,13 +21,101 @@ interface CreateOrderParams {
    walletDeduct?: number;
 }
 
+interface ProductSpecOption {
+   value: string;
+   isSoldOut?: boolean;
+}
+
+interface ProductSpecGroup {
+   name: string;
+   required?: boolean;
+   options?: ProductSpecOption[];
+}
+
+type ProductSpecs = Record<string, ProductSpecGroup>;
+
 function generateOrderId(): string {
    const timestamp = Date.now().toString(36).toUpperCase();
    const random = Math.random().toString(36).substring(2, 8).toUpperCase();
    return 'OD' + timestamp + random;
 }
 
-export async function main(event: CreateOrderParams) {
+function isFiniteAmount(value: unknown): value is number {
+   return typeof value === 'number' && Number.isFinite(value);
+}
+
+function hasAtMostTwoDecimals(amount: number): boolean {
+   return Math.abs(amount * 100 - Math.round(amount * 100)) < 1e-8;
+}
+
+function normalizeAmount(amount: number): number {
+   return Math.round(amount * 100) / 100;
+}
+
+function parseSpecs(rawSpecs: unknown): ProductSpecs {
+   if (!rawSpecs) return {};
+   if (typeof rawSpecs === 'string') {
+      const parsed = JSON.parse(rawSpecs);
+      return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+         ? (parsed as ProductSpecs)
+         : {};
+   }
+   return typeof rawSpecs === 'object' && !Array.isArray(rawSpecs)
+      ? (rawSpecs as ProductSpecs)
+      : {};
+}
+
+function validateSelectedSpecs(productName: string, rawSpecs: unknown, selectedSpecs: unknown): string | null {
+   if (!selectedSpecs || typeof selectedSpecs !== 'object' || Array.isArray(selectedSpecs)) {
+      selectedSpecs = {};
+   }
+
+   let specs: ProductSpecs;
+   try {
+      specs = parseSpecs(rawSpecs);
+   } catch {
+      return 'Invalid product specs: ' + productName;
+   }
+
+   const selected = selectedSpecs as Record<string, string>;
+   const groups = Object.values(specs);
+   const allowedNames = new Set(groups.map(group => group.name).filter(Boolean));
+
+   for (const specName of Object.keys(selected)) {
+      if (!allowedNames.has(specName)) {
+         return 'Invalid specs for product: ' + productName;
+      }
+   }
+
+   for (const group of groups) {
+      if (!group.name || !Array.isArray(group.options)) {
+         return 'Invalid product specs: ' + productName;
+      }
+
+      const selectedValue = selected[group.name];
+      if (group.required && !selectedValue) {
+         return 'Required spec missing for product: ' + productName;
+      }
+
+      if (!selectedValue) continue;
+
+      const option = group.options.find(item => item.value === selectedValue);
+      if (!option) {
+         return 'Invalid spec option for product: ' + productName;
+      }
+      if (option.isSoldOut) {
+         return 'Selected spec is sold out for product: ' + productName;
+      }
+   }
+
+   return null;
+}
+
+function getFirstImage(images: unknown): string {
+   return typeof images === 'string' ? images.split('&')[0] || '' : '';
+}
+
+export async function main(event: Partial<CreateOrderParams> = {}) {
    const openid = getOpenId();
    if (!openid) {
       return { success: false, message: 'Authentication failed' };
@@ -34,14 +123,24 @@ export async function main(event: CreateOrderParams) {
 
    const { items, totalAmount, discountAmount, walletDeduct = 0 } = event;
 
-   if (!items || items.length === 0) {
+   if (!Array.isArray(items) || items.length === 0) {
       return { success: false, message: 'Cart is empty' };
    }
    if (items.length > MAX_CART_ITEMS) {
       return { success: false, message: 'Too many items (max ' + MAX_CART_ITEMS + ')' };
    }
-   if (walletDeduct < 0) {
-      return { success: false, message: 'Invalid wallet deduction' };
+   if (
+      !isFiniteAmount(totalAmount) ||
+      !isFiniteAmount(discountAmount) ||
+      !isFiniteAmount(walletDeduct) ||
+      totalAmount < 0 ||
+      discountAmount < 0 ||
+      walletDeduct < 0 ||
+      !hasAtMostTwoDecimals(totalAmount) ||
+      !hasAtMostTwoDecimals(discountAmount) ||
+      !hasAtMostTwoDecimals(walletDeduct)
+   ) {
+      return { success: false, message: 'Invalid amount' };
    }
 
    // Step 1: Validate products OUTSIDE transaction (read-only)
@@ -50,18 +149,36 @@ export async function main(event: CreateOrderParams) {
       if (!item.product_id || !Number.isInteger(item.quantity) || item.quantity < 1) {
          return { success: false, message: 'Invalid item data' };
       }
+      const selectedSpecs =
+         item.specs && typeof item.specs === 'object' && !Array.isArray(item.specs) ? item.specs : {};
       try {
          const { data: product } = await db.collection('products').doc(item.product_id).get();
          if (!product) {
             return { success: false, message: 'Product not found: ' + item.product_id };
          }
+         if (product.status !== true) {
+            return { success: false, message: 'Product is not available: ' + product.name };
+         }
+         if (
+            !isFiniteAmount(product.price) ||
+            !isFiniteAmount(product.discount) ||
+            product.price < 0 ||
+            product.discount < 0 ||
+            product.discount > product.price
+         ) {
+            return { success: false, message: 'Invalid product pricing: ' + product.name };
+         }
+         const specError = validateSelectedSpecs(product.name, product.specs, selectedSpecs);
+         if (specError) {
+            return { success: false, message: specError };
+         }
          validatedItems.push({
             product_id: item.product_id,
             product_name: product.name,
-            product_image: item.product_image,
-            specs: item.specs,
-            price: product.price,
-            discount: product.discount,
+            product_image: getFirstImage(product.images),
+            specs: selectedSpecs,
+            price: normalizeAmount(product.price),
+            discount: normalizeAmount(product.discount),
             quantity: item.quantity,
          });
       } catch {
@@ -70,19 +187,37 @@ export async function main(event: CreateOrderParams) {
    }
 
    // Step 2: Validate totals using SERVER-SIDE prices
-   const expectedTotal = validatedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-   const expectedDiscount = validatedItems.reduce((sum, item) => sum + item.discount * item.quantity, 0);
+   const expectedTotal = normalizeAmount(
+      validatedItems.reduce((sum, item) => sum + item.price * item.quantity, 0),
+   );
+   const expectedDiscount = normalizeAmount(
+      validatedItems.reduce((sum, item) => sum + item.discount * item.quantity, 0),
+   );
 
-   const EPSILON = 0.01;
-   if (Math.abs(totalAmount - expectedTotal) > EPSILON) {
+   if (Math.abs(normalizeAmount(totalAmount) - expectedTotal) > EPSILON) {
       return { success: false, message: 'Total amount mismatch' };
    }
-   if (Math.abs(discountAmount - expectedDiscount) > EPSILON) {
+   if (Math.abs(normalizeAmount(discountAmount) - expectedDiscount) > EPSILON) {
       return { success: false, message: 'Discount amount mismatch' };
    }
    const payableAmount = Math.max(expectedTotal - expectedDiscount, 0);
-   if (walletDeduct - payableAmount > EPSILON) {
+   const normalizedWalletDeduct = normalizeAmount(walletDeduct);
+   if (normalizedWalletDeduct - payableAmount > EPSILON) {
       return { success: false, message: 'Wallet deduction exceeds payable amount' };
+   }
+
+   let walletId: string | null = null;
+   try {
+      if (normalizedWalletDeduct > 0) {
+         const wallet = await findWalletByUserId(openid);
+         if (!wallet?._id) {
+            return { success: false, message: 'Wallet not found' };
+         }
+         walletId = wallet._id as string;
+      }
+   } catch (error) {
+      const msg = error instanceof Error ? error.message : 'Unknown error';
+      return { success: false, message: 'Order creation failed: ' + msg };
    }
 
    const orderId = generateOrderId();
@@ -91,26 +226,25 @@ export async function main(event: CreateOrderParams) {
    // Step 3: Create order and deduct wallet balance atomically.
    try {
       await db.runTransaction(async (transaction) => {
-         if (walletDeduct > 0) {
-            const { data: wallets } = await transaction
-               .collection('wallets')
-               .where({ user_id: openid })
-               .limit(1)
-               .get();
-            const wallet = wallets[0];
-            if (!wallet) {
+         if (normalizedWalletDeduct > 0) {
+            const { data: wallet } = await transaction.collection('wallets').doc(walletId as string).get();
+            if (!wallet || wallet.user_id !== openid) {
                throw new Error('Wallet not found');
             }
-            if (walletDeduct - (wallet.balance as number) > EPSILON) {
+            if (
+               !isFiniteAmount(wallet.balance) ||
+               !isFiniteAmount(wallet.total_recharged) ||
+               normalizedWalletDeduct - (wallet.balance as number) > EPSILON
+            ) {
                throw new Error('Insufficient balance');
             }
             const updated = deductWallet(
                { balance: wallet.balance as number, total_recharged: wallet.total_recharged as number },
-               walletDeduct,
+               normalizedWalletDeduct,
             );
             await transaction
                .collection('wallets')
-               .doc(wallet._id as string)
+               .doc(walletId as string)
                .update({ data: { ...updated, updated_at: now } });
          }
 
@@ -120,9 +254,9 @@ export async function main(event: CreateOrderParams) {
                order_id: orderId,
                user_id: openid,
                order_status: 'pending',
-               total_amount: totalAmount,
-               discount_amount: discountAmount,
-               wallet_deduct: walletDeduct,
+               total_amount: expectedTotal,
+               discount_amount: expectedDiscount,
+               wallet_deduct: normalizedWalletDeduct,
                created_at: now,
                oder_details: validatedItems,
             },

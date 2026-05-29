@@ -11,6 +11,16 @@ const product = ref<Products | null>(null);
 const currentSlide = ref(0);
 const selectedSpecs = ref<Record<string, string>>({});
 
+function normalizeProductSpecs(specs: Products['specs']): ProductSpecs {
+   if (!specs) return {};
+   if (typeof specs !== 'string') return specs;
+   try {
+      return JSON.parse(specs) as ProductSpecs;
+   } catch {
+      return {};
+   }
+}
+
 /** 轮播图图片列表（images 字段用 & 分隔） */
 const carouselImages = computed(() => {
    if (!product.value?.images) return [];
@@ -22,10 +32,7 @@ const hasMultipleImages = computed(() => carouselImages.value.length > 1);
 /** 规格组列表 */
 const specGroups = computed(() => {
    if (!product.value?.specs) return [];
-   const specs: ProductSpecs =
-      typeof product.value.specs === 'string'
-         ? JSON.parse(product.value.specs as string)
-         : product.value.specs;
+   const specs = normalizeProductSpecs(product.value.specs);
    return Object.values(specs);
 });
 
@@ -42,8 +49,9 @@ const hasDiscount = computed(() => {
 /** 初始化默认选中每个规格组的第一个可用选项 */
 const initDefaultSpecs = () => {
    if (!product.value?.specs) return;
+   const specs = normalizeProductSpecs(product.value.specs);
    const defaults: Record<string, string> = {};
-   for (const group of Object.values(product.value.specs)) {
+   for (const group of Object.values(specs)) {
       const availableOption = group.options?.find(opt => !opt.isSoldOut);
       if (availableOption) {
          defaults[group.name] = availableOption.value;
@@ -67,7 +75,7 @@ onLoad(async options => {
    if (found) {
       product.value = {
          ...found,
-         specs: typeof found.specs === 'string' ? JSON.parse(found.specs) : found.specs,
+         specs: normalizeProductSpecs(found.specs),
       };
       initDefaultSpecs();
    } else {

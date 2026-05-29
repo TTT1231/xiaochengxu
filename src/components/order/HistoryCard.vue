@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import type { Orders } from '@/types';
 import { commonIcons } from '@/data/imgPaths';
 import { formatPriceDisplay, formatDateTime } from '@/utils/format';
+import { getStatusText } from '@/composables/useOrder';
 
 interface Props {
    order: Orders;
@@ -34,6 +35,8 @@ const actualAmount = computed(() =>
       0,
    ),
 );
+
+const statusText = computed(() => getStatusText(props.order.order_status));
 </script>
 
 <template>
@@ -45,7 +48,7 @@ const actualAmount = computed(() =>
                <text class="order-time">{{ formatDateTime(order.created_at) }}</text>
             </view>
          </view>
-         <text class="status-done">已完成</text>
+         <text class="status-done">{{ statusText }}</text>
       </view>
 
       <view class="card-divider" />

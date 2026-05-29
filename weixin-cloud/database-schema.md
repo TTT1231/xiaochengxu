@@ -34,12 +34,12 @@ interface UserDocument {
 ```typescript
 interface ProductDocument {
   _id: string;              // Original numeric ID as string (e.g. "1", "2")
-  categoried_id: number;    // Category reference ID
+  categoried_id: string | number; // Category reference ID (client normalizes before comparing)
   name: string;
   description: string;
   price: number;            // Unit: cents (分)
   images: string;           // WeChat Cloud fileIDs joined by "&"
-  specs: ProductSpecs;      // JSON object
+  specs: ProductSpecs | string; // JSON object, or JSON string in migrated data
   discount: number;         // Discount amount in yuan (元), 0 = no discount
   status: boolean;          // true = on shelf, false = off shelf
 }

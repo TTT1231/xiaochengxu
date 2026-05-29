@@ -15,7 +15,9 @@ const loading = ref(true);
 const cancelling = ref(false);
 const orderId = ref('');
 
-const canCancel = computed(() => order.value?.order_status === 'pending');
+const canCancel = computed(
+   () => order.value?.order_status === 'pending' || order.value?.order_status === 'preparing',
+);
 
 const actualAmount = computed(() => {
    if (!order.value) return 0;

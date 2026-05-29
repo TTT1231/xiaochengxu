@@ -35,7 +35,7 @@ export const useHomeStore = defineStore('home', {
       getProductsByCategory:
          state =>
          (categoryId: string): Products[] =>
-            state.products.filter(p => p.categoried_id === categoryId),
+            state.products.filter(p => String(p.categoried_id) === String(categoryId)),
 
       getProductById:
          state =>

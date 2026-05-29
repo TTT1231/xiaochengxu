@@ -17,6 +17,9 @@ export async function main(event: CancelOrderParams) {
    }
 
    try {
+      const wallet = await findWalletByUserId(openid);
+      const walletId = wallet?._id as string | undefined;
+
       return await db.runTransaction(async (transaction) => {
          let order: Record<string, unknown> | null = null;
          try {
@@ -44,23 +47,26 @@ export async function main(event: CancelOrderParams) {
          // Refund wallet balance if any was deducted
          const walletDeduct = (order.wallet_deduct as number) || 0;
          if (walletDeduct > 0) {
-            const { data: wallets } = await transaction
-               .collection('wallets')
-               .where({ user_id: openid })
-               .limit(1)
-               .get();
-
-            if (wallets.length > 0) {
-               const wallet = wallets[0];
-               const updated = refundWallet(
-                  { balance: wallet.balance as number, total_recharged: wallet.total_recharged as number },
-                  walletDeduct,
-               );
-               await transaction
-                  .collection('wallets')
-                  .doc(wallet._id as string)
-                  .update({ data: { ...updated, updated_at: new Date().toISOString() } });
+            if (!walletId) {
+               throw new Error('Wallet not found');
             }
+
+            const { data: currentWallet } = await transaction.collection('wallets').doc(walletId).get();
+            if (!currentWallet || currentWallet.user_id !== openid) {
+               throw new Error('Wallet not found');
+            }
+
+            const updated = refundWallet(
+               {
+                  balance: currentWallet.balance as number,
+                  total_recharged: currentWallet.total_recharged as number,
+               },
+               walletDeduct,
+            );
+            await transaction
+               .collection('wallets')
+               .doc(walletId)
+               .update({ data: { ...updated, updated_at: new Date().toISOString() } });
          }
 
          return { success: true, data: { order_id: orderId }, message: 'Order cancelled' };

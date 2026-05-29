@@ -23,12 +23,12 @@ const availableWalletDeduct = computed(() => {
 const walletDeductAmount = computed(() => (useWallet.value ? availableWalletDeduct.value : 0));
 const payableAmount = computed(() => Math.max(cartStore.totalAmount - walletDeductAmount.value, 0));
 
-const handleRemove = (productId: string) => {
-   removeItem(productId);
+const handleRemove = (productId: string, selectedSpecs: Record<string, string>) => {
+   removeItem(productId, selectedSpecs);
 };
 
-const handleAdd = (product: Products) => {
-   addItem(product);
+const handleAdd = (product: Products, selectedSpecs: Record<string, string>) => {
+   addItem(product, selectedSpecs);
 };
 
 function onCheckoutClick(): void {
@@ -114,11 +114,17 @@ const handleCheckout = async () => {
                   </view>
                </view>
                <view class="quantity-control">
-                  <view class="control-btn minus" @click="handleRemove(item.product._id)">
+                  <view
+                     class="control-btn minus"
+                     @click="handleRemove(item.product._id, item.selectedSpecs)"
+                  >
                      <text class="minus-text">−</text>
                   </view>
                   <text class="quantity-text">{{ item.quantity }}</text>
-                  <view class="control-btn plus" @click="handleAdd(item.product)">
+                  <view
+                     class="control-btn plus"
+                     @click="handleAdd(item.product, item.selectedSpecs)"
+                  >
                      <text class="plus-text">+</text>
                   </view>
                </view>
