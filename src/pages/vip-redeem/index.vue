@@ -15,6 +15,7 @@ const isRedeeming = ref(false);
 const errorMessage = ref('');
 
 const redeemResult = ref<{ amount: number } | null>(null);
+const wasVipBeforeRedeem = ref(false);
 const isSuccess = computed(() => redeemResult.value !== null);
 
 const canSubmit = computed(() => cardNo.value.trim().length > 0 && !isRedeeming.value);
@@ -40,6 +41,7 @@ async function handleRedeem(): Promise<void> {
    if (isRedeeming.value) return;
 
    isRedeeming.value = true;
+   wasVipBeforeRedeem.value = isVip.value;
    errorMessage.value = '';
 
    try {
@@ -114,7 +116,7 @@ function handleBack(): void {
                <text class="success-unit">元</text>
             </view>
             <text class="success-desc">已充入您的账户余额</text>
-            <view v-if="!isVip" class="success-vip-badge">
+            <view v-if="!wasVipBeforeRedeem" class="success-vip-badge">
                <text class="vip-badge-text">★ 已成为会员用户</text>
             </view>
          </view>
