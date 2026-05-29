@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
-import { cloudLogin, getCloudProfile, updateCloudProfile } from '@/api/userApi';
+import { cloudLogin, getCloudProfile, updateCloudProfile, rechargeWallet } from '@/api/userApi';
 import type { UpdateProfileParams } from '@/api/userApi';
-import type { Users, Credits } from '@/types';
+import type { Users, Wallets } from '@/types';
 
 interface AuthState {
    openid: string;
@@ -9,7 +9,7 @@ interface AuthState {
    isLoading: boolean;
    cloudReady: boolean;
    user: Users | null;
-   credits: Credits | null;
+   wallet: Wallets | null;
 }
 
 interface LoginResult {
@@ -25,11 +25,12 @@ export const useUserStore = defineStore('user', {
       isLoading: false,
       cloudReady: false,
       user: null,
-      credits: null,
+      wallet: null,
    }),
 
    getters: {
       isAuthenticated: state => state.isLoggedIn,
+      isVip: state => (state.wallet?.total_recharged ?? 0) > 0,
    },
 
    actions: {
@@ -46,9 +47,9 @@ export const useUserStore = defineStore('user', {
                return { success: false, message: result.message };
             }
 
-            const { user, credits, isNewUser } = result.data!;
+            const { user, wallet, isNewUser } = result.data!;
             this.user = user;
-            this.credits = credits;
+            this.wallet = wallet;
             this.openid = user._id;
             this.isLoggedIn = true;
 
@@ -67,14 +68,14 @@ export const useUserStore = defineStore('user', {
          this.openid = '';
          this.isLoggedIn = false;
          this.user = null;
-         this.credits = null;
+         this.wallet = null;
       },
 
       async fetchProfile(): Promise<void> {
          const profile = await getCloudProfile();
          if (profile) {
             this.user = profile.user;
-            this.credits = profile.credits;
+            this.wallet = profile.wallet;
          }
       },
 
@@ -88,6 +89,14 @@ export const useUserStore = defineStore('user', {
                ...(params.name !== undefined ? { name: params.name } : {}),
                ...(params.phone !== undefined ? { phone: params.phone } : {}),
             };
+         }
+         return result;
+      },
+
+      async recharge(amount: number): Promise<{ success: boolean; message: string }> {
+         const result = await rechargeWallet(amount);
+         if (result.success && result.data) {
+            this.wallet = result.data.wallet as Wallets;
          }
          return result;
       },
