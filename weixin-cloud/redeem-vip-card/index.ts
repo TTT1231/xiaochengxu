@@ -5,6 +5,14 @@ interface RedeemVipCardParams {
    card_no: string;
 }
 
+interface Transaction {
+   collection(name: string): {
+      doc(id: string): {
+         update(data: { data: Record<string, unknown> }): Promise<unknown>;
+      };
+   };
+}
+
 export async function main(event: RedeemVipCardParams) {
    const openid = getOpenId();
    if (!openid) {
@@ -44,7 +52,7 @@ export async function main(event: RedeemVipCardParams) {
 
       // 3. Use runTransaction for atomic card + wallet update
       const now = new Date().toISOString();
-      const result = await db.runTransaction(async (transaction) => {
+      const result = await db.runTransaction(async (transaction: Transaction) => {
          // Mark card as used
          await transaction
             .collection('vip_cards')
