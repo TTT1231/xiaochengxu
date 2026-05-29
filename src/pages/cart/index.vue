@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import Header from '@/components/common/Header.vue';
 import { useCartStore, useUserStore } from '@/stores';
 import { formatPriceDisplay, getMainImage } from '@/utils/format';
@@ -13,6 +13,13 @@ const cartStore = useCartStore();
 const userStore = useUserStore();
 const { items: cartItems, removeItem, addItem } = cartStore;
 const submitting = ref(false);
+const useWallet = ref(false);
+
+const wallet = computed(() => userStore.wallet);
+const maxDeduct = computed(() => {
+   if (!useWallet.value || !wallet.value) return 0;
+   return Math.min(wallet.value.balance, cartStore.totalAmount);
+});
 
 const handleRemove = (productId: string) => {
    removeItem(productId);
@@ -39,9 +46,11 @@ const handleCheckout = async () => {
          items: cartItems,
          totalAmount: cartStore.originalAmount,
          discountAmount: cartStore.totalDiscount,
+         walletDeduct: maxDeduct.value,
       });
 
       cartStore.clearCart();
+      useWallet.value = false;
       userStore.fetchProfile();
 
       uni.redirectTo({
@@ -110,6 +119,18 @@ const handleCheckout = async () => {
             <text class="total-label">合计</text>
             <text class="total-amount">{{ formatPriceDisplay(cartStore.totalAmount) }}</text>
          </view>
+
+         <view
+            v-if="wallet && wallet.balance > 0"
+            class="wallet-deduct"
+            @click="useWallet = !useWallet"
+         >
+            <view class="checkbox" :class="{ checked: useWallet }">
+               <text v-if="useWallet" class="check-mark">✓</text>
+            </view>
+            <text class="deduct-text">使用余额抵扣 ¥{{ formatPriceDisplay(maxDeduct) }}</text>
+         </view>
+
          <view
             class="checkout-btn"
             :class="{ disabled: submitting }"
@@ -319,5 +340,39 @@ const handleCheckout = async () => {
    font-size: 28rpx;
    font-weight: 500;
    color: $uni-text-color-inverse;
+}
+
+.wallet-deduct {
+   display: flex;
+   align-items: center;
+   gap: 12rpx;
+   padding: 8rpx 0;
+}
+
+.checkbox {
+   width: 36rpx;
+   height: 36rpx;
+   border-radius: 50%;
+   border: 2rpx solid $border-default;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+
+   &.checked {
+      background-color: $brand-primary;
+      border-color: $brand-primary;
+   }
+}
+
+.check-mark {
+   font-size: 20rpx;
+   color: $uni-text-color-inverse;
+   line-height: 1;
+}
+
+.deduct-text {
+   font-size: 24rpx;
+   color: $text-secondary;
+   line-height: 34rpx;
 }
 </style>
