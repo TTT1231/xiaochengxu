@@ -107,7 +107,10 @@ async function handleRecharge(): Promise<void> {
                   type="digit"
                   placeholder="请输入金额"
                   :value="customAmount"
-                  @input="customAmount = ($event as any).detail.value; selectedAmount = null"
+                  @input="
+                     customAmount = ($event as any).detail.value;
+                     selectedAmount = null;
+                  "
                />
             </view>
 
