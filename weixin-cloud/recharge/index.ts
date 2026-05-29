@@ -1,5 +1,5 @@
 import { db, getOpenId } from '../utils/database';
-import { rechargeWallet, findWalletByUserId } from '../utils/wallet';
+import { rechargeWallet, ensureWallet } from '../utils/wallet';
 
 interface RechargeParams {
    amount: number;
@@ -17,15 +17,7 @@ export async function main(event: RechargeParams) {
    }
 
    try {
-      let wallet = await findWalletByUserId(openid);
-
-      if (!wallet) {
-         const now = new Date().toISOString();
-         const { _id } = await db.collection('wallets').add({
-            data: { user_id: openid, balance: 0, total_recharged: 0, created_at: now, updated_at: now },
-         });
-         wallet = { _id, user_id: openid, balance: 0, total_recharged: 0, created_at: now, updated_at: now };
-      }
+      const wallet = await ensureWallet(openid);
 
       const updated = rechargeWallet(
          { balance: wallet.balance as number, total_recharged: wallet.total_recharged as number },

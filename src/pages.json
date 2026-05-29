@@ -43,6 +43,27 @@
          }
       },
       {
+         "path": "pages/vip-redeem/index",
+         "style": {
+            "navigationStyle": "custom",
+            "navigationBarTitleText": "会员卡兑换"
+         }
+      },
+      {
+         "path": "pages/profile/privacy",
+         "style": {
+            "navigationStyle": "custom",
+            "navigationBarTitleText": "隐私政策"
+         }
+      },
+      {
+         "path": "pages/profile/agreement",
+         "style": {
+            "navigationStyle": "custom",
+            "navigationBarTitleText": "用户协议"
+         }
+      },
+      {
          "path": "pages/cart/index",
          "style": {
             "navigationStyle": "custom",

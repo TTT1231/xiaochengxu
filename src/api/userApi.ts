@@ -86,3 +86,24 @@ export async function rechargeWallet(amount: number): Promise<RechargeResult> {
       };
    }
 }
+
+export interface RedeemVipCardResult {
+   success: boolean;
+   message: string;
+   data?: { amount: number; wallet: Wallets };
+}
+
+export async function redeemVipCard(cardNo: string): Promise<RedeemVipCardResult> {
+   try {
+      const res = await wx.cloud.callFunction({
+         name: 'redeem-vip-card',
+         data: { card_no: cardNo },
+      });
+      return res.result as RedeemVipCardResult;
+   } catch (error) {
+      return {
+         success: false,
+         message: error instanceof Error ? error.message : '兑换失败',
+      };
+   }
+}

@@ -31,3 +31,4 @@ temp
 .env
 
 pnpm-lock.yaml
+.claude/settings.json

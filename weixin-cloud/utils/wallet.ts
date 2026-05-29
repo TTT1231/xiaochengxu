@@ -46,3 +46,28 @@ export async function findWalletByUserId(openid: string): Promise<Record<string,
    const { data: wallets } = await db.collection('wallets').where({ user_id: openid }).limit(1).get();
    return wallets.length > 0 ? wallets[0] : null;
 }
+
+/** Find existing wallet or create a new one with default values. */
+export async function ensureWallet(openid: string): Promise<Record<string, unknown>> {
+   const wallet = await findWalletByUserId(openid);
+   if (wallet) return wallet;
+
+   const now = new Date().toISOString();
+   const { _id } = await db.collection('wallets').add({
+      data: {
+         user_id: openid,
+         balance: 0,
+         total_recharged: 0,
+         created_at: now,
+         updated_at: now,
+      },
+   });
+   return {
+      _id,
+      user_id: openid,
+      balance: 0,
+      total_recharged: 0,
+      created_at: now,
+      updated_at: now,
+   };
+}

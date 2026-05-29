@@ -1,5 +1,11 @@
 import { defineStore } from 'pinia';
-import { cloudLogin, getCloudProfile, updateCloudProfile, rechargeWallet } from '@/api/userApi';
+import {
+   cloudLogin,
+   getCloudProfile,
+   updateCloudProfile,
+   rechargeWallet,
+   redeemVipCard,
+} from '@/api/userApi';
 import type { UpdateProfileParams } from '@/api/userApi';
 import type { Users, Wallets } from '@/types';
 
@@ -95,6 +101,14 @@ export const useUserStore = defineStore('user', {
 
       async recharge(amount: number): Promise<{ success: boolean; message: string }> {
          const result = await rechargeWallet(amount);
+         if (result.success && result.data) {
+            this.wallet = result.data.wallet as Wallets;
+         }
+         return result;
+      },
+
+      async redeemVipCard(cardNo: string) {
+         const result = await redeemVipCard(cardNo);
          if (result.success && result.data) {
             this.wallet = result.data.wallet as Wallets;
          }

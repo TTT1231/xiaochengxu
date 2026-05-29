@@ -26,8 +26,16 @@ function handleBalanceClick(): void {
    uni.navigateTo({ url: '/pages/wallet/index' });
 }
 
-function handleMenuClick(_key: string): void {
-   // TODO: Implement menu navigation
+function handleMenuClick(key: string): void {
+   const routeMap: Record<string, string> = {
+      vip: '/pages/vip-redeem/index',
+      privacy: '/pages/profile/privacy',
+      agreement: '/pages/profile/agreement',
+   };
+   const url = routeMap[key];
+   if (url) {
+      uni.navigateTo({ url });
+   }
 }
 
 function handleUserCardClick(): void {
