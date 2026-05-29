@@ -1,5 +1,5 @@
 import { db, getOpenId } from '../utils/database';
-import { subtractPoints, getUpdatedLevel } from '../utils/credits';
+import { refundWallet, findWalletByUserId } from '../utils/wallet';
 
 interface CancelOrderParams {
    orderId: string;
@@ -28,50 +28,38 @@ export async function main(event: CancelOrderParams) {
             return { success: false, message: 'Order not found' };
          }
 
-         // Verify ownership — return "not found" to avoid confirming existence
          if (order.user_id !== openid) {
             return { success: false, message: 'Order not found' };
          }
 
-         // Validate status
          if (order.order_status !== 'pending' && order.order_status !== 'preparing') {
             return { success: false, message: 'Order cannot be cancelled (status: ' + order.order_status + ')' };
          }
 
-         // Update order status
          await transaction
             .collection('orders')
             .doc(orderId)
             .update({ data: { order_status: 'cancelled' } });
 
-         // Deduct credits
-         const creditsEarned = (order.total_amount as number) - (order.discount_amount as number);
-         const { data: creditsList } = await transaction
-            .collection('credits')
-            .where({ users_id: openid })
-            .get();
+         // Refund wallet balance if any was deducted
+         const walletDeduct = (order.wallet_deduct as number) || 0;
+         if (walletDeduct > 0) {
+            const { data: wallets } = await transaction
+               .collection('wallets')
+               .where({ user_id: openid })
+               .limit(1)
+               .get();
 
-         if (creditsList.length > 0) {
-            const credits = creditsList[0];
-            const updated = subtractPoints(
-               { total_scores: credits.total_scores, available_scores: credits.available_scores },
-               creditsEarned,
-            );
-            await transaction
-               .collection('credits')
-               .doc(credits._id as string)
-               .update({ data: updated });
-
-            // Check level downgrade
-            const { data: user } = await transaction.collection('users').doc(openid).get();
-            if (user) {
-               const newLevel = getUpdatedLevel(user.level as string, updated.total_scores);
-               if (newLevel) {
-                  await transaction
-                     .collection('users')
-                     .doc(openid)
-                     .update({ data: { level: newLevel } });
-               }
+            if (wallets.length > 0) {
+               const wallet = wallets[0];
+               const updated = refundWallet(
+                  { balance: wallet.balance as number, total_recharged: wallet.total_recharged as number },
+                  walletDeduct,
+               );
+               await transaction
+                  .collection('wallets')
+                  .doc(wallet._id as string)
+                  .update({ data: { ...updated, updated_at: new Date().toISOString() } });
             }
          }
 
