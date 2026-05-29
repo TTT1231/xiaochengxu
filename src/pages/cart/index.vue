@@ -16,10 +16,12 @@ const submitting = ref(false);
 const useWallet = ref(false);
 
 const wallet = computed(() => userStore.wallet);
-const maxDeduct = computed(() => {
-   if (!useWallet.value || !wallet.value) return 0;
+const availableWalletDeduct = computed(() => {
+   if (!wallet.value) return 0;
    return Math.min(wallet.value.balance, cartStore.totalAmount);
 });
+const walletDeductAmount = computed(() => (useWallet.value ? availableWalletDeduct.value : 0));
+const payableAmount = computed(() => Math.max(cartStore.totalAmount - walletDeductAmount.value, 0));
 
 const handleRemove = (productId: string) => {
    removeItem(productId);
@@ -28,6 +30,16 @@ const handleRemove = (productId: string) => {
 const handleAdd = (product: Products) => {
    addItem(product);
 };
+
+function onCheckoutClick(): void {
+   console.log('[DEBUG] 结算按钮被点击');
+   console.log('[DEBUG] isAuthenticated:', userStore.isAuthenticated);
+   console.log('[DEBUG] submitting:', submitting.value);
+   console.log('[DEBUG] wallet:', userStore.wallet);
+   if (!submitting.value) {
+      handleCheckout();
+   }
+}
 
 const handleCheckout = async () => {
    if (cartItems.length === 0) {
@@ -46,7 +58,7 @@ const handleCheckout = async () => {
          items: cartItems,
          totalAmount: cartStore.originalAmount,
          discountAmount: cartStore.totalDiscount,
-         walletDeduct: maxDeduct.value,
+         walletDeduct: walletDeductAmount.value,
       });
 
       cartStore.clearCart();
@@ -115,28 +127,29 @@ const handleCheckout = async () => {
       </view>
 
       <view v-if="cartItems.length > 0" class="bottom-bar">
-         <view class="total-info">
-            <text class="total-label">合计</text>
-            <text class="total-amount">{{ formatPriceDisplay(cartStore.totalAmount) }}</text>
-         </view>
-
          <view
             v-if="wallet && wallet.balance > 0"
             class="wallet-deduct"
             @click="useWallet = !useWallet"
          >
-            <view class="checkbox" :class="{ checked: useWallet }">
-               <text v-if="useWallet" class="check-mark">✓</text>
+            <view class="deduct-left">
+               <view class="checkbox" :class="{ checked: useWallet }">
+                  <text v-if="useWallet" class="check-mark">✓</text>
+               </view>
+               <text class="deduct-text">使用余额</text>
             </view>
-            <text class="deduct-text">使用余额抵扣 ¥{{ formatPriceDisplay(maxDeduct) }}</text>
+            <text class="deduct-amount">抵扣 {{ formatPriceDisplay(availableWalletDeduct) }}</text>
          </view>
 
-         <view
-            class="checkout-btn"
-            :class="{ disabled: submitting }"
-            @click="!submitting && handleCheckout()"
-         >
-            <text class="checkout-text">{{ submitting ? '下单中...' : '去结算' }}</text>
+         <view class="checkout-row">
+            <view class="total-info">
+               <text class="total-label">{{ useWallet ? '实付' : '合计' }}</text>
+               <text class="total-amount">{{ formatPriceDisplay(payableAmount) }}</text>
+            </view>
+
+            <view class="checkout-btn" :class="{ disabled: submitting }" @click="onCheckoutClick">
+               <text class="checkout-text">{{ submitting ? '下单中...' : '去结算' }}</text>
+            </view>
          </view>
       </view>
    </view>
@@ -146,7 +159,7 @@ const handleCheckout = async () => {
 .cart-page {
    min-height: 100vh;
    background-color: $bg-page;
-   padding-bottom: 160rpx;
+   padding-bottom: calc(220rpx + env(safe-area-inset-bottom));
 }
 
 .page-content {
@@ -302,11 +315,18 @@ const handleCheckout = async () => {
    left: 0;
    right: 0;
    background-color: $bg-card;
-   padding: 24rpx 32rpx;
+   display: flex;
+   flex-direction: column;
+   gap: 18rpx;
+   padding: 18rpx 32rpx calc(22rpx + env(safe-area-inset-bottom));
+   box-shadow: 0px -4rpx 16rpx rgba(0, 0, 0, 0.05);
+}
+
+.checkout-row {
    display: flex;
    align-items: center;
    justify-content: space-between;
-   box-shadow: 0px -4rpx 16rpx rgba(0, 0, 0, 0.05);
+   gap: 24rpx;
 }
 
 .total-info {
@@ -328,8 +348,12 @@ const handleCheckout = async () => {
 
 .checkout-btn {
    background-color: $brand-primary;
-   padding: 24rpx 64rpx;
+   min-width: 192rpx;
+   height: 80rpx;
    border-radius: $radius-full;
+   display: flex;
+   align-items: center;
+   justify-content: center;
 
    &.disabled {
       opacity: 0.6;
@@ -345,8 +369,18 @@ const handleCheckout = async () => {
 .wallet-deduct {
    display: flex;
    align-items: center;
+   justify-content: space-between;
+   gap: 20rpx;
+   min-height: 56rpx;
+   padding-bottom: 14rpx;
+   border-bottom: 1rpx solid $border-default;
+}
+
+.deduct-left {
+   display: flex;
+   align-items: center;
    gap: 12rpx;
-   padding: 8rpx 0;
+   min-width: 0;
 }
 
 .checkbox {
@@ -373,6 +407,13 @@ const handleCheckout = async () => {
 .deduct-text {
    font-size: 24rpx;
    color: $text-secondary;
+   line-height: 34rpx;
+}
+
+.deduct-amount {
+   flex-shrink: 0;
+   font-size: 24rpx;
+   color: $brand-primary;
    line-height: 34rpx;
 }
 </style>
