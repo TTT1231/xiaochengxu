@@ -32,10 +32,6 @@ const handleAdd = (product: Products, selectedSpecs: Record<string, string>) => 
 };
 
 function onCheckoutClick(): void {
-   console.log('[DEBUG] 结算按钮被点击');
-   console.log('[DEBUG] isAuthenticated:', userStore.isAuthenticated);
-   console.log('[DEBUG] submitting:', submitting.value);
-   console.log('[DEBUG] wallet:', userStore.wallet);
    if (!submitting.value) {
       handleCheckout();
    }

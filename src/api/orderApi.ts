@@ -33,22 +33,24 @@ interface CreateOrderParams {
    walletDeduct?: number;
 }
 
+interface CreateOrderItem {
+   product_id: string;
+   specs: Record<string, string>;
+   quantity: number;
+}
+
 export async function createOrder(params: CreateOrderParams): Promise<Orders> {
    const { items, totalAmount, discountAmount = 0, walletDeduct = 0 } = params;
 
-   const oder_details: OrderDetailItem[] = items.map(item => ({
+   const orderItems: CreateOrderItem[] = items.map(item => ({
       product_id: item.product._id,
-      product_name: item.product.name,
-      product_image: item.product.images.split('&')[0] || '',
       specs: item.selectedSpecs,
-      price: item.product.price,
-      discount: item.product.discount,
       quantity: item.quantity,
    }));
 
    const res = await wx.cloud.callFunction({
       name: 'create-order',
-      data: { items: oder_details, totalAmount, discountAmount, walletDeduct },
+      data: { items: orderItems, totalAmount, discountAmount, walletDeduct },
    });
 
    const result = res.result as { success: boolean; data?: { order_id: string }; message: string };

@@ -38,7 +38,7 @@ interface ProductDocument {
   name: string;
   description: string;
   price: number;            // Unit: cents (分)
-  images: string;           // WeChat Cloud fileIDs joined by "&"
+  images: string;           // Storage paths (e.g. product-imgs/q1.png) joined by "&"
   specs: ProductSpecs | string; // JSON object, or JSON string in migrated data
   discount: number;         // Discount amount in yuan (元), 0 = no discount
   status: boolean;          // true = on shelf, false = off shelf
@@ -51,7 +51,7 @@ interface ProductDocument {
 
 **Notes:**
 - `_id` MUST preserve the original numeric ID. Cloud functions use `doc(id).get()` inside transactions which requires the exact `_id`.
-- `images` stores WeChat Cloud fileIDs (`cloud://...`) separated by `&`. The `&` character is safe as it doesn't appear in fileIDs.
+- `images` stores stable storage paths or cloud fileIDs separated by `&`. Frontend helpers prepend the cloud storage prefix when needed.
 
 ## Collection: `orders`
 

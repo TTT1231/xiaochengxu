@@ -20,7 +20,7 @@ describe('createOrder', () => {
       const items = [
          {
             product: { _id: '1', name: 'Cake', images: 'img1.png', price: 10, discount: 0 },
-            selectedSpecs: [{ name: 'Size', value: 'Large' }],
+            selectedSpecs: { Size: 'Large' },
             quantity: 2,
          },
       ];
@@ -33,7 +33,12 @@ describe('createOrder', () => {
       expect(result.order_id).toBe('ORD123');
       expect(mockCallFunction).toHaveBeenCalledWith({
          name: 'create-order',
-         data: expect.objectContaining({ totalAmount: 20, discountAmount: 5 }),
+         data: {
+            items: [{ product_id: '1', specs: { Size: 'Large' }, quantity: 2 }],
+            totalAmount: 20,
+            discountAmount: 5,
+            walletDeduct: 0,
+         },
       });
    });
 

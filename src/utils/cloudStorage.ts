@@ -4,24 +4,31 @@ import { useEnvConfig } from '@/hooks/useEnvConfig';
 
 const { cloudStoragePrefix } = useEnvConfig();
 
-/** Convert a bare filename to a full cloud fileID. */
+function normalizeStoragePath(path: string, defaultDir: string): string {
+   if (!path || path.startsWith('cloud://')) return path;
+   if (path.startsWith('http')) {
+      const filename = path.split('/').pop() || path;
+      return defaultDir + filename;
+   }
+   return path.includes('/') ? path : defaultDir + path;
+}
+
+/** Convert a product image path or bare filename to a full cloud fileID. */
 export function toProductFileID(filename: string): string {
    if (!filename || filename.startsWith('cloud://')) return filename;
-   return cloudStoragePrefix + 'product-imgs/' + filename;
+   return cloudStoragePrefix + normalizeStoragePath(filename, 'product-imgs/');
 }
 
-/** Convert an icon URL or bare filename to a cloud fileID. */
+/** Convert an icon path, URL or bare filename to a cloud fileID. */
 export function toIconFileID(url: string): string {
    if (!url || url.startsWith('cloud://')) return url;
-   const filename = url.startsWith('http') ? url.split('/').pop() || url : url;
-   return cloudStoragePrefix + 'project-icons/' + filename;
+   return cloudStoragePrefix + normalizeStoragePath(url, 'project-icons/');
 }
 
-/** Convert a product image URL to a cloud fileID. */
+/** Convert a product image URL/path to a cloud fileID. */
 export function toProductImageFileID(url: string): string {
    if (!url || url.startsWith('cloud://')) return url;
-   const filename = url.startsWith('http') ? url.split('/').pop() || url : url;
-   return cloudStoragePrefix + 'product-imgs/' + filename;
+   return cloudStoragePrefix + normalizeStoragePath(url, 'product-imgs/');
 }
 
 interface CacheEntry {

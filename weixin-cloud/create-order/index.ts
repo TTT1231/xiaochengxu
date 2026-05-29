@@ -6,12 +6,17 @@ const EPSILON = 0.01;
 
 interface CartItem {
    product_id: string;
+   specs?: Record<string, string>;
+   quantity: number;
+}
+
+interface OrderDetailItem {
+   product_id: string;
    product_name: string;
    product_image: string;
    specs: Record<string, string>;
    price: number;
    discount: number;
-   quantity: number;
 }
 
 interface CreateOrderParams {
@@ -144,7 +149,7 @@ export async function main(event: Partial<CreateOrderParams> = {}) {
    }
 
    // Step 1: Validate products OUTSIDE transaction (read-only)
-   const validatedItems: CartItem[] = [];
+   const validatedItems: OrderDetailItem[] = [];
    for (const item of items) {
       if (!item.product_id || !Number.isInteger(item.quantity) || item.quantity < 1) {
          return { success: false, message: 'Invalid item data' };
