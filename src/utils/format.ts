@@ -27,12 +27,12 @@ export function formatPriceDisplay(price: number): string {
    return `¥${formatPrice(price)}`;
 }
 
-/** 格式化积分，超过 1 万以"万"为单位 */
-export function formatPoints(points: number): string {
-   if (points >= 10000) {
-      return `${(points / 10000).toFixed(1)}万`;
+/** 格式化余额，超过 1 万以"万"为单位 */
+export function formatBalance(balance: number): string {
+   if (balance >= 10000) {
+      return `${(balance / 10000).toFixed(1)}万`;
    }
-   return points.toString();
+   return balance % 1 === 0 ? balance.toString() : balance.toFixed(2);
 }
 
 /** 隐藏订单号中间部分 */
