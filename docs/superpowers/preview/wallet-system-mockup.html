@@ -1,727 +1,764 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>钱包余额系统 — 改造预览</title>
-<style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #1a1a2e; color: #eee; }
-.container { max-width: 1100px; margin: 0 auto; padding: 40px 20px; }
-h1 { text-align: center; font-size: 28px; margin-bottom: 8px; }
-.subtitle { text-align: center; color: #94a3b8; font-size: 14px; margin-bottom: 40px; }
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>钱包余额系统 — 改造预览</title>
+      <link rel="stylesheet" href="wallet-system-mockup.css" />
+   </head>
+   <body>
+      <div class="container">
+         <h1>钱包余额系统</h1>
+         <p class="subtitle">integral → wallet &nbsp;|&nbsp; 设计预览</p>
 
-.section { margin-bottom: 48px; }
-.section-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
-.section-desc { color: #94a3b8; font-size: 13px; margin-bottom: 20px; }
+         <!-- ========== PROFILE PAGE ========== -->
+         <div class="section">
+            <div class="section-title">个人中心 — 我的</div>
+            <div class="section-desc">点击「我的余额」→ 进入钱包页</div>
 
-/* phone frame */
-.phones-row { display: flex; gap: 32px; justify-content: center; flex-wrap: wrap; }
-.phone { width: 375px; flex-shrink: 0; }
-.phone-label { text-align: center; font-size: 13px; color: #94a3b8; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px; }
-.phone-label .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-left: 6px; }
-.badge-new { background: #22c55e33; color: #22c55e; }
-.badge-old { background: #ef444433; color: #ef4444; }
-.badge-mod { background: #f59e0b33; color: #f59e0b; }
-.phone-screen { background: #f8f7f6; border-radius: 32px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,.4); }
-
-/* status bar */
-.status-bar { background: #fff; padding: 12px 24px 8px; display: flex; justify-content: space-between; font-size: 12px; color: #333; border-bottom: 1px solid #eee; }
-
-/* header */
-.app-header { background: #fff; padding: 12px 24px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #f0f0f0; }
-.app-header .back { font-size: 18px; color: #333; cursor: pointer; }
-.app-header .title { font-size: 17px; font-weight: 600; color: #222; }
-
-/* profile page */
-.tier-banner { position: relative; overflow: hidden; padding: 24px 20px 28px; }
-.tier-banner.vip { background: linear-gradient(180deg, #F59E0B 0%, #FBBF24 30%, #FDE68A 65%, #FFFBEB 100%); }
-.tier-banner.regular { background: transparent; }
-.tier-accent { height: 4px; background: transparent; }
-.tier-accent.vip { background: linear-gradient(to right, #D97706, transparent); }
-.banner-glow { position: absolute; top: 12px; right: 12px; width: 100px; height: 100px; border-radius: 50%; background: #D97706; opacity: .12; }
-
-.user-card { padding: 20px; display: flex; align-items: center; gap: 16px; background: #fff; border-radius: 16px; border: 2px solid transparent; position: relative; z-index: 1; }
-.user-card.vip { border-color: #D97706; background: linear-gradient(135deg, #FFFBEB, #FEF3C7); box-shadow: 0 4px 16px rgba(217,119,6,.12); }
-.avatar { width: 64px; height: 64px; border-radius: 50%; background: #6bb2aa; border: 3px solid transparent; display: flex; align-items: center; justify-content: center; font-size: 28px; color: #fff; }
-.user-card.vip .avatar { border-color: #D97706; }
-.user-info { flex: 1; display: flex; flex-direction: column; gap: 4px; }
-.nickname { font-size: 16px; font-weight: 600; color: #222; }
-.member-badge { align-self: flex-start; padding: 3px 12px; border-radius: 20px; background: linear-gradient(135deg, #D97706, #F59E0B); font-size: 12px; font-weight: 600; color: #fff; margin-top: 2px; }
-.user-id { font-size: 12px; color: #999; margin-top: 2px; }
-
-.content { padding: 0 16px; }
-.card-spacing { margin-bottom: 16px; }
-
-.stats-card { display: flex; border-left: 4px solid transparent; border-radius: 12px; overflow: hidden; transition: border-color .2s; }
-.stats-card.vip { border-color: #D97706; box-shadow: 0 2px 12px rgba(217,119,6,.08); }
-.stat-item { flex: 1; background: #fff; padding: 20px; display: flex; flex-direction: column; gap: 6px; border-radius: 12px; cursor: pointer; transition: opacity .15s; }
-.stat-label { font-size: 13px; color: #888; }
-.stat-value-row { display: flex; align-items: baseline; gap: 4px; }
-.stat-value { font-size: 28px; font-weight: 700; color: #ee862b; }
-.stat-value.vip { color: #D97706; }
-.stat-unit { font-size: 13px; color: #888; }
-
-.menu-list { background: #fff; border-radius: 12px; overflow: hidden; }
-.menu-item { display: flex; align-items: center; padding: 18px 20px; border-bottom: 1px solid #f5f5f5; cursor: pointer; transition: background .15s; }
-.menu-item:last-child { border-bottom: none; }
-.menu-icon { width: 36px; height: 36px; border-radius: 8px; background: rgba(238,134,43,.1); display: flex; align-items: center; justify-content: center; margin-right: 14px; }
-.menu-label { flex: 1; font-size: 14px; color: #333; }
-.menu-arrow { color: #ccc; font-size: 14px; }
-
-.bottom-spacer { height: 80px; }
-
-/* wallet page */
-.wallet-page-content { padding: 24px 16px; display: flex; flex-direction: column; gap: 20px; }
-.balance-card { background: #fff; border-radius: 16px; padding: 32px 24px; border: 2px solid transparent; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
-.balance-card.vip { border-color: #D97706; background: linear-gradient(135deg, #FFFBEB, #FEF3C7); }
-.balance-label { font-size: 13px; color: #888; }
-.balance-row { display: flex; align-items: baseline; gap: 4px; margin-top: 8px; }
-.balance-value { font-size: 40px; font-weight: 700; color: #ee862b; }
-.balance-value.vip { color: #D97706; }
-.balance-unit { font-size: 16px; color: #888; }
-.regular-label { font-size: 13px; color: #999; margin-top: 8px; }
-
-.recharge-section { background: #fff; border-radius: 16px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
-.recharge-title { font-size: 18px; font-weight: 600; color: #222; margin-bottom: 16px; }
-.preset-grid { display: flex; gap: 12px; }
-.preset-btn { flex: 1; padding: 16px 0; background: #f8f7f6; border-radius: 10px; border: 2px solid #e5e5e5; text-align: center; cursor: pointer; transition: all .2s; }
-.preset-btn.active { background: rgba(238,134,43,.08); border-color: #ee862b; }
-.preset-text { font-size: 18px; font-weight: 600; color: #333; }
-.preset-btn.active .preset-text { color: #ee862b; }
-.custom-input-wrap { margin-top: 16px; }
-.custom-label { font-size: 13px; color: #888; }
-.custom-input { margin-top: 8px; padding: 14px 16px; background: #f8f7f6; border-radius: 10px; border: 2px solid #e5e5e5; font-size: 14px; color: #333; width: 100%; outline: none; }
-.recharge-btn { margin-top: 20px; padding: 16px; background: #ee862b; border-radius: 50px; text-align: center; cursor: pointer; font-size: 16px; font-weight: 600; color: #fff; transition: opacity .2s; }
-
-/* cart page */
-.cart-page-content { padding: 16px; }
-.cart-list { display: flex; flex-direction: column; gap: 12px; }
-.cart-item { display: flex; align-items: center; gap: 12px; background: #fff; padding: 16px; border-radius: 12px; }
-.item-image { width: 72px; height: 72px; border-radius: 8px; background: linear-gradient(135deg, #fde68a, #fcd34d); display: flex; align-items: center; justify-content: center; font-size: 24px; }
-.item-info { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-.item-name { font-size: 14px; font-weight: 500; color: #333; }
-.item-price-group { display: flex; align-items: baseline; gap: 8px; }
-.item-price { font-size: 18px; font-weight: 700; color: #ee862b; }
-.item-original-price { font-size: 12px; color: #999; text-decoration: line-through; }
-.quantity-control { display: flex; align-items: center; gap: 12px; }
-.qty-btn { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-.qty-minus { background: #f5f5f5; border: 1px solid #ddd; color: #333; }
-.qty-plus { background: #ee862b; color: #fff; }
-.qty-text { font-size: 14px; font-weight: 500; color: #333; min-width: 24px; text-align: center; }
-
-.cart-bottom-bar { position: fixed; bottom: 0; width: 375px; background: #fff; padding: 16px 20px; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 -4px 12px rgba(0,0,0,.05); border-radius: 20px 20px 0 0; }
-.total-row { display: flex; justify-content: space-between; align-items: center; }
-.total-label { font-size: 13px; color: #888; }
-.total-amount { font-size: 24px; font-weight: 700; color: #ee862b; }
-.wallet-deduct { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 6px 0; }
-.checkbox { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #ddd; display: flex; align-items: center; justify-content: center; transition: all .2s; }
-.checkbox.checked { background: #ee862b; border-color: #ee862b; }
-.check-mark { font-size: 12px; color: #fff; }
-.deduct-text { font-size: 13px; color: #666; }
-.checkout-btn { padding: 14px 0; background: #ee862b; border-radius: 50px; text-align: center; cursor: pointer; }
-.checkout-text { font-size: 15px; font-weight: 600; color: #fff; }
-
-/* flow diagram */
-.flow-section { background: #16213e; border-radius: 16px; padding: 32px; }
-.flow-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
-.flow-col h4 { font-size: 15px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-.flow-step { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 14px; font-size: 13px; line-height: 1.6; }
-.flow-step .step-num { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
-.step-old { background: #ef4444; color: #fff; }
-.step-new { background: #22c55e; color: #fff; }
-.flow-step .strike { text-decoration: line-through; color: #666; }
-
-/* table */
-.comparison-table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 13px; }
-.comparison-table th { background: #1e293b; padding: 10px 14px; text-align: left; font-weight: 600; font-size: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: .5px; }
-.comparison-table td { padding: 10px 14px; border-bottom: 1px solid #1e293b; }
-.comparison-table .col-old { color: #ef4444; }
-.comparison-table .col-new { color: #22c55e; }
-.comparison-table .field { font-family: "SF Mono", "Fira Code", monospace; font-size: 12px; color: #fbbf24; }
-</style>
-</head>
-<body>
-
-<div class="container">
-  <h1>钱包余额系统</h1>
-  <p class="subtitle">integral → wallet &nbsp;|&nbsp; 设计预览</p>
-
-  <!-- ========== PROFILE PAGE ========== -->
-  <div class="section">
-    <div class="section-title">个人中心 — 我的</div>
-    <div class="section-desc">点击「我的余额」→ 进入钱包页</div>
-
-    <div class="phones-row">
-
-      <!-- VIP 会员 -->
-      <div class="phone">
-        <div class="phone-label">VIP 会员 <span class="badge badge-new">new</span></div>
-        <div class="phone-screen">
-          <div class="status-bar"><span>9:41</span><span>WiFi ▮▮▮</span></div>
-          <div class="app-header"><span class="back">←</span><span class="title">个人中心</span></div>
-          <div class="tier-accent vip"></div>
-          <div class="tier-banner vip">
-            <div class="banner-glow"></div>
-            <div class="user-card vip">
-              <div class="avatar" style="border-color:#D97706">😊</div>
-              <div class="user-info">
-                <div class="nickname">甜品爱好者</div>
-                <div class="member-badge">会员</div>
-                <div class="user-id">ID: 5829103</div>
-              </div>
-            </div>
-          </div>
-          <div class="content">
-            <div class="card-spacing">
-              <div class="stats-card vip">
-                <div class="stat-item">
-                  <div class="stat-label">我的余额</div>
-                  <div class="stat-value-row">
-                    <div class="stat-value vip">126.50</div>
-                    <div class="stat-unit">元</div>
+            <div class="phones-row">
+               <!-- VIP 会员 -->
+               <div class="phone">
+                  <div class="phone-label">VIP 会员 <span class="badge badge-new">new</span></div>
+                  <div class="phone-screen">
+                     <div class="status-bar"><span>9:41</span><span>WiFi ▮▮▮</span></div>
+                     <div class="app-header">
+                        <span class="back">←</span><span class="title">个人中心</span>
+                     </div>
+                     <div class="tier-accent vip"></div>
+                     <div class="tier-banner vip">
+                        <div class="banner-glow"></div>
+                        <div class="user-card vip">
+                           <div class="avatar avatar-vip">😊</div>
+                           <div class="user-info">
+                              <div class="nickname">甜品爱好者</div>
+                              <div class="member-badge">会员</div>
+                              <div class="user-id">ID: 5829103</div>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="content">
+                        <div class="card-spacing">
+                           <div class="stats-card vip">
+                              <div class="stat-item">
+                                 <div class="stat-label">我的余额</div>
+                                 <div class="stat-value-row">
+                                    <div class="stat-value vip">126.50</div>
+                                    <div class="stat-unit">元</div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                        <div class="card-spacing">
+                           <div class="menu-list">
+                              <div class="menu-item">
+                                 <div class="menu-icon">🎫</div>
+                                 <div class="menu-label">会员卡兑换</div>
+                                 <div class="menu-arrow">›</div>
+                              </div>
+                              <div class="menu-item">
+                                 <div class="menu-icon">🔒</div>
+                                 <div class="menu-label">隐私政策</div>
+                                 <div class="menu-arrow">›</div>
+                              </div>
+                              <div class="menu-item">
+                                 <div class="menu-icon">📄</div>
+                                 <div class="menu-label">用户协议</div>
+                                 <div class="menu-arrow">›</div>
+                              </div>
+                              <div class="menu-item">
+                                 <div class="menu-icon">🏪</div>
+                                 <div class="menu-label">经营公示</div>
+                                 <div class="menu-arrow">›</div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="bottom-spacer"></div>
                   </div>
-                </div>
-              </div>
-            </div>
-            <div class="card-spacing">
-              <div class="menu-list">
-                <div class="menu-item"><div class="menu-icon">🎫</div><div class="menu-label">会员卡兑换</div><div class="menu-arrow">›</div></div>
-                <div class="menu-item"><div class="menu-icon">🔒</div><div class="menu-label">隐私政策</div><div class="menu-arrow">›</div></div>
-                <div class="menu-item"><div class="menu-icon">📄</div><div class="menu-label">用户协议</div><div class="menu-arrow">›</div></div>
-                <div class="menu-item"><div class="menu-icon">🏪</div><div class="menu-label">经营公示</div><div class="menu-arrow">›</div></div>
-              </div>
-            </div>
-          </div>
-          <div class="bottom-spacer"></div>
-        </div>
-      </div>
+               </div>
 
-      <!-- 普通用户 -->
-      <div class="phone">
-        <div class="phone-label">普通用户 <span class="badge badge-new">new</span></div>
-        <div class="phone-screen">
-          <div class="status-bar"><span>9:41</span><span>WiFi ▮▮▮</span></div>
-          <div class="app-header"><span class="back">←</span><span class="title">个人中心</span></div>
-          <div class="tier-banner regular">
-            <div class="user-card">
-              <div class="avatar">😊</div>
-              <div class="user-info">
-                <div class="nickname">新用户</div>
-                <div class="user-id">ID: 8234105</div>
-              </div>
-            </div>
-          </div>
-          <div class="content">
-            <div class="card-spacing">
-              <div class="stats-card">
-                <div class="stat-item">
-                  <div class="stat-label">我的余额</div>
-                  <div class="stat-value-row">
-                    <div class="stat-value">0</div>
-                    <div class="stat-unit">元</div>
+               <!-- 普通用户 -->
+               <div class="phone">
+                  <div class="phone-label">普通用户 <span class="badge badge-new">new</span></div>
+                  <div class="phone-screen">
+                     <div class="status-bar"><span>9:41</span><span>WiFi ▮▮▮</span></div>
+                     <div class="app-header">
+                        <span class="back">←</span><span class="title">个人中心</span>
+                     </div>
+                     <div class="tier-banner regular">
+                        <div class="user-card">
+                           <div class="avatar">😊</div>
+                           <div class="user-info">
+                              <div class="nickname">新用户</div>
+                              <div class="user-id">ID: 8234105</div>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="content">
+                        <div class="card-spacing">
+                           <div class="stats-card">
+                              <div class="stat-item">
+                                 <div class="stat-label">我的余额</div>
+                                 <div class="stat-value-row">
+                                    <div class="stat-value">0</div>
+                                    <div class="stat-unit">元</div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                        <div class="card-spacing">
+                           <div class="menu-list">
+                              <div class="menu-item">
+                                 <div class="menu-icon">🎫</div>
+                                 <div class="menu-label">会员卡兑换</div>
+                                 <div class="menu-arrow">›</div>
+                              </div>
+                              <div class="menu-item">
+                                 <div class="menu-icon">🔒</div>
+                                 <div class="menu-label">隐私政策</div>
+                                 <div class="menu-arrow">›</div>
+                              </div>
+                              <div class="menu-item">
+                                 <div class="menu-icon">📄</div>
+                                 <div class="menu-label">用户协议</div>
+                                 <div class="menu-arrow">›</div>
+                              </div>
+                              <div class="menu-item">
+                                 <div class="menu-icon">🏪</div>
+                                 <div class="menu-label">经营公示</div>
+                                 <div class="menu-arrow">›</div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="bottom-spacer"></div>
                   </div>
-                </div>
-              </div>
-            </div>
-            <div class="card-spacing">
-              <div class="menu-list">
-                <div class="menu-item"><div class="menu-icon">🎫</div><div class="menu-label">会员卡兑换</div><div class="menu-arrow">›</div></div>
-                <div class="menu-item"><div class="menu-icon">🔒</div><div class="menu-label">隐私政策</div><div class="menu-arrow">›</div></div>
-                <div class="menu-item"><div class="menu-icon">📄</div><div class="menu-label">用户协议</div><div class="menu-arrow">›</div></div>
-                <div class="menu-item"><div class="menu-icon">🏪</div><div class="menu-label">经营公示</div><div class="menu-arrow">›</div></div>
-              </div>
-            </div>
-          </div>
-          <div class="bottom-spacer"></div>
-        </div>
-      </div>
+               </div>
 
-      <!-- 旧的积分 -->
-      <div class="phone">
-        <div class="phone-label">旧版积分 <span class="badge badge-old">old</span></div>
-        <div class="phone-screen">
-          <div class="status-bar"><span>9:41</span><span>WiFi ▮▮▮</span></div>
-          <div class="app-header"><span class="back">←</span><span class="title">个人中心</span></div>
-          <div class="tier-banner regular">
-            <div class="user-card">
-              <div class="avatar">😊</div>
-              <div class="user-info">
-                <div class="nickname">新用户</div>
-                <div class="user-id">ID: 8234105</div>
-              </div>
-            </div>
-          </div>
-          <div class="content">
-            <div class="card-spacing">
-              <div class="stats-card">
-                <div class="stat-item" style="text-decoration:line-through;opacity:.5">
-                  <div class="stat-label">我的余额</div>
-                  <div class="stat-value-row">
-                    <div class="stat-value">1,280</div>
-                    <div class="stat-unit">积分</div>
+               <!-- 旧的积分 -->
+               <div class="phone">
+                  <div class="phone-label">旧版积分 <span class="badge badge-old">old</span></div>
+                  <div class="phone-screen">
+                     <div class="status-bar"><span>9:41</span><span>WiFi ▮▮▮</span></div>
+                     <div class="app-header">
+                        <span class="back">←</span><span class="title">个人中心</span>
+                     </div>
+                     <div class="tier-banner regular">
+                        <div class="user-card">
+                           <div class="avatar">😊</div>
+                           <div class="user-info">
+                              <div class="nickname">新用户</div>
+                              <div class="user-id">ID: 8234105</div>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="content">
+                        <div class="card-spacing">
+                           <div class="stats-card">
+                              <div class="stat-item stat-item-old">
+                                 <div class="stat-label">我的余额</div>
+                                 <div class="stat-value-row">
+                                    <div class="stat-value">1,280</div>
+                                    <div class="stat-unit">积分</div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                        <div class="card-spacing">
+                           <div class="menu-list">
+                              <div class="menu-item">
+                                 <div class="menu-icon">🎫</div>
+                                 <div class="menu-label">会员卡兑换</div>
+                                 <div class="menu-arrow">›</div>
+                              </div>
+                              <div class="menu-item">
+                                 <div class="menu-icon">🔒</div>
+                                 <div class="menu-label">隐私政策</div>
+                                 <div class="menu-arrow">›</div>
+                              </div>
+                              <div class="menu-item">
+                                 <div class="menu-icon">📄</div>
+                                 <div class="menu-label">用户协议</div>
+                                 <div class="menu-arrow">›</div>
+                              </div>
+                              <div class="menu-item">
+                                 <div class="menu-icon">🏪</div>
+                                 <div class="menu-label">经营公示</div>
+                                 <div class="menu-arrow">›</div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="bottom-spacer"></div>
                   </div>
-                </div>
-              </div>
+               </div>
             </div>
-            <div class="card-spacing">
-              <div class="menu-list">
-                <div class="menu-item"><div class="menu-icon">🎫</div><div class="menu-label">会员卡兑换</div><div class="menu-arrow">›</div></div>
-                <div class="menu-item"><div class="menu-icon">🔒</div><div class="menu-label">隐私政策</div><div class="menu-arrow">›</div></div>
-                <div class="menu-item"><div class="menu-icon">📄</div><div class="menu-label">用户协议</div><div class="menu-arrow">›</div></div>
-                <div class="menu-item"><div class="menu-icon">🏪</div><div class="menu-label">经营公示</div><div class="menu-arrow">›</div></div>
-              </div>
+         </div>
+
+         <!-- ========== WALLET PAGE ========== -->
+         <div class="section">
+            <div class="section-title">
+               💰 钱包页 /pages/wallet/index <span class="badge badge-new">NEW</span>
             </div>
-          </div>
-          <div class="bottom-spacer"></div>
-        </div>
-      </div>
+            <div class="section-desc">显示余额 + 会员状态 + 充值 (20/30/50/自定义)</div>
 
-    </div>
-  </div>
-
-  <!-- ========== WALLET PAGE ========== -->
-  <div class="section">
-    <div class="section-title">💰 钱包页 /pages/wallet/index <span class="badge badge-new" style="font-size:11px">NEW</span></div>
-    <div class="section-desc">显示余额 + 会员状态 + 充值 (20/30/50/自定义)</div>
-
-    <div class="phones-row">
-
-      <!-- VIP 余额页 -->
-      <div class="phone">
-        <div class="phone-label">VIP 会员 — 余额页</div>
-        <div class="phone-screen">
-          <div class="status-bar"><span>9:41</span><span>WiFi ▮▮▮</span></div>
-          <div class="app-header"><span class="back" style="cursor:pointer">←</span><span class="title">我的余额</span></div>
-          <div class="wallet-page-content">
-            <div class="balance-card vip">
-              <div class="balance-label">当前余额</div>
-              <div class="balance-row">
-                <div class="balance-value vip">126.50</div>
-                <div class="balance-unit">元</div>
-              </div>
-              <div class="member-badge" style="margin-top:12px">会员</div>
-            </div>
-            <div class="recharge-section">
-              <div class="recharge-title">充值</div>
-              <div class="preset-grid">
-                <div class="preset-btn"><span class="preset-text">20元</span></div>
-                <div class="preset-btn"><span class="preset-text">30元</span></div>
-                <div class="preset-btn active"><span class="preset-text">50元</span></div>
-              </div>
-              <div class="custom-input-wrap">
-                <div class="custom-label">自定义金额</div>
-                <input class="custom-input" type="text" placeholder="请输入金额" />
-              </div>
-              <div class="recharge-btn"><span>充值</span></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 普通用户余额页 -->
-      <div class="phone">
-        <div class="phone-label">普通用户 — 余额页（首次充值）</div>
-        <div class="phone-screen">
-          <div class="status-bar"><span>9:41</span><span>WiFi ▮▮▮</span></div>
-          <div class="app-header"><span class="back" style="cursor:pointer">←</span><span class="title">我的余额</span></div>
-          <div class="wallet-page-content">
-            <div class="balance-card">
-              <div class="balance-label">当前余额</div>
-              <div class="balance-row">
-                <div class="balance-value">0</div>
-                <div class="balance-unit">元</div>
-              </div>
-              <div class="regular-label">普通用户</div>
-            </div>
-            <div class="recharge-section">
-              <div class="recharge-title">充值</div>
-              <div class="preset-grid">
-                <div class="preset-btn"><span class="preset-text">20元</span></div>
-                <div class="preset-btn"><span class="preset-text">30元</span></div>
-                <div class="preset-btn"><span class="preset-text">50元</span></div>
-              </div>
-              <div class="custom-input-wrap">
-                <div class="custom-label">自定义金额</div>
-                <input class="custom-input" type="text" placeholder="请输入金额" />
-              </div>
-              <div class="recharge-btn"><span>充值</span></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 旧积分商城 -->
-      <div class="phone">
-        <div class="phone-label">旧积分商城 <span class="badge badge-old" style="font-size:11px">REMOVED</span></div>
-        <div class="phone-screen">
-          <div class="status-bar"><span>9:41</span><span>WiFi ▮▮▮</span></div>
-          <div class="app-header"><span class="back">←</span><span class="title">积分商城</span></div>
-          <div style="padding:20px;text-align:center;opacity:.4">
-            <div style="background:linear-gradient(156deg, #ee862b,#f5a663);border-radius:16px;padding:32px 20px;margin-bottom:20px;color:#fff;position:relative;overflow:hidden">
-              <div style="position:absolute;right:-32px;bottom:-32px;width:128px;height:128px;border-radius:50%;background:rgba(255,255,255,.1)"></div>
-              <div style="font-size:14px;opacity:.8">当前可用积分</div>
-              <div style="font-size:48px;font-weight:700;margin:8px 0">1,280</div>
-              <div style="font-size:14px">Points</div>
-              <div style="margin-top:12px;padding:6px 16px;background:rgba(255,255,255,.2);border-radius:20px;display:inline-block;font-size:14px">积分明细 ›</div>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;text-align:left">
-              <span style="font-size:16px;font-weight:600;color:#333">热门兑换</span>
-              <span style="font-size:12px;color:#ee862b">查看更多</span>
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-              <div style="background:#fff;border-radius:12px;overflow:hidden">
-                <div style="height:80px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;font-size:28px">🥤</div>
-                <div style="padding:10px">
-                  <div style="font-size:13px;color:#333;font-weight:500">免费饮品券</div>
-                  <div style="font-size:13px;color:#ee862b;font-weight:600;margin:4px 0">500 积分</div>
-                  <div style="padding:8px 0;background:#ee862b;color:#fff;border-radius:16px;font-size:12px;text-align:center">立即兑换</div>
-                </div>
-              </div>
-              <div style="background:#fff;border-radius:12px;overflow:hidden">
-                <div style="height:80px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;font-size:28px">🎫</div>
-                <div style="padding:10px">
-                  <div style="font-size:13px;color:#333;font-weight:500">甜品抵扣券20元</div>
-                  <div style="font-size:13px;color:#ee862b;font-weight:600;margin:4px 0">800 积分</div>
-                  <div style="padding:8px 0;background:#ee862b;color:#fff;border-radius:16px;font-size:12px;text-align:center">立即兑换</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- ========== CART PAGE ========== -->
-  <div class="section">
-    <div class="section-title">🛒 购物车 — 下单抵扣 <span class="badge badge-mod" style="font-size:11px">MODIFIED</span></div>
-    <div class="section-desc">余额 > 0 时底部显示抵扣选项；余额 = 0 时不显示</div>
-
-    <div class="phones-row">
-      <!-- 余额充足 + 勾选了抵扣 -->
-      <div class="phone">
-        <div class="phone-label">余额 ¥126.50 — 已勾选抵扣</div>
-        <div class="phone-screen">
-          <div class="status-bar"><span>9:41</span><span>WiFi ▮▮▮</span></div>
-          <div class="app-header"><span class="back">←</span><span class="title">购物车</span></div>
-          <div class="cart-page-content">
-            <div class="cart-list">
-              <div class="cart-item">
-                <div class="item-image">🍰</div>
-                <div class="item-info">
-                  <div class="item-name">草莓慕斯蛋糕</div>
-                  <div class="item-price-group">
-                    <div class="item-price">¥10</div>
+            <div class="phones-row">
+               <!-- VIP 余额页 -->
+               <div class="phone">
+                  <div class="phone-label">VIP 会员 — 余额页</div>
+                  <div class="phone-screen">
+                     <div class="status-bar"><span>9:41</span><span>WiFi ▮▮▮</span></div>
+                     <div class="app-header">
+                        <span class="back">←</span><span class="title">我的余额</span>
+                     </div>
+                     <div class="wallet-page-content">
+                        <div class="balance-card vip">
+                           <div class="balance-label">当前余额</div>
+                           <div class="balance-row">
+                              <div class="balance-value vip">126.50</div>
+                              <div class="balance-unit">元</div>
+                           </div>
+                           <div class="member-badge member-badge-mt">会员</div>
+                        </div>
+                        <div class="recharge-section">
+                           <div class="recharge-title">充值</div>
+                           <div class="preset-grid">
+                              <div class="preset-btn"><span class="preset-text">20元</span></div>
+                              <div class="preset-btn"><span class="preset-text">30元</span></div>
+                              <div class="preset-btn active">
+                                 <span class="preset-text">50元</span>
+                              </div>
+                           </div>
+                           <div class="custom-input-wrap">
+                              <div class="custom-label">自定义金额</div>
+                              <input class="custom-input" type="text" placeholder="请输入金额" />
+                           </div>
+                           <div class="recharge-btn"><span>充值</span></div>
+                        </div>
+                     </div>
                   </div>
-                </div>
-                <div class="quantity-control">
-                  <div class="qty-btn qty-minus">−</div>
-                  <div class="qty-text">1</div>
-                  <div class="qty-btn qty-plus">+</div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="cart-bottom-bar" style="position:static;width:auto;border-radius:0;margin-top:16px">
-            <div class="total-row">
-              <div class="total-label">合计</div>
-              <div class="total-amount">¥10</div>
-            </div>
-            <div class="wallet-deduct">
-              <div class="checkbox checked"><span class="check-mark">✓</span></div>
-              <div class="deduct-text">使用余额抵扣 ¥2</div>
-            </div>
-            <div style="font-size:11px;color:#22c55e;margin-bottom:4px">实际支付: ¥8（线下支付）</div>
-            <div class="checkout-btn"><span class="checkout-text">去结算</span></div>
-          </div>
-        </div>
-      </div>
+               </div>
 
-      <!-- 余额充足 + 未勾选 -->
-      <div class="phone">
-        <div class="phone-label">余额 ¥126.50 — 未勾选抵扣</div>
-        <div class="phone-screen">
-          <div class="status-bar"><span>9:41</span><span>WiFi ▮▮▮</span></div>
-          <div class="app-header"><span class="back">←</span><span class="title">购物车</span></div>
-          <div class="cart-page-content">
-            <div class="cart-list">
-              <div class="cart-item">
-                <div class="item-image">🍰</div>
-                <div class="item-info">
-                  <div class="item-name">草莓慕斯蛋糕</div>
-                  <div class="item-price-group">
-                    <div class="item-price">¥10</div>
+               <!-- 普通用户余额页 -->
+               <div class="phone">
+                  <div class="phone-label">普通用户 — 余额页（首次充值）</div>
+                  <div class="phone-screen">
+                     <div class="status-bar"><span>9:41</span><span>WiFi ▮▮▮</span></div>
+                     <div class="app-header">
+                        <span class="back">←</span><span class="title">我的余额</span>
+                     </div>
+                     <div class="wallet-page-content">
+                        <div class="balance-card">
+                           <div class="balance-label">当前余额</div>
+                           <div class="balance-row">
+                              <div class="balance-value">0</div>
+                              <div class="balance-unit">元</div>
+                           </div>
+                           <div class="regular-label">普通用户</div>
+                        </div>
+                        <div class="recharge-section">
+                           <div class="recharge-title">充值</div>
+                           <div class="preset-grid">
+                              <div class="preset-btn"><span class="preset-text">20元</span></div>
+                              <div class="preset-btn"><span class="preset-text">30元</span></div>
+                              <div class="preset-btn"><span class="preset-text">50元</span></div>
+                           </div>
+                           <div class="custom-input-wrap">
+                              <div class="custom-label">自定义金额</div>
+                              <input class="custom-input" type="text" placeholder="请输入金额" />
+                           </div>
+                           <div class="recharge-btn"><span>充值</span></div>
+                        </div>
+                     </div>
                   </div>
-                </div>
-                <div class="quantity-control">
-                  <div class="qty-btn qty-minus">−</div>
-                  <div class="qty-text">1</div>
-                  <div class="qty-btn qty-plus">+</div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="cart-bottom-bar" style="position:static;width:auto;border-radius:0;margin-top:16px">
-            <div class="total-row">
-              <div class="total-label">合计</div>
-              <div class="total-amount">¥10</div>
-            </div>
-            <div class="wallet-deduct">
-              <div class="checkbox"><span class="check-mark"></span></div>
-              <div class="deduct-text">使用余额抵扣 ¥2</div>
-            </div>
-            <div style="font-size:11px;color:#666;margin-bottom:4px">实际支付: ¥10（全线下支付）</div>
-            <div class="checkout-btn"><span class="checkout-text">去结算</span></div>
-          </div>
-        </div>
-      </div>
+               </div>
 
-      <!-- 余额=0，不显示抵扣区域 -->
-      <div class="phone">
-        <div class="phone-label">余额 ¥0 — 不显示抵扣 <span style="color:#22c55e;font-size:10px">v-if="wallet.balance > 0"</span></div>
-        <div class="phone-screen">
-          <div class="status-bar"><span>9:41</span><span>WiFi ▮▮▮</span></div>
-          <div class="app-header"><span class="back">←</span><span class="title">购物车</span></div>
-          <div class="cart-page-content">
-            <div class="cart-list">
-              <div class="cart-item">
-                <div class="item-image">🍰</div>
-                <div class="item-info">
-                  <div class="item-name">草莓慕斯蛋糕</div>
-                  <div class="item-price-group">
-                    <div class="item-price">¥10</div>
+               <!-- 旧积分商城 -->
+               <div class="phone">
+                  <div class="phone-label">
+                     旧积分商城 <span class="badge badge-old">REMOVED</span>
                   </div>
-                </div>
-                <div class="quantity-control">
-                  <div class="qty-btn qty-minus">−</div>
-                  <div class="qty-text">1</div>
-                  <div class="qty-btn qty-plus">+</div>
-                </div>
-              </div>
+                  <div class="phone-screen">
+                     <div class="status-bar"><span>9:41</span><span>WiFi ▮▮▮</span></div>
+                     <div class="app-header">
+                        <span class="back">←</span><span class="title">积分商城</span>
+                     </div>
+                     <div class="old-mall-wrap">
+                        <div class="old-mall-card">
+                           <div class="old-mall-glow"></div>
+                           <div class="old-mall-label">当前可用积分</div>
+                           <div class="old-mall-value">1,280</div>
+                           <div class="old-mall-unit">Points</div>
+                           <div class="old-mall-link">积分明细 ›</div>
+                        </div>
+                        <div class="old-mall-header">
+                           <span class="old-mall-title">热门兑换</span>
+                           <span class="old-mall-more">查看更多</span>
+                        </div>
+                        <div class="old-mall-grid">
+                           <div class="old-mall-item">
+                              <div class="old-mall-img">🥤</div>
+                              <div class="old-mall-info">
+                                 <div class="old-mall-name">免费饮品券</div>
+                                 <div class="old-mall-price">500 积分</div>
+                                 <div class="old-mall-btn">立即兑换</div>
+                              </div>
+                           </div>
+                           <div class="old-mall-item">
+                              <div class="old-mall-img">🎫</div>
+                              <div class="old-mall-info">
+                                 <div class="old-mall-name">甜品抵扣券20元</div>
+                                 <div class="old-mall-price">800 积分</div>
+                                 <div class="old-mall-btn">立即兑换</div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
             </div>
-          </div>
-          <div class="cart-bottom-bar" style="position:static;width:auto;border-radius:0;margin-top:16px">
-            <div class="total-row">
-              <div class="total-label">合计</div>
-              <div class="total-amount">¥10</div>
+         </div>
+
+         <!-- ========== CART PAGE ========== -->
+         <div class="section">
+            <div class="section-title">
+               🛒 购物车 — 下单抵扣 <span class="badge badge-mod">MODIFIED</span>
             </div>
-            <!-- 余额为0，抵扣区域不渲染 -->
-            <div style="font-size:11px;color:#888;margin-bottom:4px">实际支付: ¥10（全线下支付）</div>
-            <div class="checkout-btn"><span class="checkout-text">去结算</span></div>
-          </div>
-        </div>
+            <div class="section-desc">余额 > 0 时底部显示抵扣选项；余额 = 0 时不显示</div>
+
+            <div class="phones-row">
+               <!-- 余额充足 + 勾选了抵扣 -->
+               <div class="phone">
+                  <div class="phone-label">余额 ¥126.50 — 已勾选抵扣</div>
+                  <div class="phone-screen">
+                     <div class="status-bar"><span>9:41</span><span>WiFi ▮▮▮</span></div>
+                     <div class="app-header">
+                        <span class="back">←</span><span class="title">购物车</span>
+                     </div>
+                     <div class="cart-page-content">
+                        <div class="cart-list">
+                           <div class="cart-item">
+                              <div class="item-image">🍰</div>
+                              <div class="item-info">
+                                 <div class="item-name">草莓慕斯蛋糕</div>
+                                 <div class="item-price-group">
+                                    <div class="item-price">¥10</div>
+                                 </div>
+                              </div>
+                              <div class="quantity-control">
+                                 <div class="qty-btn qty-minus">−</div>
+                                 <div class="qty-text">1</div>
+                                 <div class="qty-btn qty-plus">+</div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="cart-bottom-bar cart-bottom-bar-static">
+                        <div class="total-row">
+                           <div class="total-label">合计</div>
+                           <div class="total-amount">¥10</div>
+                        </div>
+                        <div class="wallet-deduct">
+                           <div class="checkbox checked"><span class="check-mark">✓</span></div>
+                           <div class="deduct-text">使用余额抵扣 ¥2</div>
+                        </div>
+                        <div class="payment-info-green">实际支付: ¥8（线下支付）</div>
+                        <div class="checkout-btn"><span class="checkout-text">去结算</span></div>
+                     </div>
+                  </div>
+               </div>
+
+               <!-- 余额充足 + 未勾选 -->
+               <div class="phone">
+                  <div class="phone-label">余额 ¥126.50 — 未勾选抵扣</div>
+                  <div class="phone-screen">
+                     <div class="status-bar"><span>9:41</span><span>WiFi ▮▮▮</span></div>
+                     <div class="app-header">
+                        <span class="back">←</span><span class="title">购物车</span>
+                     </div>
+                     <div class="cart-page-content">
+                        <div class="cart-list">
+                           <div class="cart-item">
+                              <div class="item-image">🍰</div>
+                              <div class="item-info">
+                                 <div class="item-name">草莓慕斯蛋糕</div>
+                                 <div class="item-price-group">
+                                    <div class="item-price">¥10</div>
+                                 </div>
+                              </div>
+                              <div class="quantity-control">
+                                 <div class="qty-btn qty-minus">−</div>
+                                 <div class="qty-text">1</div>
+                                 <div class="qty-btn qty-plus">+</div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="cart-bottom-bar cart-bottom-bar-static">
+                        <div class="total-row">
+                           <div class="total-label">合计</div>
+                           <div class="total-amount">¥10</div>
+                        </div>
+                        <div class="wallet-deduct">
+                           <div class="checkbox"><span class="check-mark"></span></div>
+                           <div class="deduct-text">使用余额抵扣 ¥2</div>
+                        </div>
+                        <div class="payment-info-gray">实际支付: ¥10（全线下支付）</div>
+                        <div class="checkout-btn"><span class="checkout-text">去结算</span></div>
+                     </div>
+                  </div>
+               </div>
+
+               <!-- 余额=0，不显示抵扣区域 -->
+               <div class="phone">
+                  <div class="phone-label">
+                     余额 ¥0 — 不显示抵扣 <span class="vif-hint">v-if="wallet.balance > 0"</span>
+                  </div>
+                  <div class="phone-screen">
+                     <div class="status-bar"><span>9:41</span><span>WiFi ▮▮▮</span></div>
+                     <div class="app-header">
+                        <span class="back">←</span><span class="title">购物车</span>
+                     </div>
+                     <div class="cart-page-content">
+                        <div class="cart-list">
+                           <div class="cart-item">
+                              <div class="item-image">🍰</div>
+                              <div class="item-info">
+                                 <div class="item-name">草莓慕斯蛋糕</div>
+                                 <div class="item-price-group">
+                                    <div class="item-price">¥10</div>
+                                 </div>
+                              </div>
+                              <div class="quantity-control">
+                                 <div class="qty-btn qty-minus">−</div>
+                                 <div class="qty-text">1</div>
+                                 <div class="qty-btn qty-plus">+</div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="cart-bottom-bar cart-bottom-bar-static">
+                        <div class="total-row">
+                           <div class="total-label">合计</div>
+                           <div class="total-amount">¥10</div>
+                        </div>
+                        <!-- 余额为0，抵扣区域不渲染 -->
+                        <div class="payment-info-muted">实际支付: ¥10（全线下支付）</div>
+                        <div class="checkout-btn"><span class="checkout-text">去结算</span></div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+
+         <!-- ========== DATA FLOW ========== -->
+         <div class="section">
+            <div class="section-title">数据流对比</div>
+            <div class="section-desc">旧积分系统 vs 新钱包系统</div>
+
+            <div class="flow-section">
+               <div class="flow-grid">
+                  <!-- OLD -->
+                  <div class="flow-col">
+                     <h4><span class="text-old">旧积分系统</span></h4>
+
+                     <div class="flow-step">
+                        <div class="step-num step-old">1</div>
+                        <div>
+                           新用户登录 → 创建 <span class="strike">credits 表</span> 记录<br /><code
+                              class="code-inline"
+                              >total_scores: 0, available_scores: 0</code
+                           >
+                        </div>
+                     </div>
+                     <div class="flow-step">
+                        <div class="step-num step-old">2</div>
+                        <div>
+                           用户下单 → 累积积分<br /><code class="code-inline"
+                              >creditsEarned = 订单金额 - 折扣</code
+                           >
+                        </div>
+                     </div>
+                     <div class="flow-step">
+                        <div class="step-num step-old">3</div>
+                        <div>
+                           积分 ≥ 阈值 → <span class="strike">升级会员等级</span><br /><code
+                              class="code-inline"
+                              >100→黄铜, 200→白银, 300→黄金</code
+                           >
+                        </div>
+                     </div>
+                     <div class="flow-step">
+                        <div class="step-num step-old">4</div>
+                        <div>取消订单 → <span class="strike">扣除积分 + 降级</span></div>
+                     </div>
+                     <div class="flow-step">
+                        <div class="step-num step-old">5</div>
+                        <div>
+                           点击余额 → <span class="strike">积分商城</span>（mock数据，不可用）
+                        </div>
+                     </div>
+                     <div class="flow-step">
+                        <div class="step-num step-old">6</div>
+                        <div><span class="strike">credits 表</span> 独立于 users</div>
+                     </div>
+                  </div>
+
+                  <!-- NEW -->
+                  <div class="flow-col">
+                     <h4><span class="text-new">新钱包系统</span></h4>
+
+                     <div class="flow-step">
+                        <div class="step-num step-new">1</div>
+                        <div>
+                           新用户登录 → 创建 <b>wallets 表</b> 记录<br /><code class="code-inline"
+                              >balance: 0, total_recharged: 0</code
+                           >
+                        </div>
+                     </div>
+                     <div class="flow-step">
+                        <div class="step-num step-new">2</div>
+                        <div>
+                           用户充值(模拟) → balance ↑ &nbsp;total_recharged ↑<br /><code
+                              class="code-inline"
+                              >20/30/50/自定义 → recharge 云函数</code
+                           >
+                        </div>
+                     </div>
+                     <div class="flow-step">
+                        <div class="step-num step-new">3</div>
+                        <div>
+                           total_recharged > 0 → <b>会员</b><br /><code class="code-inline"
+                              >不区分黄铜/白银/黄金</code
+                           >
+                        </div>
+                     </div>
+                     <div class="flow-step">
+                        <div class="step-num step-new">4</div>
+                        <div>
+                           取消订单 → <b>退还余额</b><br /><code class="code-inline"
+                              >wallet.balance += order.wallet_deduct</code
+                           >
+                        </div>
+                     </div>
+                     <div class="flow-step">
+                        <div class="step-num step-new">5</div>
+                        <div>
+                           下单时可选 <b>余额抵扣</b><br /><code class="code-inline"
+                              >实际支付 = 总额 - 余额抵扣</code
+                           >
+                        </div>
+                     </div>
+                     <div class="flow-step">
+                        <div class="step-num step-new">6</div>
+                        <div><b>wallets 表</b> 独立管理余额</div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+
+         <!-- ========== COMPARISON TABLE ========== -->
+         <div class="section">
+            <div class="section-title">数据表变更</div>
+
+            <table class="comparison-table">
+               <thead>
+                  <tr>
+                     <th>表名</th>
+                     <th>字段</th>
+                     <th class="text-old">旧</th>
+                     <th class="text-new">新</th>
+                  </tr>
+               </thead>
+               <tbody>
+                  <tr>
+                     <td rowspan="4" class="td-bold">users</td>
+                     <td class="field">_id</td>
+                     <td>openid</td>
+                     <td>openid (不变)</td>
+                  </tr>
+                  <tr>
+                     <td class="field">name</td>
+                     <td>✓</td>
+                     <td>✓ (不变)</td>
+                  </tr>
+                  <tr>
+                     <td class="field">level</td>
+                     <td class="col-old">✓ 普通/黄铜/白银/黄金</td>
+                     <td class="col-new">移除</td>
+                  </tr>
+                  <tr>
+                     <td class="field">created_at</td>
+                     <td>✓</td>
+                     <td>✓ (不变)</td>
+                  </tr>
+
+                  <tr class="tr-dark">
+                     <td rowspan="5" class="td-wallet-header">
+                        wallets <span class="badge-new badge">NEW</span>
+                     </td>
+                     <td class="field">_id</td>
+                     <td class="col-old">—</td>
+                     <td class="col-new">UUID</td>
+                  </tr>
+                  <tr class="tr-dark">
+                     <td class="field">user_id</td>
+                     <td class="col-old">—</td>
+                     <td class="col-new">openid (unique)</td>
+                  </tr>
+                  <tr class="tr-dark">
+                     <td class="field">balance</td>
+                     <td class="col-old">—</td>
+                     <td class="col-new">当前余额 (元)</td>
+                  </tr>
+                  <tr class="tr-dark">
+                     <td class="field">total_recharged</td>
+                     <td class="col-old">—</td>
+                     <td class="col-new">累计充值 (元)</td>
+                  </tr>
+                  <tr class="tr-dark">
+                     <td class="field">updated_at</td>
+                     <td class="col-old">—</td>
+                     <td class="col-new">最后更新</td>
+                  </tr>
+
+                  <tr>
+                     <td rowspan="1" class="td-bold">orders</td>
+                     <td class="field">wallet_deduct</td>
+                     <td class="col-old">—</td>
+                     <td class="col-new">余额抵扣金额 (元)</td>
+                  </tr>
+
+                  <tr class="tr-dim">
+                     <td rowspan="4" class="td-bold">credits</td>
+                     <td class="field">_id</td>
+                     <td>✓</td>
+                     <td><span class="col-old">废弃</span></td>
+                  </tr>
+                  <tr class="tr-dim">
+                     <td class="field">users_id</td>
+                     <td>✓</td>
+                     <td><span class="col-old">废弃</span></td>
+                  </tr>
+                  <tr class="tr-dim">
+                     <td class="field">total_scores</td>
+                     <td>✓</td>
+                     <td><span class="col-old">废弃</span></td>
+                  </tr>
+                  <tr class="tr-dim">
+                     <td class="field">available_scores</td>
+                     <td>✓</td>
+                     <td><span class="col-old">废弃</span></td>
+                  </tr>
+               </tbody>
+            </table>
+         </div>
+
+         <!-- ========== CLOUD FUNCTION CHANGES ========== -->
+         <div class="section">
+            <div class="section-title">云函数变更</div>
+
+            <table class="comparison-table">
+               <thead>
+                  <tr>
+                     <th>云函数</th>
+                     <th>操作</th>
+                     <th>变更内容</th>
+                  </tr>
+               </thead>
+               <tbody>
+                  <tr class="tr-dark">
+                     <td class="field">recharge</td>
+                     <td class="col-new">NEW</td>
+                     <td class="td-desc">
+                        模拟充值，增加 wallet.balance 和 wallet.total_recharged
+                     </td>
+                  </tr>
+                  <tr>
+                     <td class="field">create-order</td>
+                     <td class="badge badge-mod">MOD</td>
+                     <td class="td-desc">
+                        + walletDeduct 参数 → 扣减余额，移除积分累积/等级升级逻辑
+                     </td>
+                  </tr>
+                  <tr>
+                     <td class="field">cancel-order</td>
+                     <td class="badge badge-mod">MOD</td>
+                     <td class="td-desc">
+                        退还余额 (wallet.balance += wallet_deduct)，移除积分扣除/降级逻辑
+                     </td>
+                  </tr>
+                  <tr>
+                     <td class="field">user-login</td>
+                     <td class="badge badge-mod">MOD</td>
+                     <td class="td-desc">创建 wallets 记录替代 credits，用户不再设置 level</td>
+                  </tr>
+                  <tr>
+                     <td class="field">get-profile</td>
+                     <td class="badge badge-mod">MOD</td>
+                     <td class="td-desc">查询 wallets 替代 credits，返回 wallet 而非 credits</td>
+                  </tr>
+                  <tr class="tr-dim">
+                     <td class="field">utils/credits.ts</td>
+                     <td class="col-old">DELETED</td>
+                     <td class="td-desc">
+                        addPoints / subtractPoints / getUpdatedLevel / calculateCreditsEarned
+                     </td>
+                  </tr>
+                  <tr class="tr-dim">
+                     <td class="field">utils/database.ts</td>
+                     <td class="td-desc">清理</td>
+                     <td class="td-desc">
+                        移除 LEVEL_THRESHOLDS / getLevelForScore / UserLevel / isValidUserLevel
+                     </td>
+                  </tr>
+               </tbody>
+            </table>
+         </div>
+
+         <!-- ========== KEY LOGIC ========== -->
+         <div class="section">
+            <div class="section-title">核心判定逻辑</div>
+
+            <div class="logic-grid">
+               <div class="logic-card">
+                  <div class="logic-card-label">会员判定</div>
+                  <code class="code-block">
+                     <span class="code-comment">// 之前：查 users.level</span>
+                     isVip = user.level !== '普通会员'
+
+                     <span class="code-new-text">// 之后：查 wallets.total_recharged</span>
+                     isVip = wallet.total_recharged > 0
+                  </code>
+               </div>
+
+               <div class="logic-card">
+                  <div class="logic-card-label">会员判定</div>
+                  <code class="code-block">
+                     <span class="code-comment">// 之前：积分累积</span>
+                     creditsEarned = 订单金额 - 折扣 addPoints(credits, creditsEarned)
+
+                     <span class="code-new-text">// 之后：余额扣减</span>
+                     deductWallet(wallet, walletDeduct)
+                  </code>
+               </div>
+
+               <div class="logic-card">
+                  <div class="logic-card-label">取消订单</div>
+                  <code class="code-block">
+                     <span class="code-comment">// 之前：扣积分+降级</span>
+                     subtractPoints(credits, amount) getUpdatedLevel(level, newScore)
+
+                     <span class="code-new-text">// 之后：退余额</span>
+                     refundWallet(wallet, order.wallet_deduct)
+                  </code>
+               </div>
+            </div>
+         </div>
+
+         <p class="page-footer">wallet balance system design preview · generated 2026-05-29</p>
       </div>
-    </div>
-  </div>
-
-  <!-- ========== DATA FLOW ========== -->
-  <div class="section">
-    <div class="section-title">数据流对比</div>
-    <div class="section-desc">旧积分系统 vs 新钱包系统</div>
-
-    <div class="flow-section">
-      <div class="flow-grid">
-
-        <!-- OLD -->
-        <div class="flow-col">
-          <h4><span style="color:#ef4444">旧积分系统</span></h4>
-
-          <div class="flow-step">
-            <div class="step-num step-old">1</div>
-            <div>新用户登录 → 创建 <span class="strike">credits 表</span> 记录<br><code style="font-size:11px;color:#888">total_scores: 0, available_scores: 0</code></div>
-          </div>
-          <div class="flow-step">
-            <div class="step-num step-old">2</div>
-            <div>用户下单 → 累积积分<br><code style="font-size:11px;color:#888">creditsEarned = 订单金额 - 折扣</code></div>
-          </div>
-          <div class="flow-step">
-            <div class="step-num step-old">3</div>
-            <div>积分 ≥ 阈值 → <span class="strike">升级会员等级</span><br><code style="font-size:11px;color:#888">100→黄铜, 200→白银, 300→黄金</code></div>
-          </div>
-          <div class="flow-step">
-            <div class="step-num step-old">4</div>
-            <div>取消订单 → <span class="strike">扣除积分 + 降级</span></div>
-          </div>
-          <div class="flow-step">
-            <div class="step-num step-old">5</div>
-            <div>点击余额 → <span class="strike">积分商城</span>（mock数据，不可用）</div>
-          </div>
-          <div class="flow-step">
-            <div class="step-num step-old">6</div>
-            <div><span class="strike">credits 表</span> 独立于 users</div>
-          </div>
-        </div>
-
-        <!-- NEW -->
-        <div class="flow-col">
-          <h4><span style="color:#22c55e">新钱包系统</span></h4>
-
-          <div class="flow-step">
-            <div class="step-num step-new">1</div>
-            <div>新用户登录 → 创建 <b>wallets 表</b> 记录<br><code style="font-size:11px;color:#888">balance: 0, total_recharged: 0</code></div>
-          </div>
-          <div class="flow-step">
-            <div class="step-num step-new">2</div>
-            <div>用户充值(模拟) → balance ↑ &nbsp;total_recharged ↑<br><code style="font-size:11px;color:#888">20/30/50/自定义 → recharge 云函数</code></div>
-          </div>
-          <div class="flow-step">
-            <div class="step-num step-new">3</div>
-            <div>total_recharged > 0 → <b>会员</b><br><code style="font-size:11px;color:#888">不区分黄铜/白银/黄金</code></div>
-          </div>
-          <div class="flow-step">
-            <div class="step-num step-new">4</div>
-            <div>取消订单 → <b>退还余额</b><br><code style="font-size:11px;color:#888">wallet.balance += order.wallet_deduct</code></div>
-          </div>
-          <div class="flow-step">
-            <div class="step-num step-new">5</div>
-            <div>下单时可选 <b>余额抵扣</b><br><code style="font-size:11px;color:#888">实际支付 = 总额 - 余额抵扣</code></div>
-          </div>
-          <div class="flow-step">
-            <div class="step-num step-new">6</div>
-            <div><b>wallets 表</b> 独立管理余额</div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </div>
-
-  <!-- ========== COMPARISON TABLE ========== -->
-  <div class="section">
-    <div class="section-title">数据表变更</div>
-
-    <table class="comparison-table">
-      <thead>
-        <tr><th>表名</th><th>字段</th><th style="color:#ef4444">旧</th><th style="color:#22c55e">新</th></tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td rowspan="4" style="font-weight:600">users</td>
-          <td class="field">_id</td><td>openid</td><td>openid (不变)</td>
-        </tr>
-        <tr><td class="field">name</td><td>✓</td><td>✓ (不变)</td></tr>
-        <tr><td class="field">level</td><td class="col-old">✓ 普通/黄铜/白银/黄金</td><td class="col-new">移除</td></tr>
-        <tr><td class="field">created_at</td><td>✓</td><td>✓ (不变)</td></tr>
-
-        <tr style="background:#1e293b">
-          <td rowspan="5" style="font-weight:600;color:#22c55e">wallets <span style="font-size:11px">NEW</span></td>
-          <td class="field">_id</td><td class="col-old">—</td><td class="col-new">UUID</td>
-        </tr>
-        <tr style="background:#1e293b"><td class="field">user_id</td><td class="col-old">—</td><td class="col-new">openid (unique)</td></tr>
-        <tr style="background:#1e293b"><td class="field">balance</td><td class="col-old">—</td><td class="col-new">当前余额 (元)</td></tr>
-        <tr style="background:#1e293b"><td class="field">total_recharged</td><td class="col-old">—</td><td class="col-new">累计充值 (元)</td></tr>
-        <tr style="background:#1e293b"><td class="field">updated_at</td><td class="col-old">—</td><td class="col-new">最后更新</td></tr>
-
-        <tr>
-          <td rowspan="1" style="font-weight:600">orders</td>
-          <td class="field">wallet_deduct</td><td class="col-old">—</td><td class="col-new">余额抵扣金额 (元)</td>
-        </tr>
-
-        <tr style="opacity:.4">
-          <td rowspan="4" style="font-weight:600">credits</td>
-          <td class="field">_id</td><td>✓</td><td><span class="col-old">废弃</span></td>
-        </tr>
-        <tr style="opacity:.4"><td class="field">users_id</td><td>✓</td><td><span class="col-old">废弃</span></td></tr>
-        <tr style="opacity:.4"><td class="field">total_scores</td><td>✓</td><td><span class="col-old">废弃</span></td></tr>
-        <tr style="opacity:.4"><td class="field">available_scores</td><td>✓</td><td><span class="col-old">废弃</span></td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- ========== CLOUD FUNCTION CHANGES ========== -->
-  <div class="section">
-    <div class="section-title">云函数变更</div>
-
-    <table class="comparison-table">
-      <thead>
-        <tr><th>云函数</th><th>操作</th><th>变更内容</th></tr>
-      </thead>
-      <tbody>
-        <tr style="background:#1e293b">
-          <td class="field">recharge</td>
-          <td class="col-new">NEW</td>
-          <td style="font-size:13px">模拟充值，增加 wallet.balance 和 wallet.total_recharged</td>
-        </tr>
-        <tr>
-          <td class="field">create-order</td>
-          <td class="badge badge-mod" style="font-size:11px">MOD</td>
-          <td style="font-size:13px">+ walletDeduct 参数 → 扣减余额，移除积分累积/等级升级逻辑</td>
-        </tr>
-        <tr>
-          <td class="field">cancel-order</td>
-          <td class="badge badge-mod" style="font-size:11px">MOD</td>
-          <td style="font-size:13px">退还余额 (wallet.balance += wallet_deduct)，移除积分扣除/降级逻辑</td>
-        </tr>
-        <tr>
-          <td class="field">user-login</td>
-          <td class="badge badge-mod" style="font-size:11px">MOD</td>
-          <td style="font-size:13px">创建 wallets 记录替代 credits，用户不再设置 level</td>
-        </tr>
-        <tr>
-          <td class="field">get-profile</td>
-          <td class="badge badge-mod" style="font-size:11px">MOD</td>
-          <td style="font-size:13px">查询 wallets 替代 credits，返回 wallet 而非 credits</td>
-        </tr>
-        <tr style="opacity:.4">
-          <td class="field">utils/credits.ts</td>
-          <td class="col-old">DELETED</td>
-          <td style="font-size:13px">addPoints / subtractPoints / getUpdatedLevel / calculateCreditsEarned</td>
-        </tr>
-        <tr style="opacity:.4">
-          <td class="field">utils/database.ts</td>
-          <td style="font-size:13px">清理</td>
-          <td style="font-size:13px">移除 LEVEL_THRESHOLDS / getLevelForScore / UserLevel / isValidUserLevel</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- ========== KEY LOGIC ========== -->
-  <div class="section">
-    <div class="section-title">核心判定逻辑</div>
-
-    <div style="display:flex;gap:24px;flex-wrap:wrap">
-      <div style="flex:1;min-width:280px;background:#16213e;border-radius:16px;padding:24px">
-        <div style="font-size:13px;color:#94a3b8;margin-bottom:12px">会员判定</div>
-        <code style="display:block;background:#0f172a;padding:16px;border-radius:8px;font-size:13px;line-height:1.8">
-<span style="color:#666">// 之前：查 users.level</span>
-isVip = user.level !== '普通会员'
-
-<span style="color:#22c55e">// 之后：查 wallets.total_recharged</span>
-isVip = wallet.total_recharged > 0
-        </code>
-      </div>
-
-      <div style="flex:1;min-width:280px;background:#16213e;border-radius:16px;padding:24px">
-        <div style="font-size:13px;color:#94a3b8;margin-bottom:12px">会员判定</div>
-        <code style="display:block;background:#0f172a;padding:16px;border-radius:8px;font-size:13px;line-height:1.8">
-<span style="color:#666">// 之前：积分累积</span>
-creditsEarned = 订单金额 - 折扣
-addPoints(credits, creditsEarned)
-
-<span style="color:#22c55e">// 之后：余额扣减</span>
-deductWallet(wallet, walletDeduct)
-        </code>
-      </div>
-
-      <div style="flex:1;min-width:280px;background:#16213e;border-radius:16px;padding:24px">
-        <div style="font-size:13px;color:#94a3b8;margin-bottom:12px">取消订单</div>
-        <code style="display:block;background:#0f172a;padding:16px;border-radius:8px;font-size:13px;line-height:1.8">
-<span style="color:#666">// 之前：扣积分+降级</span>
-subtractPoints(credits, amount)
-getUpdatedLevel(level, newScore)
-
-<span style="color:#22c55e">// 之后：退余额</span>
-refundWallet(wallet, order.wallet_deduct)
-        </code>
-      </div>
-    </div>
-  </div>
-
-  <p style="text-align:center;color:#666;font-size:12px;margin-top:40px">wallet balance system design preview · generated 2026-05-29</p>
-</div>
-
-</body>
+   </body>
 </html>

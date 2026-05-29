@@ -72,15 +72,9 @@
                      </tr>
                      <tr>
                         <td>后端</td>
-                        <<<<<<< HEAD
                         <td>微信云开发</td>
                         <td>wx-server-sdk ~2.6.3</td>
                         <td>云数据库 + 云函数 + 云存储</td>
-                        =======
-                        <td>Supabase</td>
-                        <td>supabase-wechat-stable-v2</td>
-                        <td>数据库 + 存储，微信小程序专用 SDK</td>
-                        >>>>>>> 0326d03b8194397ffd38485dac6676ff4fbe281d
                      </tr>
                      <tr>
                         <td>国际化</td>
@@ -95,14 +89,12 @@
                         <td>TypeScript / Vue 统一风格</td>
                      </tr>
                      <tr>
-                        <<<<<<< HEAD
                         <td>测试</td>
                         <td>vitest</td>
                         <td>2.x</td>
                         <td>云函数业务逻辑 + 前端 API 层测试</td>
                      </tr>
                      <tr>
-                        ======= >>>>>>> 0326d03b8194397ffd38485dac6676ff4fbe281d
                         <td>拼写检查</td>
                         <td>cSpell</td>
                         <td>—</td>
@@ -125,16 +117,13 @@
             <pre class="tree">docs/
 └── superpowers/
     ├── specs/        <span class="comment"># 轻量级功能设计文档</span>
+    ├── preview/      <span class="comment"># html预览（用于快速查看效果）</span>
     └── plans/        <span class="comment"># 对应实现计划</span>
 openspec/
 ├── config.yaml       <span class="comment"># openspec 配置</span>
 ├── changes/archive/  <span class="comment"># 已归档变更</span>
 └── specs/            <span class="comment"># 功能模块权威 spec</span>
-<<<<<<< HEAD
 weixin-cloud/         <span class="comment"># 微信云函数</span>
-=======
-weixin-cloud/         <span class="comment"># 微信云函<span class="comment"># 功能模块权威 spec</span>数</span>
->>>>>>> 0326d03b8194397ffd38485dac6676ff4fbe281d
 src/
 ├── pages/                    <span class="comment"># 页面组件（路由在 pages.json 中配置）</span>
 │   ├── index/               <span class="comment"># 首页/点单</span>
@@ -153,15 +142,9 @@ src/
 ├── composables/              <span class="comment"># 组合式函数</span>
 ├── types/                    <span class="comment"># TypeScript 类型定义 + db-scheme/</span>
 ├── api/                      <span class="comment"># 数据查询层（微信云开发）</span>
-<<<<<<< HEAD
 ├── hooks/                    <span class="comment"># useEnvConfig（云开发环境配置）</span>
 ├── data/                     <span class="comment"># 静态常量（imgPaths）</span>
 ├── utils/                    <span class="comment"># 工具函数：format, cloudStorage, cloudDatabase</span>
-=======
-├── hooks/                    <span class="comment"># useEnvConfig（环境变量配置）</span>
-├── data/                     <span class="comment"># 静态常量（imgPaths）</span>
-├── utils/                    <span class="comment"># 工具函数：format, supabaseClient</span>
->>>>>>> 0326d03b8194397ffd38485dac6676ff4fbe281d
 ├── static/                   <span class="comment"># 图片、图标资源</span>
 ├── pages.json                <span class="comment"># 页面路由 &amp; tabBar 配置</span>
 ├── manifest.json             <span class="comment"># 应用元数据 &amp; 平台配置</span>
@@ -188,7 +171,7 @@ src/
                </li>
                <li><code>docs/superpowers/plans/</code> — 实现计划（task 拆分、执行步骤）</li>
             </ul>
-            <div class="callout">小 bug 修复、格式调整等局部改动无需查阅。</div>
+            <div class="callout">小 bug 修复、格式调整等局部改动无需查阅。<br><strong>preview 目录</strong>下的 CSS 文件仅供浏览器渲染，除非需要调整样式，否则不要阅读以节省 Token。</div>
          </div>
 
          <!-- 数据类型 -->

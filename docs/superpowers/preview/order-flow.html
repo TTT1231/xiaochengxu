@@ -1,486 +1,602 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>下单 &amp; 退款业务流程</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#fafafa;color:#1e293b;line-height:1.6}
-.wrap{max-width:880px;margin:0 auto;padding:48px 24px}
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>下单 &amp; 退款业务流程</title>
+      <link rel="stylesheet" href="order-flow.css" />
+   </head>
+   <body>
+      <div class="wrap">
+         <!-- Header -->
+         <h1>下单 & 退款业务流程</h1>
+         <p class="subtitle">甜品点单小程序 · 客户端 → API → 云函数 → 云数据库</p>
 
-/* ── Typography ── */
-h1{font-size:24px;font-weight:700;letter-spacing:-.3px}
-.subtitle{color:#94a3b8;font-size:14px;margin-top:4px}
-h2{font-size:16px;font-weight:700;margin-bottom:4px;color:#0f172a}
-.sec-desc{font-size:13px;color:#64748b;margin-bottom:24px}
-.sec{margin-bottom:48px}
-
-/* ── Architecture Row ── */
-.arch{display:flex;gap:2px;margin-top:16px}
-.arch-node{flex:1;padding:16px;background:#fff;border:1px solid #e2e8f0;border-radius:8px}
-.arch-node .label{font-size:11px;font-weight:600;color:#6366f1;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
-.arch-node .name{font-size:13px;font-weight:700}
-.arch-node .detail{font-size:12px;color:#64748b;margin-top:4px}
-.arch-arrow{display:flex;align-items:center;color:#cbd5e1;font-size:14px;padding:0 2px}
-
-/* ── State Machine ── */
-.states{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:20px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;margin-top:16px}
-.st{padding:8px 16px;border-radius:6px;font-size:12px;font-weight:600;text-align:center;border:1.5px solid #e2e8f0;background:#f8fafc}
-.st b{display:block;font-size:13px}
-.st small{font-weight:400;color:#64748b}
-.st-on{border-color:#6366f1;background:#eef2ff}
-.st-on b{color:#4f46e5}
-.st-cancel{border-color:#e2e8f0;background:#fef2f2}
-.st-cancel b{color:#ef4444}
-.st-cancel small{color:#f87171}
-.st-arr{color:#cbd5e1;font-size:16px}
-
-/* ── Pipeline ── */
-.legend{display:flex;gap:16px;margin-bottom:16px;flex-wrap:wrap}
-.legend span{font-size:11px;color:#64748b;display:flex;align-items:center;gap:4px}
-.legend i{width:8px;height:8px;border-radius:2px;display:inline-block}
-.legend .lc{background:#6366f1}.legend .la{background:#8b5cf6}.legend .ls{background:#f59e0b}
-
-.pipe{border-left:2px solid #e2e8f0;margin-left:6px;padding-left:28px;position:relative}
-.step{position:relative;margin-bottom:2px}
-.step::before{content:'';position:absolute;left:-33px;top:14px;width:10px;height:10px;border-radius:50%;background:#e2e8f0;border:2px solid #fff;box-shadow:0 0 0 1px #e2e8f0}
-
-/* layer colors on dot */
-.step.c::before{background:#6366f1;border-color:#fff;box-shadow:0 0 0 1px #6366f1}
-.step.a::before{background:#8b5cf6;border-color:#fff;box-shadow:0 0 0 1px #8b5cf6}
-.step.s::before{background:#f59e0b;border-color:#fff;box-shadow:0 0 0 1px #f59e0b}
-
-.card{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:12px 16px;transition:box-shadow .15s}
-.card:hover{box-shadow:0 2px 12px rgba(0,0,0,.06)}
-.card .tag{font-size:10px;font-weight:600;color:#64748b;background:#f1f5f9;padding:1px 6px;border-radius:3px;margin-right:6px}
-.card .title{font-size:13px;font-weight:600;margin-bottom:2px}
-.card .desc{font-size:12px;color:#64748b;line-height:1.5}
-.card .desc code{background:#f1f5f9;padding:0 4px;border-radius:3px;font-size:11px;color:#6366f1}
-
-/* arrow labels between steps */
-.arr-label{font-size:10px;color:#94a3b8;padding:2px 0 2px 0;margin-left:8px}
-
-/* transaction box */
-.tx{border-left:2px dashed #6366f1;background:#f8f7ff;border-radius:0 8px 8px 0;padding:12px 12px 12px 24px;margin:8px 0;position:relative}
-.tx .tx-badge{position:absolute;top:-8px;left:12px;font-size:10px;font-weight:700;background:#6366f1;color:#fff;padding:1px 8px;border-radius:4px;letter-spacing:.3px}
-.tx-red{border-left-color:#ef4444;background:#fef8f8}
-.tx-red .tx-badge{background:#ef4444}
-
-/* ── Amount Flow ── */
-.amt-flow{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;padding:24px;background:#fff;border:1px solid #e2e8f0;border-radius:10px}
-.amt{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 16px;text-align:center;min-width:110px}
-.amt .label{font-size:10px;color:#64748b;margin-bottom:2px}
-.amt .val{font-size:15px;font-weight:700;font-family:"SF Mono","Fira Code",monospace;color:#1e293b}
-.amt .val.green{color:#16a34a}
-.amt-op{font-size:14px;color:#cbd5e1;font-weight:700}
-
-/* ── Table ── */
-table{width:100%;border-collapse:collapse;font-size:13px}
-th{background:#f8fafc;padding:8px 12px;text-align:left;font-weight:600;border-bottom:1px solid #e2e8f0;font-size:12px;color:#64748b}
-td{padding:8px 12px;border-bottom:1px solid #f1f5f9;vertical-align:top}
-tr:hover td{background:#f8fafc}
-code{background:#f1f5f9;padding:1px 4px;border-radius:3px;font-size:11px;color:#6366f1}
-.note{color:#94a3b8;font-size:11px}
-
-/* ── Grid ── */
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-
-/* ── Op Card ── */
-.op{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:16px}
-.op h4{font-size:13px;font-weight:700;margin-bottom:4px}
-.op .formula{background:#f8fafc;padding:8px 12px;border-radius:6px;font-family:"SF Mono","Fira Code",monospace;font-size:12px;margin-top:8px;color:#1e293b}
-.op .formula .p{color:#16a34a}.op .formula .m{color:#ef4444}.op .formula .s{color:#94a3b8}
-.op .from{font-size:11px;color:#94a3b8;margin-top:8px}
-
-/* ── Note ── */
-.note-box{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:12px 16px;font-size:12px;color:#92400e;margin-top:16px}
-.note-box strong{color:#78350f}
-.note-blue{background:#eff6ff;border-color:#bfdbfe;color:#1e40af}
-.note-blue strong{color:#1e3a8a}
-.note-green{background:#f0fdf4;border-color:#bbf7d0;color:#166534}
-.note-green strong{color:#14532d}
-.note-red{background:#fef2f2;border-color:#fecaca;color:#991b1b}
-.note-red strong{color:#7f1d1d}
-
-/* ── DB Card ── */
-.db-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden}
-.db-card .db-head{padding:10px 16px;border-bottom:1px solid #e2e8f0;font-weight:700;font-size:13px;color:#6366f1;background:#f8fafc}
-.db-card table{font-size:12px}
-
-/* ── Error Card ── */
-.err-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden}
-.err-card .err-head{padding:10px 16px;border-bottom:1px solid #e2e8f0;font-weight:700;font-size:12px}
-.err-card table{font-size:11px}
-.err-card .em{font-family:"SF Mono",monospace;font-size:10px;color:#ef4444}
-.err-card .ew{color:#64748b;font-size:11px}
-
-/* ── Risk ── */
-.risk{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:12px 16px;font-size:12px}
-.risk strong{display:block;margin-bottom:2px}
-
-/* ── Footer ── */
-.footer{text-align:center;padding:32px 0 0;color:#cbd5e1;font-size:11px}
-
-/* ── Responsive ── */
-@media(max-width:768px){
-   .arch{flex-direction:column}.arch-arrow{justify-content:center;padding:4px 0}
-   .grid2,.grid3{grid-template-columns:1fr}
-   .amt-flow{flex-direction:column}
-}
-</style>
-</head>
-<body>
-<div class="wrap">
-
-<!-- Header -->
-<h1>下单 & 退款业务流程</h1>
-<p class="subtitle">甜品点单小程序 · 客户端 → API → 云函数 → 云数据库</p>
-
-<!-- ━━━ 1. 架构 ━━━ -->
-<div class="sec">
-   <h2>架构总览</h2>
-   <p class="sec-desc">客户端不直接操作数据库，所有写操作经由云函数完成。</p>
-   <div class="arch">
-      <div class="arch-node">
-         <div class="label">Client</div>
-         <div class="name">Vue 3 Pages</div>
-         <div class="detail">购物车 · 订单详情 · 订单列表</div>
-      </div>
-      <div class="arch-arrow">→</div>
-      <div class="arch-node">
-         <div class="label">API</div>
-         <div class="name">orderApi.ts</div>
-         <div class="detail">精简为 id + specs + qty，callFunction</div>
-      </div>
-      <div class="arch-arrow">→</div>
-      <div class="arch-node">
-         <div class="label">Cloud</div>
-         <div class="name">云函数</div>
-         <div class="detail">验证 · 事务 · 金额计算</div>
-      </div>
-      <div class="arch-arrow">→</div>
-      <div class="arch-node">
-         <div class="label">DB</div>
-         <div class="name">云数据库</div>
-         <div class="detail">products · orders · wallets</div>
-      </div>
-   </div>
-</div>
-
-<!-- ━━━ 2. 状态流转 ━━━ -->
-<div class="sec">
-   <h2>订单状态流转</h2>
-   <p class="sec-desc">5 个状态。pending / preparing 可取消并退款。</p>
-   <div class="states">
-      <div class="st st-on"><b>pending</b><small>待处理</small></div>
-      <div class="st-arr">→</div>
-      <div class="st"><b>preparing</b><small>制作中</small></div>
-      <div class="st-arr">→</div>
-      <div class="st"><b>ready</b><small>待取餐</small></div>
-      <div class="st-arr">→</div>
-      <div class="st"><b>completed</b><small>已完成</small></div>
-   </div>
-   <div class="states" style="margin-top:8px;justify-content:center">
-      <div class="st st-cancel"><b>cancelled</b><small>已取消 · 退款到钱包</small></div>
-      <div style="font-size:11px;color:#94a3b8;margin-left:8px">
-         可从 <b>pending</b> 或 <b>preparing</b> 触发
-      </div>
-   </div>
-</div>
-
-<!-- ━━━ 3. 下单流程 ━━━ -->
-<div class="sec">
-   <h2>下单流程</h2>
-   <p class="sec-desc">从用户点击「结算」到订单创建完成。</p>
-   <div class="legend">
-      <span><i class="lc"></i>客户端</span>
-      <span><i class="la"></i>API 层</span>
-      <span><i class="ls"></i>云函数</span>
-   </div>
-   <div class="pipe">
-
-      <div class="step c">
-         <div class="card"><span class="tag">客户端</span><span class="title">点击「结算」</span><div class="desc">校验：购物车非空、用户已登录、<code>submitting</code> 防重复。计算 totalAmount / discountAmount / walletDeduct。</div></div>
-      </div>
-      <div class="arr-label">传递 items + 3 个金额 ↓</div>
-
-      <div class="step a">
-         <div class="card"><span class="tag">API</span><span class="title">精简数据 + 发起调用</span><div class="desc"><code>CartItem</code> → 只提取 <code>{ product_id, specs, quantity }</code>（不发 price / name / image），调用 <code>wx.cloud.callFunction('create-order')</code></div></div>
-      </div>
-      <div class="arr-label">云函数收到请求 ↓</div>
-
-      <div class="step s">
-         <div class="card"><span class="tag">云函数</span><span class="title">鉴权 + 输入校验</span><div class="desc"><code>getOpenId()</code> → items 非空且 ≤20 → 三个金额有限、≥0、≤2 位小数</div></div>
-      </div>
-
-      <div class="step s">
-         <div class="card"><span class="tag">云函数</span><span class="title">逐项验证商品（事务外·只读）</span><div class="desc">对每个 item 查 <code>products.doc(id)</code>：存在 + status=true + 价格合法 + 规格合法（未售罄、必填不缺）<br><strong>客户端仅传 product_id + specs + quantity，name / price / discount / image 全部由服务端从 DB 填充</strong></div></div>
-      </div>
-
-      <div class="step s">
-         <div class="card"><span class="tag">云函数</span><span class="title">重算金额 & 比对</span><div class="desc"><code>expectedTotal = Σ(服务端price × qty)</code>，与客户端传入值比对（误差 &gt; 0.01 则拒绝）。校验 <code>walletDeduct ≤ payableAmount</code></div></div>
-      </div>
-
-      <div class="step s">
-         <div class="card"><span class="tag">云函数</span><span class="title">查找钱包（事务外）</span><div class="desc">若 walletDeduct &gt; 0：<code>findWalletByUserId(openid)</code> 获取 walletId</div></div>
-      </div>
-
-      <!-- Transaction -->
-      <div class="tx">
-         <div class="tx-badge">TRANSACTION</div>
-         <div class="pipe" style="border-left-color:#c7d2fe">
-
-            <div class="step s">
-               <div class="card"><span class="title">重读钱包 + 扣款</span><div class="desc"><code>wallets.doc(id).get()</code> → 验证所有权 + 余额充足 → <code>balance -= walletDeduct</code></div></div>
-            </div>
-
-            <div class="step s">
-               <div class="card"><span class="title">创建订单</span><div class="desc"><code>orders.add({ _id: orderId, order_status: 'pending', ... })</code> — 每条商品的 name / price / discount / image 全部由服务端从 DB 填充，客户端无法注入</div></div>
-            </div>
-
-         </div>
-      </div>
-
-      <div class="step c">
-         <div class="card"><span class="tag">客户端</span><span class="title">完成</span><div class="desc">清空购物车 → 刷新钱包余额 → 跳转订单详情页</div></div>
-      </div>
-
-   </div>
-
-   <div class="note-green note-box" style="margin-top:16px">
-      <strong>安全核心</strong>客户端仅发送 <code>product_id</code> + <code>specs</code> + <code>quantity</code>，不传任何价格/名称/图片数据。name、price、discount、image 全部由云函数从 DB 填充到 <code>OrderDetailItem</code>，客户端无法篡改。
-   </div>
-</div>
-
-<!-- ━━━ 4. 金额计算 ━━━ -->
-<div class="sec">
-   <h2>金额计算链路</h2>
-   <p class="sec-desc">从商品单价到实付金额。</p>
-   <div class="amt-flow">
-      <div class="amt"><div class="label">折前总额</div><div class="val">totalAmount</div></div>
-      <div class="amt-op">−</div>
-      <div class="amt"><div class="label">优惠总额</div><div class="val">discountAmount</div></div>
-      <div class="amt-op">−</div>
-      <div class="amt"><div class="label">钱包扣款</div><div class="val">walletDeduct</div></div>
-      <div class="amt-op">=</div>
-      <div class="amt" style="border-color:#16a34a"><div class="label">实付金额</div><div class="val green">payableAmount</div></div>
-   </div>
-   <div style="margin-top:16px">
-      <table>
-         <thead><tr><th>字段</th><th>公式</th><th>说明</th></tr></thead>
-         <tbody>
-            <tr><td><code>totalAmount</code></td><td>Σ(price × quantity)</td><td class="note">服务端用 DB 价格重算比对</td></tr>
-            <tr><td><code>discountAmount</code></td><td>Σ(discount × quantity)</td><td class="note">服务端重算比对 (ε=0.01)</td></tr>
-            <tr><td><code>walletDeduct</code></td><td>min(balance, totalAmount − discountAmount)</td><td class="note">上限 = 应付金额</td></tr>
-            <tr><td><code>payableAmount</code></td><td>max(totalAmount − discountAmount − walletDeduct, 0)</td><td class="note">微信支付金额</td></tr>
-         </tbody>
-      </table>
-   </div>
-</div>
-
-<!-- ━━━ 5. 退款流程 ━━━ -->
-<div class="sec">
-   <h2>取消订单 & 退款</h2>
-   <p class="sec-desc">用户取消 → 状态变更 + 钱包退款（仅当 wallet_deduct &gt; 0）。</p>
-
-   <div class="pipe">
-
-      <div class="step c">
-         <div class="card"><span class="tag">客户端</span><span class="title">点击「取消订单」</span><div class="desc">条件 <code>canCancel</code>（pending / preparing）→ 确认弹窗 → 发起请求</div></div>
-      </div>
-
-      <div class="step a">
-         <div class="card"><span class="tag">API</span><span class="title">发起取消</span><div class="desc"><code>callFunction('cancel-order', { orderId })</code></div></div>
-      </div>
-
-      <div class="step s">
-         <div class="card"><span class="tag">云函数</span><span class="title">鉴权 + 预查钱包</span><div class="desc"><code>getOpenId()</code> → 校验 orderId → <code>findWalletByUserId(openid)</code> 获取 walletId</div></div>
-      </div>
-
-      <div class="tx tx-red">
-         <div class="tx-badge">TRANSACTION</div>
-         <div class="pipe" style="border-left-color:#fecaca">
-
-            <div class="step s">
-               <div class="card"><span class="title">读取订单 + 三重校验</span><div class="desc">存在 + 归属（<code>user_id === openid</code>，不匹配返回「不存在」防泄露）+ 状态（仅 pending / preparing 可取消）</div></div>
-            </div>
-
-            <div class="step s">
-               <div class="card"><span class="title">更新状态 → cancelled</span><div class="desc"><code>orders.doc(id).update({ order_status: 'cancelled' })</code></div></div>
-            </div>
-
-            <div class="step s">
-               <div class="card"><span class="title">钱包退款</span><div class="desc"><code>balance += wallet_deduct</code>（<code>total_recharged</code> 不变，它是累计充值额）</div></div>
-            </div>
-
-         </div>
-      </div>
-
-      <div class="step c">
-         <div class="card"><span class="tag">客户端</span><span class="title">刷新页面</span><div class="desc">重新拉取订单详情 → 显示「已取消」+ 退款金额</div></div>
-      </div>
-
-   </div>
-
-   <div class="note-red note-box" style="margin-top:16px">
-      <strong>原子性保障</strong>状态变更 + 退款在同一 <code>runTransaction</code> 中。退款失败则状态不变——要么全部成功，要么全部回滚。
-   </div>
-</div>
-
-<!-- ━━━ 6. 钱包操作 ━━━ -->
-<div class="sec">
-   <h2>钱包余额操作</h2>
-   <p class="sec-desc">wallet.ts 中三个纯函数。total_recharged 只增不减（VIP 累计指标）。</p>
-   <div class="grid3">
-      <div class="op">
-         <h4>rechargeWallet</h4>
-         <div class="formula">balance = <span class="p">+ amount</span><br>total_recharged = <span class="p">+ amount</span></div>
-         <div class="from">recharge 云函数</div>
-      </div>
-      <div class="op">
-         <h4>deductWallet</h4>
-         <div class="formula">balance = <span class="m">− amount</span><br>total_recharged = <span class="s">不变</span></div>
-         <div class="from">create-order（事务内）</div>
-      </div>
-      <div class="op">
-         <h4>refundWallet</h4>
-         <div class="formula">balance = <span class="p">+ amount</span><br>total_recharged = <span class="s">不变</span></div>
-         <div class="from">cancel-order（事务内）</div>
-      </div>
-   </div>
-   <div class="note-blue note-box" style="margin-top:12px">
-      <strong>VIP 判定</strong><code>total_recharged &gt; 0</code> 即为 VIP，充值后永不降级。<code>balance</code> 是可用额度，可增可减。
-   </div>
-</div>
-
-<!-- ━━━ 7. 数据库 ━━━ -->
-<div class="sec">
-   <h2>核心数据表</h2>
-   <p class="sec-desc">下单和退款涉及的三张表。</p>
-   <div class="grid3">
-      <div class="db-card">
-         <div class="db-head">orders</div>
-         <table><tbody>
-            <tr><td><code>_id</code></td><td>= order_id</td></tr>
-            <tr><td><code>user_id</code></td><td>openid</td></tr>
-            <tr><td><code>order_status</code></td><td>pending → completed</td></tr>
-            <tr><td><code>total_amount</code></td><td>折前总额</td></tr>
-            <tr><td><code>discount_amount</code></td><td>优惠总额</td></tr>
-            <tr><td><code>wallet_deduct</code></td><td>钱包扣款</td></tr>
-            <tr><td><code>oder_details</code></td><td class="note">商品列表</td></tr>
-         </tbody></table>
-      </div>
-      <div class="db-card">
-         <div class="db-head">wallets</div>
-         <table><tbody>
-            <tr><td><code>user_id</code></td><td>openid</td></tr>
-            <tr><td><code>balance</code></td><td>可用余额</td></tr>
-            <tr><td><code>total_recharged</code></td><td class="note">累计充值 (VIP)</td></tr>
-            <tr><td><code>updated_at</code></td><td>更新时间</td></tr>
-         </tbody></table>
-      </div>
-      <div class="db-card">
-         <div class="db-head">products</div>
-         <table><tbody>
-            <tr><td><code>price</code></td><td>单价（元）</td></tr>
-            <tr><td><code>discount</code></td><td>优惠金额</td></tr>
-            <tr><td><code>specs</code></td><td class="note">规格 JSON</td></tr>
-            <tr><td><code>status</code></td><td>true = 上架</td></tr>
-            <tr><td><code>images</code></td><td>存储路径 &amp; 分隔</td></tr>
-         </tbody></table>
-      </div>
-   </div>
-</div>
-
-<!-- ━━━ 8. 事务边界 ━━━ -->
-<div class="sec">
-   <h2>事务边界</h2>
-   <p class="sec-desc">runTransaction 保证原子性。虚线框内 = 事务内操作。</p>
-   <div class="grid2">
-      <div class="db-card">
-         <div class="db-head" style="color:#16a34a">create-order</div>
-         <div style="padding:12px 16px;font-size:12px">
-            <div style="color:#94a3b8;margin-bottom:8px;font-size:11px">事务外（快失败）</div>
-            <div style="padding:4px 8px;background:#f8fafc;border-radius:4px;margin-bottom:2px;color:#64748b">products.doc(id).get() × N</div>
-            <div style="padding:4px 8px;background:#f8fafc;border-radius:4px;margin-bottom:2px;color:#64748b">wallets.where().get()</div>
-            <div style="padding:4px 8px;background:#f8fafc;border-radius:4px;margin-bottom:8px;color:#64748b">金额比对</div>
-            <div class="tx" style="margin:0">
-               <div class="tx-badge">TX</div>
-               <div style="font-size:11px;color:#475569;line-height:1.8;padding-top:4px">
-                  wallets.doc(id).get() → 重读余额<br>
-                  wallets.doc(id).update() → 扣款<br>
-                  orders.add() → 创建订单
+         <!-- ━━━ 1. 架构 ━━━ -->
+         <div class="sec">
+            <h2>架构总览</h2>
+            <p class="sec-desc">客户端不直接操作数据库，所有写操作经由云函数完成。</p>
+            <div class="arch">
+               <div class="arch-node">
+                  <div class="label">Client</div>
+                  <div class="name">Vue 3 Pages</div>
+                  <div class="detail">购物车 · 订单详情 · 订单列表</div>
+               </div>
+               <div class="arch-arrow">→</div>
+               <div class="arch-node">
+                  <div class="label">API</div>
+                  <div class="name">orderApi.ts</div>
+                  <div class="detail">精简为 id + specs + qty，callFunction</div>
+               </div>
+               <div class="arch-arrow">→</div>
+               <div class="arch-node">
+                  <div class="label">Cloud</div>
+                  <div class="name">云函数</div>
+                  <div class="detail">验证 · 事务 · 金额计算</div>
+               </div>
+               <div class="arch-arrow">→</div>
+               <div class="arch-node">
+                  <div class="label">DB</div>
+                  <div class="name">云数据库</div>
+                  <div class="detail">products · orders · wallets</div>
                </div>
             </div>
          </div>
-      </div>
-      <div class="db-card">
-         <div class="db-head" style="color:#ef4444">cancel-order</div>
-         <div style="padding:12px 16px;font-size:12px">
-            <div style="color:#94a3b8;margin-bottom:8px;font-size:11px">事务外（快失败）</div>
-            <div style="padding:4px 8px;background:#f8fafc;border-radius:4px;margin-bottom:8px;color:#64748b">wallets.where().get() → walletId</div>
-            <div class="tx tx-red" style="margin:0">
-               <div class="tx-badge">TX</div>
-               <div style="font-size:11px;color:#475569;line-height:1.8;padding-top:4px">
-                  orders.doc(id).get() → 读取 + 校验<br>
-                  orders.doc(id).update() → cancelled<br>
-                  wallets.doc(id).get() → 重读余额<br>
-                  wallets.doc(id).update() → 退款
+
+         <!-- ━━━ 2. 状态流转 ━━━ -->
+         <div class="sec">
+            <h2>订单状态流转</h2>
+            <p class="sec-desc">5 个状态。pending / preparing 可取消并退款。</p>
+            <div class="states">
+               <div class="st st-on"><b>pending</b><small>待处理</small></div>
+               <div class="st-arr">→</div>
+               <div class="st"><b>preparing</b><small>制作中</small></div>
+               <div class="st-arr">→</div>
+               <div class="st"><b>ready</b><small>待取餐</small></div>
+               <div class="st-arr">→</div>
+               <div class="st"><b>completed</b><small>已完成</small></div>
+            </div>
+            <div class="states states-center">
+               <div class="st st-cancel"><b>cancelled</b><small>已取消 · 退款到钱包</small></div>
+               <div class="cancel-hint">可从 <b>pending</b> 或 <b>preparing</b> 触发</div>
+            </div>
+         </div>
+
+         <!-- ━━━ 3. 下单流程 ━━━ -->
+         <div class="sec">
+            <h2>下单流程</h2>
+            <p class="sec-desc">从用户点击「结算」到订单创建完成。</p>
+            <div class="legend">
+               <span><i class="lc"></i>客户端</span>
+               <span><i class="la"></i>API 层</span>
+               <span><i class="ls"></i>云函数</span>
+            </div>
+            <div class="pipe">
+               <div class="step c">
+                  <div class="card">
+                     <span class="tag">客户端</span><span class="title">点击「结算」</span>
+                     <div class="desc">
+                        校验：购物车非空、用户已登录、<code>submitting</code> 防重复。计算
+                        totalAmount / discountAmount / walletDeduct。
+                     </div>
+                  </div>
+               </div>
+               <div class="arr-label">传递 items + 3 个金额 ↓</div>
+
+               <div class="step a">
+                  <div class="card">
+                     <span class="tag">API</span><span class="title">精简数据 + 发起调用</span>
+                     <div class="desc">
+                        <code>CartItem</code> → 只提取
+                        <code>{ product_id, specs, quantity }</code>（不发 price / name /
+                        image），调用 <code>wx.cloud.callFunction('create-order')</code>
+                     </div>
+                  </div>
+               </div>
+               <div class="arr-label">云函数收到请求 ↓</div>
+
+               <div class="step s">
+                  <div class="card">
+                     <span class="tag">云函数</span><span class="title">鉴权 + 输入校验</span>
+                     <div class="desc">
+                        <code>getOpenId()</code> → items 非空且 ≤20 → 三个金额有限、≥0、≤2 位小数
+                     </div>
+                  </div>
+               </div>
+
+               <div class="step s">
+                  <div class="card">
+                     <span class="tag">云函数</span
+                     ><span class="title">逐项验证商品（事务外·只读）</span>
+                     <div class="desc">
+                        对每个 item 查 <code>products.doc(id)</code>：存在 + status=true + 价格合法
+                        + 规格合法（未售罄、必填不缺）<br /><strong
+                           >客户端仅传 product_id + specs + quantity，name / price / discount /
+                           image 全部由服务端从 DB 填充</strong
+                        >
+                     </div>
+                  </div>
+               </div>
+
+               <div class="step s">
+                  <div class="card">
+                     <span class="tag">云函数</span><span class="title">重算金额 & 比对</span>
+                     <div class="desc">
+                        <code>expectedTotal = Σ(服务端price × qty)</code>，与客户端传入值比对（误差
+                        &gt; 0.01 则拒绝）。校验 <code>walletDeduct ≤ payableAmount</code>
+                     </div>
+                  </div>
+               </div>
+
+               <div class="step s">
+                  <div class="card">
+                     <span class="tag">云函数</span><span class="title">查找钱包（事务外）</span>
+                     <div class="desc">
+                        若 walletDeduct &gt; 0：<code>findWalletByUserId(openid)</code> 获取
+                        walletId
+                     </div>
+                  </div>
+               </div>
+
+               <!-- Transaction -->
+               <div class="tx">
+                  <div class="tx-badge">TRANSACTION</div>
+                  <div class="pipe pipe-light">
+                     <div class="step s">
+                        <div class="card">
+                           <span class="title">重读钱包 + 扣款</span>
+                           <div class="desc">
+                              <code>wallets.doc(id).get()</code> → 验证所有权 + 余额充足 →
+                              <code>balance -= walletDeduct</code>
+                           </div>
+                        </div>
+                     </div>
+
+                     <div class="step s">
+                        <div class="card">
+                           <span class="title">创建订单</span>
+                           <div class="desc">
+                              <code
+                                 >orders.add({ _id: orderId, order_status: 'pending', ... })</code
+                              >
+                              — 每条商品的 name / price / discount / image 全部由服务端从 DB
+                              填充，客户端无法注入
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+
+               <div class="step c">
+                  <div class="card">
+                     <span class="tag">客户端</span><span class="title">完成</span>
+                     <div class="desc">清空购物车 → 刷新钱包余额 → 跳转订单详情页</div>
+                  </div>
+               </div>
+            </div>
+
+            <div class="note-green note-box">
+               <strong>安全核心</strong>客户端仅发送 <code>product_id</code> + <code>specs</code> +
+               <code>quantity</code>，不传任何价格/名称/图片数据。name、price、discount、image
+               全部由云函数从 DB 填充到 <code>OrderDetailItem</code>，客户端无法篡改。
+            </div>
+         </div>
+
+         <!-- ━━━ 4. 金额计算 ━━━ -->
+         <div class="sec">
+            <h2>金额计算链路</h2>
+            <p class="sec-desc">从商品单价到实付金额。</p>
+            <div class="amt-flow">
+               <div class="amt">
+                  <div class="label">折前总额</div>
+                  <div class="val">totalAmount</div>
+               </div>
+               <div class="amt-op">−</div>
+               <div class="amt">
+                  <div class="label">优惠总额</div>
+                  <div class="val">discountAmount</div>
+               </div>
+               <div class="amt-op">−</div>
+               <div class="amt">
+                  <div class="label">钱包扣款</div>
+                  <div class="val">walletDeduct</div>
+               </div>
+               <div class="amt-op">=</div>
+               <div class="amt amt-success">
+                  <div class="label">实付金额</div>
+                  <div class="val green">payableAmount</div>
+               </div>
+            </div>
+            <div class="mt-16">
+               <table>
+                  <thead>
+                     <tr>
+                        <th>字段</th>
+                        <th>公式</th>
+                        <th>说明</th>
+                     </tr>
+                  </thead>
+                  <tbody>
+                     <tr>
+                        <td><code>totalAmount</code></td>
+                        <td>Σ(price × quantity)</td>
+                        <td class="note">服务端用 DB 价格重算比对</td>
+                     </tr>
+                     <tr>
+                        <td><code>discountAmount</code></td>
+                        <td>Σ(discount × quantity)</td>
+                        <td class="note">服务端重算比对 (ε=0.01)</td>
+                     </tr>
+                     <tr>
+                        <td><code>walletDeduct</code></td>
+                        <td>min(balance, totalAmount − discountAmount)</td>
+                        <td class="note">上限 = 应付金额</td>
+                     </tr>
+                     <tr>
+                        <td><code>payableAmount</code></td>
+                        <td>max(totalAmount − discountAmount − walletDeduct, 0)</td>
+                        <td class="note">微信支付金额</td>
+                     </tr>
+                  </tbody>
+               </table>
+            </div>
+         </div>
+
+         <!-- ━━━ 5. 退款流程 ━━━ -->
+         <div class="sec">
+            <h2>取消订单 & 退款</h2>
+            <p class="sec-desc">用户取消 → 状态变更 + 钱包退款（仅当 wallet_deduct &gt; 0）。</p>
+
+            <div class="pipe">
+               <div class="step c">
+                  <div class="card">
+                     <span class="tag">客户端</span><span class="title">点击「取消订单」</span>
+                     <div class="desc">
+                        条件 <code>canCancel</code>（pending / preparing）→ 确认弹窗 → 发起请求
+                     </div>
+                  </div>
+               </div>
+
+               <div class="step a">
+                  <div class="card">
+                     <span class="tag">API</span><span class="title">发起取消</span>
+                     <div class="desc"><code>callFunction('cancel-order', { orderId })</code></div>
+                  </div>
+               </div>
+
+               <div class="step s">
+                  <div class="card">
+                     <span class="tag">云函数</span><span class="title">鉴权 + 预查钱包</span>
+                     <div class="desc">
+                        <code>getOpenId()</code> → 校验 orderId →
+                        <code>findWalletByUserId(openid)</code> 获取 walletId
+                     </div>
+                  </div>
+               </div>
+
+               <div class="tx tx-red">
+                  <div class="tx-badge">TRANSACTION</div>
+                  <div class="pipe pipe-red">
+                     <div class="step s">
+                        <div class="card">
+                           <span class="title">读取订单 + 三重校验</span>
+                           <div class="desc">
+                              存在 + 归属（<code>user_id === openid</code
+                              >，不匹配返回「不存在」防泄露）+ 状态（仅 pending / preparing 可取消）
+                           </div>
+                        </div>
+                     </div>
+
+                     <div class="step s">
+                        <div class="card">
+                           <span class="title">更新状态 → cancelled</span>
+                           <div class="desc">
+                              <code>orders.doc(id).update({ order_status: 'cancelled' })</code>
+                           </div>
+                        </div>
+                     </div>
+
+                     <div class="step s">
+                        <div class="card">
+                           <span class="title">钱包退款</span>
+                           <div class="desc">
+                              <code>balance += wallet_deduct</code>（<code>total_recharged</code>
+                              不变，它是累计充值额）
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+
+               <div class="step c">
+                  <div class="card">
+                     <span class="tag">客户端</span><span class="title">刷新页面</span>
+                     <div class="desc">重新拉取订单详情 → 显示「已取消」+ 退款金额</div>
+                  </div>
+               </div>
+            </div>
+
+            <div class="note-red note-box">
+               <strong>原子性保障</strong>状态变更 + 退款在同一
+               <code>runTransaction</code> 中。退款失败则状态不变——要么全部成功，要么全部回滚。
+            </div>
+         </div>
+
+         <!-- ━━━ 6. 钱包操作 ━━━ -->
+         <div class="sec">
+            <h2>钱包余额操作</h2>
+            <p class="sec-desc">
+               wallet.ts 中三个纯函数。total_recharged 只增不减（VIP 累计指标）。
+            </p>
+            <div class="grid3">
+               <div class="op">
+                  <h4>rechargeWallet</h4>
+                  <div class="formula">
+                     balance = <span class="p">+ amount</span><br />total_recharged =
+                     <span class="p">+ amount</span>
+                  </div>
+                  <div class="from">recharge 云函数</div>
+               </div>
+               <div class="op">
+                  <h4>deductWallet</h4>
+                  <div class="formula">
+                     balance = <span class="m">− amount</span><br />total_recharged =
+                     <span class="s">不变</span>
+                  </div>
+                  <div class="from">create-order（事务内）</div>
+               </div>
+               <div class="op">
+                  <h4>refundWallet</h4>
+                  <div class="formula">
+                     balance = <span class="p">+ amount</span><br />total_recharged =
+                     <span class="s">不变</span>
+                  </div>
+                  <div class="from">cancel-order（事务内）</div>
+               </div>
+            </div>
+            <div class="note-blue note-box note-mt-12">
+               <strong>VIP 判定</strong><code>total_recharged &gt; 0</code> 即为
+               VIP，充值后永不降级。<code>balance</code> 是可用额度，可增可减。
+            </div>
+         </div>
+
+         <!-- ━━━ 7. 数据库 ━━━ -->
+         <div class="sec">
+            <h2>核心数据表</h2>
+            <p class="sec-desc">下单和退款涉及的三张表。</p>
+            <div class="grid3">
+               <div class="db-card">
+                  <div class="db-head">orders</div>
+                  <table>
+                     <tbody>
+                        <tr>
+                           <td><code>_id</code></td>
+                           <td>= order_id</td>
+                        </tr>
+                        <tr>
+                           <td><code>user_id</code></td>
+                           <td>openid</td>
+                        </tr>
+                        <tr>
+                           <td><code>order_status</code></td>
+                           <td>pending → completed</td>
+                        </tr>
+                        <tr>
+                           <td><code>total_amount</code></td>
+                           <td>折前总额</td>
+                        </tr>
+                        <tr>
+                           <td><code>discount_amount</code></td>
+                           <td>优惠总额</td>
+                        </tr>
+                        <tr>
+                           <td><code>wallet_deduct</code></td>
+                           <td>钱包扣款</td>
+                        </tr>
+                        <tr>
+                           <td><code>oder_details</code></td>
+                           <td class="note">商品列表</td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+               <div class="db-card">
+                  <div class="db-head">wallets</div>
+                  <table>
+                     <tbody>
+                        <tr>
+                           <td><code>user_id</code></td>
+                           <td>openid</td>
+                        </tr>
+                        <tr>
+                           <td><code>balance</code></td>
+                           <td>可用余额</td>
+                        </tr>
+                        <tr>
+                           <td><code>total_recharged</code></td>
+                           <td class="note">累计充值 (VIP)</td>
+                        </tr>
+                        <tr>
+                           <td><code>updated_at</code></td>
+                           <td>更新时间</td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+               <div class="db-card">
+                  <div class="db-head">products</div>
+                  <table>
+                     <tbody>
+                        <tr>
+                           <td><code>price</code></td>
+                           <td>单价（元）</td>
+                        </tr>
+                        <tr>
+                           <td><code>discount</code></td>
+                           <td>优惠金额</td>
+                        </tr>
+                        <tr>
+                           <td><code>specs</code></td>
+                           <td class="note">规格 JSON</td>
+                        </tr>
+                        <tr>
+                           <td><code>status</code></td>
+                           <td>true = 上架</td>
+                        </tr>
+                        <tr>
+                           <td><code>images</code></td>
+                           <td>存储路径 &amp; 分隔</td>
+                        </tr>
+                     </tbody>
+                  </table>
                </div>
             </div>
          </div>
+
+         <!-- ━━━ 8. 事务边界 ━━━ -->
+         <div class="sec">
+            <h2>事务边界</h2>
+            <p class="sec-desc">runTransaction 保证原子性。虚线框内 = 事务内操作。</p>
+            <div class="grid2">
+               <div class="db-card">
+                  <div class="db-head db-head-green">create-order</div>
+                  <div class="db-body">
+                     <div class="section-hint">事务外（快失败）</div>
+                     <div class="step-list-item">products.doc(id).get() × N</div>
+                     <div class="step-list-item">wallets.where().get()</div>
+                     <div class="step-list-item-last">金额比对</div>
+                     <div class="tx tx-inline">
+                        <div class="tx-badge">TX</div>
+                        <div class="tx-detail">
+                           wallets.doc(id).get() → 重读余额<br />
+                           wallets.doc(id).update() → 扣款<br />
+                           orders.add() → 创建订单
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <div class="db-card">
+                  <div class="db-head db-head-red">cancel-order</div>
+                  <div class="db-body">
+                     <div class="section-hint">事务外（快失败）</div>
+                     <div class="step-list-item-last">wallets.where().get() → walletId</div>
+                     <div class="tx tx-red tx-inline">
+                        <div class="tx-badge">TX</div>
+                        <div class="tx-detail">
+                           orders.doc(id).get() → 读取 + 校验<br />
+                           orders.doc(id).update() → cancelled<br />
+                           wallets.doc(id).get() → 重读余额<br />
+                           wallets.doc(id).update() → 退款
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+
+         <!-- ━━━ 9. 错误处理 ━━━ -->
+         <div class="sec">
+            <h2>错误拦截</h2>
+            <p class="sec-desc">每层拦截点，不合法请求尽早返回。</p>
+            <div class="grid2">
+               <div class="err-card">
+                  <div class="err-head err-head-green">create-order</div>
+                  <table>
+                     <tbody>
+                        <tr>
+                           <td class="ew">鉴权</td>
+                           <td class="em">Authentication failed</td>
+                        </tr>
+                        <tr>
+                           <td class="ew">输入</td>
+                           <td class="em">Cart is empty / Too many items</td>
+                        </tr>
+                        <tr>
+                           <td class="ew">金额</td>
+                           <td class="em">Invalid amount / 总额不匹配</td>
+                        </tr>
+                        <tr>
+                           <td class="ew">商品</td>
+                           <td class="em">Product not found / not available</td>
+                        </tr>
+                        <tr>
+                           <td class="ew">规格</td>
+                           <td class="em">Spec missing / sold out</td>
+                        </tr>
+                        <tr>
+                           <td class="ew">钱包</td>
+                           <td class="em">Wallet not found / Insufficient balance</td>
+                        </tr>
+                        <tr>
+                           <td class="ew">事务</td>
+                           <td class="em">Order creation failed: {detail}</td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+               <div class="err-card">
+                  <div class="err-head err-head-red">cancel-order</div>
+                  <table>
+                     <tbody>
+                        <tr>
+                           <td class="ew">鉴权</td>
+                           <td class="em">Authentication failed</td>
+                        </tr>
+                        <tr>
+                           <td class="ew">输入</td>
+                           <td class="em">Order ID is required</td>
+                        </tr>
+                        <tr>
+                           <td class="ew">存在</td>
+                           <td class="em">Order not found</td>
+                        </tr>
+                        <tr>
+                           <td class="ew">归属</td>
+                           <td class="em">Order not found（防泄露）</td>
+                        </tr>
+                        <tr>
+                           <td class="ew">状态</td>
+                           <td class="em">Cannot cancel (status: xxx)</td>
+                        </tr>
+                        <tr>
+                           <td class="ew">事务</td>
+                           <td class="em">Cancellation failed: {detail}</td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+
+         <!-- ━━━ 10. 设计风险 ━━━ -->
+         <div class="sec">
+            <h2>设计权衡</h2>
+            <div class="grid2 grid2-compact">
+               <div class="note-green note-box">
+                  <strong>服务端价格验证</strong>忽略客户端 price / discount / image，从 DB
+                  重取。防篡改。
+               </div>
+               <div class="note-green note-box">
+                  <strong>原子事务</strong>扣款 + 创建订单在 runTransaction 中，保证一致性。
+               </div>
+               <div class="note-green note-box">
+                  <strong>归属校验防越权</strong>非本人订单返回「不存在」而非「无权」，防探测。
+               </div>
+               <div class="note-blue note-box">
+                  <strong>钱包查找在事务外</strong>微信云事务不支持 where()，但事务内重读 +
+                  校验所有权，安全。
+               </div>
+               <div class="note-box">
+                  <strong>商品验证竞态窗口</strong
+                  >验证和下单间商品可能变化（微信云事务限制），实际影响极小。
+               </div>
+               <div class="note-red note-box">
+                  <strong>无幂等键</strong>依赖 submitting flag 防重复，极端情况可创建重复订单。
+               </div>
+            </div>
+         </div>
+
+         <div class="footer">甜品点单小程序 · 业务流程分析</div>
       </div>
-   </div>
-</div>
-
-<!-- ━━━ 9. 错误处理 ━━━ -->
-<div class="sec">
-   <h2>错误拦截</h2>
-   <p class="sec-desc">每层拦截点，不合法请求尽早返回。</p>
-   <div class="grid2">
-      <div class="err-card">
-         <div class="err-head" style="color:#16a34a">create-order</div>
-         <table><tbody>
-            <tr><td class="ew">鉴权</td><td class="em">Authentication failed</td></tr>
-            <tr><td class="ew">输入</td><td class="em">Cart is empty / Too many items</td></tr>
-            <tr><td class="ew">金额</td><td class="em">Invalid amount / 总额不匹配</td></tr>
-            <tr><td class="ew">商品</td><td class="em">Product not found / not available</td></tr>
-            <tr><td class="ew">规格</td><td class="em">Spec missing / sold out</td></tr>
-            <tr><td class="ew">钱包</td><td class="em">Wallet not found / Insufficient balance</td></tr>
-            <tr><td class="ew">事务</td><td class="em">Order creation failed: {detail}</td></tr>
-         </tbody></table>
-      </div>
-      <div class="err-card">
-         <div class="err-head" style="color:#ef4444">cancel-order</div>
-         <table><tbody>
-            <tr><td class="ew">鉴权</td><td class="em">Authentication failed</td></tr>
-            <tr><td class="ew">输入</td><td class="em">Order ID is required</td></tr>
-            <tr><td class="ew">存在</td><td class="em">Order not found</td></tr>
-            <tr><td class="ew">归属</td><td class="em">Order not found（防泄露）</td></tr>
-            <tr><td class="ew">状态</td><td class="em">Cannot cancel (status: xxx)</td></tr>
-            <tr><td class="ew">事务</td><td class="em">Cancellation failed: {detail}</td></tr>
-         </tbody></table>
-      </div>
-   </div>
-</div>
-
-<!-- ━━━ 10. 设计风险 ━━━ -->
-<div class="sec">
-   <h2>设计权衡</h2>
-   <div class="grid2" style="gap:12px">
-      <div class="note-green note-box"><strong>服务端价格验证</strong>忽略客户端 price / discount / image，从 DB 重取。防篡改。</div>
-      <div class="note-green note-box"><strong>原子事务</strong>扣款 + 创建订单在 runTransaction 中，保证一致性。</div>
-      <div class="note-green note-box"><strong>归属校验防越权</strong>非本人订单返回「不存在」而非「无权」，防探测。</div>
-      <div class="note-blue note-box"><strong>钱包查找在事务外</strong>微信云事务不支持 where()，但事务内重读 + 校验所有权，安全。</div>
-      <div class="note-box"><strong>商品验证竞态窗口</strong>验证和下单间商品可能变化（微信云事务限制），实际影响极小。</div>
-      <div class="note-red note-box"><strong>无幂等键</strong>依赖 submitting flag 防重复，极端情况可创建重复订单。</div>
-   </div>
-</div>
-
-<div class="footer">甜品点单小程序 · 业务流程分析</div>
-
-</div>
-</body>
+   </body>
 </html>
