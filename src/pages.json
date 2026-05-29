@@ -36,10 +36,10 @@
          }
       },
       {
-         "path": "pages/points/index",
+         "path": "pages/wallet/index",
          "style": {
             "navigationStyle": "custom",
-            "navigationBarTitleText": "积分商城"
+            "navigationBarTitleText": "我的余额"
          }
       },
       {
