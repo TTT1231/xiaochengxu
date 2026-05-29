@@ -17,12 +17,12 @@ export async function main() {
          return { success: false, message: 'User not found' };
       }
 
-      const { data: creditsList } = await db.collection('credits').where({ users_id: openid }).get();
-      const credits = creditsList[0] || null;
+      const { data: wallets } = await db.collection('wallets').where({ user_id: openid }).limit(1).get();
+      const wallet = wallets[0] || null;
 
       return {
          success: true,
-         data: { user, credits },
+         data: { user, wallet },
          message: 'Success',
       };
    } catch (error) {

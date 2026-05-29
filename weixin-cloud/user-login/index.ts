@@ -5,7 +5,7 @@ interface LoginResult {
    success: boolean;
    data?: {
       user: Record<string, unknown>;
-      credits: Record<string, unknown>;
+      wallet: Record<string, unknown>;
       isNewUser: boolean;
    };
    message: string;
@@ -17,40 +17,40 @@ export async function main(): Promise<LoginResult> {
       return { success: false, message: 'Authentication failed: no OPENID' };
    }
 
-   // Parallel: fetch user + credits in one round-trip
-   const [userRes, creditsRes] = await Promise.all([
+   // Parallel: fetch user + wallet in one round-trip
+   const [userRes, walletRes] = await Promise.all([
       db.collection('users').doc(openid).get().catch(() => null),
-      db.collection('credits').where({ users_id: openid }).limit(1).get(),
+      db.collection('wallets').where({ user_id: openid }).limit(1).get(),
    ]);
 
    const user = userRes?.data;
    if (user) {
-      const credits = creditsRes.data?.[0] || { users_id: openid, total_scores: 0, available_scores: 0 };
+      const wallet = walletRes.data?.[0] || { user_id: openid, balance: 0, total_recharged: 0 };
       return {
          success: true,
-         data: { user, credits, isNewUser: false },
+         data: { user, wallet, isNewUser: false },
          message: 'Login successful',
       };
    }
 
-   // New user: generate ID, then create user + credits in transaction
+   // New user: generate ID, then create user + wallet in transaction
    const displayId = await generateUniqueDisplayId();
    const now = new Date().toISOString();
-   const defaultCredits = { users_id: openid, total_scores: 0, available_scores: 0 };
+   const defaultWallet = { user_id: openid, balance: 0, total_recharged: 0, created_at: now, updated_at: now };
 
    try {
       await db.runTransaction(async (transaction) => {
          await transaction.collection('users').add({
-            data: { _id: openid, name: '微信用户', id: displayId, level: '普通用户', created_at: now },
+            data: { _id: openid, name: '微信用户', id: displayId, created_at: now },
          });
-         await transaction.collection('credits').add({ data: defaultCredits });
+         await transaction.collection('wallets').add({ data: defaultWallet });
       });
 
       return {
          success: true,
          data: {
-            user: { _id: openid, name: '微信用户', id: displayId, level: '普通用户', created_at: now },
-            credits: defaultCredits,
+            user: { _id: openid, name: '微信用户', id: displayId, created_at: now },
+            wallet: defaultWallet,
             isNewUser: true,
          },
          message: 'Registration successful',
