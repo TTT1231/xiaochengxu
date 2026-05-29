@@ -1,8 +1,8 @@
-import type { Users, Credits } from '@/types';
+import type { Users, Wallets } from '@/types';
 
 export interface UserProfile {
    user: Users;
-   credits: Credits | null;
+   wallet: Wallets | null;
 }
 
 export interface CloudLoginResult {
@@ -10,7 +10,7 @@ export interface CloudLoginResult {
    message: string;
    data?: {
       user: Users;
-      credits: Credits;
+      wallet: Wallets;
       isNewUser: boolean;
    };
 }
@@ -32,11 +32,11 @@ export async function getCloudProfile(): Promise<UserProfile | null> {
       const res = await wx.cloud.callFunction({ name: 'get-profile' });
       const result = res.result as {
          success: boolean;
-         data?: { user: Users; credits: Credits };
+         data?: { user: Users; wallet: Wallets };
          message: string;
       };
       if (result.success && result.data) {
-         return { user: result.data.user, credits: result.data.credits ?? null };
+         return { user: result.data.user, wallet: result.data.wallet ?? null };
       }
       return null;
    } catch {
@@ -65,6 +65,24 @@ export async function updateCloudProfile(
       return {
          success: false,
          message: error instanceof Error ? error.message : '更新失败',
+      };
+   }
+}
+
+export interface RechargeResult {
+   success: boolean;
+   message: string;
+   data?: { wallet: Wallets };
+}
+
+export async function rechargeWallet(amount: number): Promise<RechargeResult> {
+   try {
+      const res = await wx.cloud.callFunction({ name: 'recharge', data: { amount } });
+      return res.result as RechargeResult;
+   } catch (error) {
+      return {
+         success: false,
+         message: error instanceof Error ? error.message : '充值失败',
       };
    }
 }

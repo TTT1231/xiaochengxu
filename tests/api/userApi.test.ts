@@ -16,7 +16,7 @@ describe('cloudLogin', () => {
          result: {
             success: true,
             message: 'ok',
-            data: { user: { _id: 'openid123' }, credits: { total_scores: 0 }, isNewUser: true },
+            data: { user: { _id: 'openid123' }, wallet: { balance: 0 }, isNewUser: true },
          },
       });
 
@@ -36,11 +36,11 @@ describe('cloudLogin', () => {
 
 describe('getCloudProfile', () => {
    it('calls get-profile and returns user profile', async () => {
-      const mockData = { user: { _id: 'openid123' }, credits: { total_scores: 100 } };
+      const mockData = { user: { _id: 'openid123' }, wallet: { balance: 100 } };
       mockCallFunction.mockResolvedValue({ result: { success: true, data: mockData } });
 
       const result = await getCloudProfile();
-      expect(result).toEqual({ user: mockData.user, credits: mockData.credits });
+      expect(result).toEqual({ user: mockData.user, wallet: mockData.wallet });
       expect(mockCallFunction).toHaveBeenCalledWith({ name: 'get-profile' });
    });
 
