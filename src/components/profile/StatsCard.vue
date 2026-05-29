@@ -1,20 +1,19 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { formatPoints } from '@/utils/format';
+import { formatPrice } from '@/utils/format';
 import { useUserLevel } from '@/composables/useUserLevel';
 
 interface Props {
-   points: number;
-   /** 用户等级，用于左侧竖线颜色 */
-   level?: string;
+   balance: number;
+   isVip: boolean;
 }
 
 const props = defineProps<Props>();
 
-const levelConfig = computed(() => useUserLevel(props.level ?? '普通用户'));
+const levelConfig = computed(() => useUserLevel(props.isVip));
 
 const emit = defineEmits<{
-   'click:points': [];
+   'click:balance': [];
 }>();
 </script>
 
@@ -23,16 +22,16 @@ const emit = defineEmits<{
       class="stats-container"
       :style="{
          borderColor: levelConfig.color,
-         boxShadow: `0 2rpx 16rpx ${levelConfig.lightBg}`,
+         ...(levelConfig.isVip ? { boxShadow: `0 2rpx 16rpx ${levelConfig.lightBg}` } : {}),
       }"
    >
-      <view class="stat-item" @click="emit('click:points')">
+      <view class="stat-item" @click="emit('click:balance')">
          <text class="stat-label">我的余额</text>
          <view class="stat-value-row">
             <text
                class="stat-value"
                :style="levelConfig.color ? { color: levelConfig.color } : {}"
-               >{{ formatPoints(points) }}</text
+               >{{ formatPrice(balance) }}</text
             >
             <text class="stat-unit">元</text>
          </view>

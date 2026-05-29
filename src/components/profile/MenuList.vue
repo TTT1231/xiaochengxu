@@ -11,13 +11,12 @@ interface MenuItem {
 }
 
 interface Props {
-   /** 用户等级，用于图标底色 */
-   level?: string;
+   isVip: boolean;
 }
 
 const props = defineProps<Props>();
 
-const levelConfig = computed(() => useUserLevel(props.level ?? '普通用户'));
+const levelConfig = computed(() => useUserLevel(props.isVip));
 
 const menuItems: MenuItem[] = [
    {

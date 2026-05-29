@@ -7,6 +7,7 @@ const DEFAULT_AVATAR = '/static/images/avatar.png';
 
 interface Props {
    user: Users;
+   isVip: boolean;
 }
 
 const props = defineProps<Props>();
@@ -14,7 +15,7 @@ const emit = defineEmits<{
    (e: 'click'): void;
 }>();
 
-const levelConfig = computed(() => useUserLevel(props.user.level));
+const levelConfig = computed(() => useUserLevel(props.isVip));
 </script>
 
 <template>
