@@ -1,5 +1,5 @@
 import { db, getOpenId } from '../utils/database';
-import { addPoints, calculateCreditsEarned, getUpdatedLevel } from '../utils/credits';
+import { deductWallet, findWalletByUserId } from '../utils/wallet';
 
 const MAX_CART_ITEMS = 20;
 
@@ -17,6 +17,7 @@ interface CreateOrderParams {
    items: CartItem[];
    totalAmount: number;
    discountAmount: number;
+   walletDeduct?: number;
 }
 
 function generateOrderId(): string {
@@ -31,7 +32,7 @@ export async function main(event: CreateOrderParams) {
       return { success: false, message: 'Authentication failed' };
    }
 
-   const { items, totalAmount, discountAmount } = event;
+   const { items, totalAmount, discountAmount, walletDeduct = 0 } = event;
 
    if (!items || items.length === 0) {
       return { success: false, message: 'Cart is empty' };
@@ -39,9 +40,11 @@ export async function main(event: CreateOrderParams) {
    if (items.length > MAX_CART_ITEMS) {
       return { success: false, message: 'Too many items (max ' + MAX_CART_ITEMS + ')' };
    }
+   if (walletDeduct < 0) {
+      return { success: false, message: 'Invalid wallet deduction' };
+   }
 
    // Step 1: Validate products OUTSIDE transaction (read-only)
-   // Use SERVER-SIDE prices from the database — never trust client-sent prices
    const validatedItems: CartItem[] = [];
    for (const item of items) {
       if (!item.product_id || !Number.isInteger(item.quantity) || item.quantity < 1) {
@@ -70,7 +73,6 @@ export async function main(event: CreateOrderParams) {
    const expectedTotal = validatedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
    const expectedDiscount = validatedItems.reduce((sum, item) => sum + item.discount * item.quantity, 0);
 
-   // Use epsilon comparison — yuan values are floats, strict !== fails on rounding drift
    const EPSILON = 0.01;
    if (Math.abs(totalAmount - expectedTotal) > EPSILON) {
       return { success: false, message: 'Total amount mismatch' };
@@ -79,11 +81,21 @@ export async function main(event: CreateOrderParams) {
       return { success: false, message: 'Discount amount mismatch' };
    }
 
-   const creditsEarned = calculateCreditsEarned(totalAmount, discountAmount);
+   // Step 3: Validate wallet deduction if provided
+   if (walletDeduct > 0) {
+      const wallet = await findWalletByUserId(openid);
+      if (!wallet) {
+         return { success: false, message: 'Wallet not found' };
+      }
+      if (walletDeduct > (wallet.balance as number)) {
+         return { success: false, message: 'Insufficient balance' };
+      }
+   }
+
    const orderId = generateOrderId();
    const now = new Date().toISOString();
 
-   // Step 3: Create order first (standalone, no transaction — order must always persist)
+   // Step 4: Create order (standalone, no transaction)
    try {
       await db
          .collection('orders')
@@ -95,6 +107,7 @@ export async function main(event: CreateOrderParams) {
                order_status: 'pending',
                total_amount: totalAmount,
                discount_amount: discountAmount,
+               wallet_deduct: walletDeduct,
                created_at: now,
                oder_details: validatedItems,
             },
@@ -104,37 +117,23 @@ export async function main(event: CreateOrderParams) {
       return { success: false, message: 'Order creation failed: ' + msg };
    }
 
-   // Step 4: Update credits & level (best-effort, must NOT roll back the order)
-   try {
-      const { data: creditsList } = await db
-         .collection('credits')
-         .where({ users_id: openid })
-         .get();
-
-      if (creditsList.length > 0) {
-         const credits = creditsList[0];
-         const updated = addPoints(
-            { total_scores: credits.total_scores, available_scores: credits.available_scores },
-            creditsEarned,
-         );
-         await db
-            .collection('credits')
-            .doc(credits._id as string)
-            .update({ data: updated });
-
-         const { data: user } = await db.collection('users').doc(openid).get();
-         if (user) {
-            const newLevel = getUpdatedLevel(user.level as string, updated.total_scores);
-            if (newLevel) {
-               await db
-                  .collection('users')
-                  .doc(openid)
-                  .update({ data: { level: newLevel } });
-            }
+   // Step 5: Deduct wallet balance (best-effort, must NOT roll back the order)
+   if (walletDeduct > 0) {
+      try {
+         const wallet = await findWalletByUserId(openid);
+         if (wallet) {
+            const updated = deductWallet(
+               { balance: wallet.balance as number, total_recharged: wallet.total_recharged as number },
+               walletDeduct,
+            );
+            await db
+               .collection('wallets')
+               .doc(wallet._id as string)
+               .update({ data: { ...updated, updated_at: new Date().toISOString() } });
          }
+      } catch {
+         // Wallet deduction failed — order is still valid, ignore
       }
-   } catch {
-      // Credits/level update failed — order is still valid, ignore
    }
 
    return { success: true, data: { order_id: orderId }, message: 'Order created' };
