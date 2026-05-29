@@ -6,15 +6,13 @@ export interface Users {
    name: string;
    /** 唯一7位用户ID */
    id: string;
-   /** 用户等级 (普通用户/会员用户) */
-   level: string;
    /** 创建时间 */
    created_at: string;
    /** 手机号 */
    phone?: string;
 }
 
-/** 用户积分表 */
+/** @deprecated 旧积分表，已废弃，使用 Wallets 替代 */
 export interface Credits {
    _id: string;
    /** 关联用户 openid */

@@ -32,6 +32,8 @@ export interface Orders {
    discount_amount: number;
    /** 创建时间 */
    created_at: string;
+   /** 钱包扣款金额（元） */
+   wallet_deduct: number;
    /** 订单商品详情 */
    oder_details: OrderDetailItem[];
 }

@@ -11,4 +11,5 @@ export type {
    ProductSpecs,
    Products,
    Users,
+   Wallets,
 } from './db-scheme';
