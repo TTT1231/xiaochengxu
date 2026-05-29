@@ -7,7 +7,7 @@
 | `users` | `openid` (string) | None | Admin |
 | `products` | Original numeric ID (string) | Read-only | Admin |
 | `orders` | `order_id` (string) | None | Admin |
-| `credits` | Auto-generated | None | Admin |
+| `wallets` | UUID (string) | None | Admin |
 | `categoried` | Original numeric ID (string) | Read-only | Admin |
 
 ## Collection: `users`
@@ -17,7 +17,6 @@ interface UserDocument {
   _id: string;          // openid (WeChat unique user ID)
   name: string;         // User display name
   id: string;           // 唯一7位用户ID (7-digit display ID)
-  level: string;        // '普通用户' | '会员用户'
   created_at: string;   // ISO timestamp
 }
 ```
@@ -29,7 +28,6 @@ interface UserDocument {
 **Validation Rules:**
 - `_id` must be non-empty string (openid)
 - `id` must be unique 7-digit string
-- `level` must be one of the 2 valid values
 
 ## Collection: `products`
 
@@ -65,6 +63,7 @@ interface OrderDocument {
   order_status: string;       // 'pending' | 'preparing' | 'ready' | 'completed' | 'cancelled'
   total_amount: number;       // Pre-discount total in cents (分)
   discount_amount: number;    // Total discount in cents (分)
+  wallet_deduct: number;      // Balance deduction amount in yuan (元), default 0
   created_at: string;         // ISO timestamp
   oder_details: OrderDetailItem[]; // Note: historical typo preserved
 }
@@ -89,8 +88,33 @@ interface OrderDetailItem {
 - `order_status` must be a valid `OrderStatus` value
 - `total_amount` must equal sum of (price × quantity) for all items
 - `discount_amount` must equal sum of (discount × quantity) for all items
+- `wallet_deduct` must be >= 0 and <= wallet balance
 
-## Collection: `credits`
+## Collection: `wallets`
+
+```typescript
+interface WalletDocument {
+  _id: string;               // UUID auto-generated
+  user_id: string;            // openid (unique index)
+  balance: number;            // Current balance in yuan (元)
+  total_recharged: number;    // Cumulative recharged amount in yuan (元)
+  created_at: string;         // ISO timestamp
+  updated_at: string;         // ISO timestamp
+}
+```
+
+**Indexes:**
+- `user_id` — unique, for looking up wallet by user
+
+**Validation Rules:**
+- `balance` >= 0 (floor at 0)
+- `total_recharged` >= 0 (floor at 0)
+- One wallet document per user
+- Member determination: `total_recharged > 0` means the user is a member
+
+## Collection: `credits` (DEPRECATED)
+
+This collection is no longer used. Retained for historical data only. Use `wallets` instead.
 
 ```typescript
 interface CreditsDocument {
@@ -100,14 +124,6 @@ interface CreditsDocument {
   available_scores: number;   // Currently spendable points
 }
 ```
-
-**Indexes:**
-- `users_id` — unique, for looking up credits by user
-
-**Validation Rules:**
-- `total_scores` >= 0 (floor at 0)
-- `available_scores` >= 0 (floor at 0)
-- One credits document per user
 
 ## Collection: `categoried`
 
@@ -148,6 +164,6 @@ Configure in WeChat Cloud Console for each collection:
 | `categoried` | `true` | `false` | Client reads category list |
 | `users` | `false` | `false` | Cloud function only (admin access) |
 | `orders` | `false` | `false` | Cloud function only (admin access) |
-| `credits` | `false` | `false` | Cloud function only (admin access) |
+| `wallets` | `false` | `false` | Cloud function only (admin access) |
 
 All cloud functions use `cloud.database()` which bypasses client-side security rules and has admin access to all collections.
