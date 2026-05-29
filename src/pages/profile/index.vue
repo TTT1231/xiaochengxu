@@ -13,16 +13,17 @@ import MenuList from '@/components/profile/MenuList.vue';
 const { headerHeight } = useHeaderHeight();
 const userStore = useUserStore();
 const userProfile = computed(() => userStore.user);
-const credits = computed(() => userStore.credits);
+const wallet = computed(() => userStore.wallet);
+const isVip = computed(() => userStore.isVip);
 
-const levelConfig = computed(() => useUserLevel(userProfile.value?.level ?? '普通用户'));
+const levelConfig = computed(() => useUserLevel(isVip.value));
 
 onShow(() => {
    userStore.fetchProfile();
 });
 
-function handlePointsClick(): void {
-   uni.navigateTo({ url: '/pages/points/index' });
+function handleBalanceClick(): void {
+   uni.navigateTo({ url: '/pages/wallet/index' });
 }
 
 function handleMenuClick(_key: string): void {
@@ -67,17 +68,12 @@ function handleUserCardClick(): void {
          ></view>
          <view class="banner-content">
             <view v-if="userProfile" class="user-card-wrap">
-               <UserCard :user="userProfile" @click="handleUserCardClick" />
+               <UserCard :user="userProfile" :is-vip="isVip" @click="handleUserCardClick" />
             </view>
             <view v-else class="user-card-wrap">
                <UserCard
-                  :user="{
-                     _id: '',
-                     name: '加载中...',
-                     id: '--',
-                     level: '普通用户',
-                     created_at: '',
-                  }"
+                  :user="{ _id: '', name: '加载中...', id: '--', created_at: '' }"
+                  :is-vip="false"
                />
             </view>
          </view>
@@ -86,14 +82,14 @@ function handleUserCardClick(): void {
       <view class="content">
          <view class="card-spacing">
             <StatsCard
-               :points="credits?.available_scores ?? 0"
-               :level="userProfile?.level"
-               @click:points="handlePointsClick"
+               :balance="wallet?.balance ?? 0"
+               :is-vip="isVip"
+               @click:balance="handleBalanceClick"
             />
          </view>
 
          <view class="card-spacing">
-            <MenuList :level="userProfile?.level" @click="handleMenuClick" />
+            <MenuList :is-vip="isVip" @click="handleMenuClick" />
          </view>
 
          <view class="bottom-spacer"></view>
