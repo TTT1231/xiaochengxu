@@ -37,11 +37,11 @@ export async function getRightProductData(): Promise<Products[]> {
 
    const fileIDs = [
       ...new Set(
-         products.flatMap(p =>
-            (p.images ? p.images.split('&') : [])
-               .map(toProductFileID)
-               .filter(id => id.startsWith('cloud://')),
-         ),
+         products
+            .map(p => p.image)
+            .filter(Boolean)
+            .map(toProductFileID)
+            .filter(id => id.startsWith('cloud://')),
       ),
    ];
 
@@ -51,11 +51,8 @@ export async function getRightProductData(): Promise<Products[]> {
 
    return products.map(p => ({
       ...p,
-      images: p.images
-         ? p.images
-              .split('&')
-              .map(name => urlMap.get(toProductFileID(name)) || toProductFileID(name))
-              .join('&')
+      image: p.image
+         ? urlMap.get(toProductFileID(p.image)) || toProductFileID(p.image)
          : '',
    }));
 }

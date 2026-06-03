@@ -1,15 +1,9 @@
 export const PLACEHOLDER_IMAGE = '/static/images/placeholder.png';
 
-/** 取图片字符串中的第一张图，多张以 & 分隔 */
-export function getMainImage(images: string | undefined, fallback = PLACEHOLDER_IMAGE): string {
-   if (!images) return fallback;
-   return images.split('&')[0] || fallback;
-}
-
-/** 将图片字符串拆分为数组 */
-export function parseImages(images: string | undefined): string[] {
-   if (!images) return [];
-   return images.split('&').filter(Boolean);
+/** 获取产品图片，无图时返回占位图 */
+export function getProductImage(image: string | undefined, fallback = PLACEHOLDER_IMAGE): string {
+   if (!image) return fallback;
+   return image;
 }
 
 /** 添加千分位分隔符 */

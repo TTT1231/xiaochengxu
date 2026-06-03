@@ -31,8 +31,8 @@ export interface Products {
    description: string;
    /** 价格 (单位: 元) */
    price: number;
-   /** 产品图片 (微信云 fileID，多个用 & 分隔) */
-   images: string;
+   /** 产品图片 (微信云 fileID) */
+   image: string;
    /** 产品规格 (JSON，云数据库迁移数据可能为字符串) */
    specs: ProductSpecs | string;
    /** 优惠金额 (单位: 元)，0 表示无优惠 */

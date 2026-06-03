@@ -94,10 +94,3 @@ export async function resolveFileID(fileID: string): Promise<string> {
    return map.get(fileID) || fileID;
 }
 
-/** Resolve a '&' separated multi-fileID string (product images). */
-export async function resolveImageString(images: string): Promise<string> {
-   if (!images) return '';
-   const parts = images.split('&');
-   const map = await batchResolve(parts);
-   return parts.map(id => map.get(id) || '').join('&');
-}

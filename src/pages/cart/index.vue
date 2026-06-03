@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue';
 import Header from '@/components/common/Header.vue';
 import { useCartStore, useUserStore } from '@/stores';
-import { formatPriceDisplay, getMainImage } from '@/utils/format';
+import { formatPriceDisplay, getProductImage } from '@/utils/format';
 import type { Products } from '@/types';
 import { useHeaderHeight } from '@/composables/useHeaderHeight';
 import { createOrder } from '@/api/orderApi';
@@ -90,7 +90,7 @@ const handleCheckout = async () => {
             <view v-for="item in cartItems" :key="item.product._id" class="cart-item">
                <image
                   class="item-image"
-                  :src="getMainImage(item.product.images)"
+                  :src="getProductImage(item.product.image)"
                   mode="aspectFill"
                />
                <view class="item-info">

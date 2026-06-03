@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Products } from '@/types';
-import { formatPriceDisplay, getMainImage } from '@/utils/format';
+import { formatPriceDisplay, getProductImage } from '@/utils/format';
 
 interface Props {
    product: Products;
@@ -22,7 +22,7 @@ const handleClick = (): void => {
 
 <template>
    <view class="card-container" @click="handleClick">
-      <image class="card-cover" :src="getMainImage(product.images)" mode="aspectFill" />
+      <image class="card-cover" :src="getProductImage(product.image)" mode="aspectFill" />
       <view v-if="product.discount > 0" class="discount-badge">
          <text class="discount-badge-text">省¥{{ product.discount }}</text>
       </view>

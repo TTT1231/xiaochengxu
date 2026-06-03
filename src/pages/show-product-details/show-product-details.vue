@@ -8,7 +8,6 @@ const homeStore = useHomeStore();
 const cartStore = useCartStore();
 
 const product = ref<Products | null>(null);
-const currentSlide = ref(0);
 const selectedSpecs = ref<Record<string, string>>({});
 
 function normalizeProductSpecs(specs: Products['specs']): ProductSpecs {
@@ -20,14 +19,6 @@ function normalizeProductSpecs(specs: Products['specs']): ProductSpecs {
       return {};
    }
 }
-
-/** 轮播图图片列表（images 字段用 & 分隔） */
-const carouselImages = computed(() => {
-   if (!product.value?.images) return [];
-   return product.value.images.split('&').filter(Boolean);
-});
-
-const hasMultipleImages = computed(() => carouselImages.value.length > 1);
 
 /** 规格组列表 */
 const specGroups = computed(() => {
@@ -84,10 +75,6 @@ onLoad(async options => {
    }
 });
 
-const handleSwiperChange = (e: { detail: { current: number } }) => {
-   currentSlide.value = e.detail.current;
-};
-
 const handleAddToCart = () => {
    if (!product.value) return;
    cartStore.addItem(product.value, { ...selectedSpecs.value });
@@ -97,34 +84,12 @@ const handleAddToCart = () => {
 
 <template>
    <view class="page" v-if="product">
-      <view class="carousel-section">
-         <swiper
-            v-if="hasMultipleImages"
-            class="carousel"
-            :indicator-dots="false"
-            :autoplay="false"
-            @change="handleSwiperChange"
-         >
-            <swiper-item v-for="(img, index) in carouselImages" :key="index">
-               <image class="carousel-image" :src="img" mode="aspectFill" />
-            </swiper-item>
-         </swiper>
-
+      <view class="image-section">
          <image
-            v-else
-            class="carousel-image single-image"
-            :src="carouselImages[0]"
+            class="product-image"
+            :src="product.image"
             mode="aspectFill"
          />
-
-         <view v-if="hasMultipleImages" class="carousel-indicators">
-            <view
-               v-for="(_, index) in carouselImages"
-               :key="index"
-               class="indicator"
-               :class="{ active: currentSlide === index }"
-            />
-         </view>
       </view>
 
       <view class="main-content">
@@ -194,43 +159,15 @@ const handleAddToCart = () => {
    padding-bottom: calc(128rpx + env(safe-area-inset-bottom));
 }
 
-.carousel-section {
+.image-section {
    position: relative;
    width: 100%;
    aspect-ratio: 1;
 }
 
-.carousel {
+.product-image {
    width: 100%;
    height: 100%;
-}
-
-.carousel-image {
-   width: 100%;
-   height: 100%;
-}
-
-.carousel-indicators {
-   position: absolute;
-   bottom: 32rpx;
-   left: 0;
-   right: 0;
-   display: flex;
-   justify-content: center;
-   gap: 16rpx;
-}
-
-.indicator {
-   width: 12rpx;
-   height: 12rpx;
-   border-radius: 50%;
-   background-color: rgba(255, 255, 255, 0.5);
-
-   &.active {
-      width: 48rpx;
-      border-radius: 6rpx;
-      background-color: $brand-primary;
-   }
 }
 
 .main-content {
