@@ -19,7 +19,7 @@ export const commonIcons = {
 } as const;
 
 /**
- * 将数据库中的图标名称（如 "cake" 或 "cake.svg"）解析为本地图标完整路径。
+ * 将数据库中的图标名称（如 "fruit-tea" 或 "fruit-tea.svg"）解析为本地图标完整路径。
  * active 图标自动追加 "-active" 后缀。
  */
 export function resolveCategoryIcon(name: string): string {
