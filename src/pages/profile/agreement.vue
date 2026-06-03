@@ -9,6 +9,7 @@ const { headerHeight } = useHeaderHeight();
    <view class="page" :style="{ paddingTop: headerHeight + 'px' }">
       <Header title="用户协议" />
       <scroll-view class="content" scroll-y>
+         <view class="content-inner">
          <view class="meta">
             <text class="meta-text">更新日期：2025年6月1日</text>
             <text class="meta-divider">·</text>
@@ -146,6 +147,7 @@ const { headerHeight } = useHeaderHeight();
          <text class="body-text body-text--bullet"> • 在线客服：小程序内"我的"页面联系客服 </text>
 
          <view class="bottom-spacer" />
+         </view>
       </scroll-view>
    </view>
 </template>
@@ -159,6 +161,9 @@ const { headerHeight } = useHeaderHeight();
 
 .content {
    height: calc(100vh - var(--header-height, 0px) - env(safe-area-inset-bottom));
+}
+
+.content-inner {
    padding: 0 40rpx;
 }
 
@@ -198,6 +203,8 @@ const { headerHeight } = useHeaderHeight();
    line-height: 48rpx;
    margin-bottom: 8rpx;
    text-align: justify;
+   word-break: break-all;
+   word-wrap: break-word;
 }
 
 .body-text--bullet {

@@ -14,7 +14,7 @@ import { useHeaderHeight } from '@/composables/useHeaderHeight';
 const showActive = ref(true);
 const { headerHeight } = useHeaderHeight();
 
-const { activeOrders, historyOrders, loading, fetchOrders, toggleOrderType } = useOrder();
+const { activeOrders, historyOrders, hasMoreHistory, historyLoading, loading, fetchOrders, toggleOrderType, loadMoreHistory } = useOrder();
 
 const refreshing = ref(false);
 const isFirstLoad = ref(true);
@@ -40,6 +40,12 @@ const handleOrderClick = (order: Orders) => {
    uni.navigateTo({
       url: `/pages/order/detail?id=${order.order_id}`,
    });
+};
+
+const handleScrollBottom = () => {
+   if (!showActive.value && hasMoreHistory.value && !historyLoading.value) {
+      loadMoreHistory();
+   }
 };
 
 const handleReorder = async (order: Orders) => {
@@ -107,6 +113,7 @@ onShow(async () => {
             refresher-enabled
             :refresher-triggered="refreshing"
             @refresherrefresh="onRefresh"
+            @scrolltolower="handleScrollBottom"
          >
             <view v-if="showActive" class="order-section">
                <view class="section-header">
@@ -153,8 +160,20 @@ onShow(async () => {
                   <text class="no-more-text">暂无历史订单</text>
                </view>
 
-               <view v-else-if="!loading" class="no-more">
-                  <text class="no-more-text">没有更多订单了</text>
+               <view
+                  v-else-if="hasMoreHistory"
+                  class="load-more-wrap"
+                  @click="handleScrollBottom"
+               >
+                  <view v-if="historyLoading" class="load-more-spinner" />
+                  <text class="load-more-label">{{ historyLoading ? '正在加载' : '查看更多订单' }}</text>
+                  <view v-if="!historyLoading" class="load-more-arrow" />
+               </view>
+
+               <view v-else class="no-more-end">
+                  <view class="no-more-line" />
+                  <text class="no-more-text">已展示全部订单</text>
+                  <view class="no-more-line" />
                </view>
             </view>
 
@@ -240,6 +259,60 @@ onShow(async () => {
    font-size: 24rpx;
    color: $text-muted;
    line-height: 34rpx;
+}
+
+.load-more-wrap {
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   gap: 12rpx;
+   margin: 16rpx auto 0;
+   padding: 20rpx 48rpx;
+   border-radius: $radius-full;
+   border: 2rpx solid $border-light;
+   background-color: $bg-card;
+
+   &:active {
+      opacity: 0.6;
+      transform: scale(0.97);
+   }
+}
+
+.load-more-label {
+   font-size: 26rpx;
+   color: $text-secondary;
+   font-weight: 500;
+   line-height: 36rpx;
+}
+
+.load-more-arrow {
+   width: 0;
+   height: 0;
+   border-left: 10rpx solid transparent;
+   border-right: 10rpx solid transparent;
+   border-top: 10rpx solid $text-muted;
+}
+
+.load-more-spinner {
+   width: 28rpx;
+   height: 28rpx;
+   border: 3rpx solid $border-light;
+   border-top-color: $brand-primary;
+   border-radius: 50%;
+   animation: spin 0.7s linear infinite;
+}
+
+.no-more-end {
+   display: flex;
+   align-items: center;
+   gap: 20rpx;
+   padding: 32rpx 0;
+}
+
+.no-more-line {
+   flex: 1;
+   height: 1rpx;
+   background-color: $border-light;
 }
 
 .bottom-spacer {

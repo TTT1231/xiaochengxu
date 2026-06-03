@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue';
 import type { OrderStatus, Orders } from '@/types';
 import { ORDER_STATUS_TEXT } from '@/types';
-import { getOrdersByUser } from '@/api/orderApi';
+import { getOrdersByUser, getHistoryOrders } from '@/api/orderApi';
 import { useUserStore } from '@/stores';
 
 const STATUS_COLOR_MAP: Record<string, string> = {
@@ -12,7 +12,12 @@ const STATUS_COLOR_MAP: Record<string, string> = {
    cancelled: '#ef4444',
 };
 
+const HISTORY_PAGE_SIZE = 3;
+
 const orderList = ref<Orders[]>([]);
+const historyOrders = ref<Orders[]>([]);
+const hasMoreHistory = ref(true);
+const historyLoading = ref(false);
 const showActive = ref(true);
 const loading = ref(false);
 
@@ -38,7 +43,13 @@ export function useOrder() {
       }
       if (!silent) loading.value = true;
       try {
+         // Active orders: full load
          orderList.value = await getOrdersByUser();
+
+         // History orders: reset and load first page
+         historyOrders.value = [];
+         hasMoreHistory.value = true;
+         await loadMoreHistory();
       } catch (err) {
          console.error('[DEBUG fetchOrders] 获取失败:', err);
          orderList.value = [];
@@ -47,12 +58,27 @@ export function useOrder() {
       }
    };
 
-   const activeOrders = computed(() =>
-      orderList.value.filter(o => o.order_status !== 'completed' && o.order_status !== 'cancelled'),
-   );
+   const loadMoreHistory = async (): Promise<void> => {
+      if (historyLoading.value || !hasMoreHistory.value) return;
+      historyLoading.value = true;
+      try {
+         const { orders, hasMore } = await getHistoryOrders(
+            HISTORY_PAGE_SIZE,
+            historyOrders.value.length,
+         );
+         historyOrders.value = [...historyOrders.value, ...orders];
+         hasMoreHistory.value = hasMore;
+      } catch (err) {
+         console.error('[DEBUG loadMoreHistory] 加载历史订单失败:', err);
+      } finally {
+         historyLoading.value = false;
+      }
+   };
 
-   const historyOrders = computed(() =>
-      orderList.value.filter(o => o.order_status === 'completed' || o.order_status === 'cancelled'),
+   const activeOrders = computed(() =>
+      orderList.value.filter(
+         o => o.order_status !== 'completed' && o.order_status !== 'cancelled',
+      ),
    );
 
    const toggleOrderType = (isCurrent: boolean): void => {
@@ -65,9 +91,12 @@ export function useOrder() {
       loading,
       activeOrders,
       historyOrders,
+      hasMoreHistory,
+      historyLoading,
       getStatusText,
       getStatusClass,
       toggleOrderType,
       fetchOrders,
+      loadMoreHistory,
    };
 }

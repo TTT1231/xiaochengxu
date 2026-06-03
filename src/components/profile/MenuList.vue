@@ -62,6 +62,7 @@ const emit = defineEmits<{
             <image :src="item.icon" class="icon" />
          </view>
          <text class="menu-label">{{ item.label }}</text>
+         <view class="menu-arrow"></view>
       </view>
    </view>
 </template>
@@ -76,7 +77,7 @@ const emit = defineEmits<{
 .menu-item {
    display: flex;
    align-items: center;
-   padding: 28rpx 32rpx;
+   padding: 28rpx 24rpx 28rpx 32rpx;
    position: relative;
 
    &.has-divider::after {
@@ -84,7 +85,7 @@ const emit = defineEmits<{
       position: absolute;
       bottom: 0;
       left: 100rpx;
-      right: 0;
+      right: 32rpx;
       height: 1rpx;
       background-color: $border-light;
       transform: scaleY(0.5);
@@ -99,6 +100,7 @@ const emit = defineEmits<{
    width: 56rpx;
    height: 56rpx;
    margin-right: 24rpx;
+   flex-shrink: 0;
    background-color: rgba(238, 134, 43, 0.1);
    border-radius: 12rpx;
    display: flex;
@@ -117,5 +119,18 @@ const emit = defineEmits<{
    font-size: 28rpx;
    color: $text-primary;
    line-height: 40rpx;
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+}
+
+.menu-arrow {
+   flex-shrink: 0;
+   width: 14rpx;
+   height: 14rpx;
+   margin-left: 16rpx;
+   border-top: 3rpx solid $text-muted;
+   border-right: 3rpx solid $text-muted;
+   transform: rotate(45deg);
 }
 </style>

@@ -89,6 +89,27 @@ export async function getOrderDetail(orderId: string): Promise<Orders | null> {
    return resolveOrderImages(result.data.order);
 }
 
+export async function getHistoryOrders(
+   limit: number,
+   skip: number,
+): Promise<{ orders: Orders[]; hasMore: boolean }> {
+   const res = await wx.cloud.callFunction({
+      name: 'get-orders',
+      data: { mode: 'history', historyLimit: limit, historySkip: skip },
+   });
+
+   const result = res.result as {
+      success: boolean;
+      data?: { orders: Orders[]; hasMore: boolean };
+      message: string;
+   };
+   if (!result.success) {
+      throw new Error(result.message || '获取历史订单失败');
+   }
+   const orders = (result.data?.orders ?? []).map(resolveOrderImages);
+   return { orders, hasMore: result.data?.hasMore ?? false };
+}
+
 export async function cancelOrder(orderId: string): Promise<void> {
    const res = await wx.cloud.callFunction({
       name: 'cancel-order',

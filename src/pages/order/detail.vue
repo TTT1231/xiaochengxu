@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
 import type { Orders } from '@/types';
-import { getOrderDetail, cancelOrder } from '@/api/orderApi';
+import { getOrderDetail } from '@/api/orderApi';
 import { formatPriceDisplay, formatDateTime } from '@/utils/format';
 import { getStatusText, getStatusColor } from '@/composables/useOrder';
 import Header from '@/components/common/Header.vue';
@@ -12,12 +12,7 @@ const { headerHeight } = useHeaderHeight();
 
 const order = ref<Orders | null>(null);
 const loading = ref(true);
-const cancelling = ref(false);
 const orderId = ref('');
-
-const canCancel = computed(
-   () => order.value?.order_status === 'pending' || order.value?.order_status === 'preparing',
-);
 
 const actualAmount = computed(() => {
    if (!order.value) return 0;
@@ -31,15 +26,34 @@ const actualAmount = computed(() => {
 
 const statusColor = computed(() => (order.value ? getStatusColor(order.value.order_status) : ''));
 
-function getStatusIcon(status: string): string {
-   const icons: Record<string, string> = {
-      pending: '\u23F3',
-      preparing: '\uD83D\uDD25',
-      ready: '\u2705',
-      completed: '\uD83D\uDCE6',
+const statusBgStyle = computed(() => {
+   if (!order.value) return {};
+   const hex = statusColor.value;
+   // Create a darker variant by reducing each channel to ~60%
+   const r = Math.round(parseInt(hex.slice(1, 3), 16) * 0.6);
+   const g = Math.round(parseInt(hex.slice(3, 5), 16) * 0.6);
+   const b = Math.round(parseInt(hex.slice(5, 7), 16) * 0.6);
+   const dark = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+   return {
+      background: `linear-gradient(135deg, ${hex} 0%, ${dark} 100%)`,
    };
-   return icons[status] ?? '\u2715';
-}
+});
+
+const statusLabel = computed(() => {
+   const labels: Record<string, string> = {
+      pending: '等待接单',
+      preparing: '制作中',
+      ready: '可取餐',
+      completed: '已完成',
+      cancelled: '已取消',
+   };
+   return labels[order.value?.order_status ?? ''] ?? '';
+});
+
+const totalItemCount = computed(() => {
+   if (!order.value?.oder_details) return 0;
+   return order.value.oder_details.reduce((sum, item) => sum + item.quantity, 0);
+});
 
 const fetchOrder = async () => {
    loading.value = true;
@@ -51,26 +65,6 @@ const fetchOrder = async () => {
    } finally {
       loading.value = false;
    }
-};
-
-const handleCancelOrder = () => {
-   uni.showModal({
-      title: '确认取消',
-      content: '确定要取消这个订单吗？',
-      success: async res => {
-         if (!res.confirm || !orderId.value) return;
-         cancelling.value = true;
-         try {
-            await cancelOrder(orderId.value);
-            await fetchOrder();
-            uni.showToast({ title: '订单已取消', icon: 'success' });
-         } catch {
-            uni.showToast({ title: '取消失败', icon: 'none' });
-         } finally {
-            cancelling.value = false;
-         }
-      },
-   });
 };
 
 onLoad(async options => {
@@ -95,47 +89,51 @@ onLoad(async options => {
       </view>
 
       <view v-else-if="!order" class="state-view">
-         <text class="state-icon">?</text>
+         <text class="state-empty-icon">?</text>
          <text class="state-label">订单不存在</text>
       </view>
 
       <scroll-view v-else scroll-y class="content-scroll">
-         <view
-            class="status-hero"
-            :style="{
-               backgroundColor: statusColor + '0d',
-               borderBottomColor: statusColor + '20',
-            }"
-         >
-            <view class="status-icon-ring" :style="{ borderColor: statusColor + '30' }">
-               <text class="status-icon" :style="{ color: statusColor }">
-                  {{ getStatusIcon(order.order_status) }}
-               </text>
+         <!-- Status Banner -->
+         <view class="status-banner" :style="statusBgStyle">
+            <view class="status-bubble status-bubble-1" />
+            <view class="status-bubble status-bubble-2" />
+            <view class="status-banner-inner">
+               <view class="status-dot-wrap">
+                  <view class="status-pulse" />
+                  <view class="status-dot" />
+               </view>
+               <text class="status-title">{{ getStatusText(order.order_status) }}</text>
+               <text class="status-sub">{{ statusLabel }}</text>
             </view>
-            <text class="status-title" :style="{ color: statusColor }">
-               {{ getStatusText(order.order_status) }}
-            </text>
          </view>
 
-         <view class="meta-strip">
-            <view class="meta-item">
+         <!-- Order Meta Card -->
+         <view class="section-card meta-card">
+            <view class="meta-row">
                <text class="meta-key">订单号</text>
-               <text class="meta-val">{{ order.order_id }}</text>
+               <text class="meta-val mono">{{ order.order_id }}</text>
             </view>
-            <view class="meta-sep" />
-            <view class="meta-item">
+            <view class="meta-divider" />
+            <view class="meta-row">
                <text class="meta-key">下单时间</text>
                <text class="meta-val">{{ formatDateTime(order.created_at) }}</text>
             </view>
+            <view class="meta-divider" />
+            <view class="meta-row">
+               <text class="meta-key">商品数量</text>
+               <text class="meta-val">{{ totalItemCount }} 件</text>
+            </view>
          </view>
 
+         <!-- Product List Card -->
          <view class="section-card">
             <text class="section-heading">商品明细</text>
             <view
                v-for="(item, index) in order.oder_details"
                :key="item.product_id"
                class="product-entry"
-               :class="{ 'has-border': index < order.oder_details.length - 1 }"
+               :class="{ 'has-divider': index < order.oder_details.length - 1 }"
             >
                <image class="product-thumb" :src="item.product_image" mode="aspectFill" />
                <view class="product-body">
@@ -160,6 +158,7 @@ onLoad(async options => {
             </view>
          </view>
 
+         <!-- Fee Breakdown Card -->
          <view class="section-card">
             <text class="section-heading">费用明细</text>
             <view class="fee-row">
@@ -188,16 +187,7 @@ onLoad(async options => {
             </view>
          </view>
 
-         <view v-if="canCancel" class="action-dock">
-            <view
-               class="cancel-action"
-               :class="{ disabled: cancelling }"
-               @click="!cancelling && handleCancelOrder()"
-            >
-               <text class="cancel-action-text">{{ cancelling ? '取消中...' : '取消订单' }}</text>
-            </view>
-         </view>
-
+         <!-- Bottom spacer with safe area -->
          <view class="scroll-bottom" />
       </scroll-view>
    </view>
@@ -210,7 +200,7 @@ onLoad(async options => {
    box-sizing: border-box;
 }
 
-/* ── 通用状态 ── */
+/* ── Loading / Empty States ── */
 .state-view {
    display: flex;
    flex-direction: column;
@@ -220,7 +210,7 @@ onLoad(async options => {
    gap: 24rpx;
 }
 
-.state-icon {
+.state-empty-icon {
    font-size: 56rpx;
    color: $text-muted;
 }
@@ -245,84 +235,105 @@ onLoad(async options => {
    }
 }
 
-/* ── 滚动容器 ── */
+/* ── Scroll Container ── */
 .content-scroll {
    height: calc(100vh - var(--window-top, 0px));
 }
 
-/* ── 状态横幅 ── */
-.status-hero {
+/* ── Status Banner ── */
+.status-banner {
+   margin: 24rpx 24rpx 0;
+   border-radius: 28rpx;
+   position: relative;
+   overflow: hidden;
+}
+
+.status-bubble {
+   position: absolute;
+   border-radius: 50%;
+}
+
+.status-bubble-1 {
+   top: -40rpx;
+   right: -40rpx;
+   width: 200rpx;
+   height: 200rpx;
+   background-color: rgba(255, 255, 255, 0.08);
+}
+
+.status-bubble-2 {
+   bottom: -60rpx;
+   left: 40rpx;
+   width: 160rpx;
+   height: 160rpx;
+   background-color: rgba(255, 255, 255, 0.05);
+}
+
+.status-banner-inner {
+   position: relative;
+   z-index: 1;
    display: flex;
    flex-direction: column;
    align-items: center;
-   padding: 56rpx 32rpx 48rpx;
-   margin: 24rpx 24rpx 0;
-   border-radius: 28rpx;
-   border-bottom: 2rpx solid transparent;
+   padding: 48rpx 32rpx 44rpx;
+   gap: 8rpx;
 }
 
-.status-icon-ring {
-   width: 112rpx;
-   height: 112rpx;
+.status-dot-wrap {
+   position: relative;
+   width: 24rpx;
+   height: 24rpx;
+   margin-bottom: 16rpx;
+}
+
+.status-dot {
+   position: absolute;
+   top: 0;
+   left: 0;
+   width: 24rpx;
+   height: 24rpx;
    border-radius: 50%;
-   border: 3rpx solid;
-   display: flex;
-   align-items: center;
-   justify-content: center;
-   margin-bottom: 20rpx;
+   background-color: #fff;
 }
 
-.status-icon {
-   font-size: 48rpx;
-   line-height: 1;
+.status-pulse {
+   position: absolute;
+   top: -8rpx;
+   left: -8rpx;
+   width: 40rpx;
+   height: 40rpx;
+   border-radius: 50%;
+   background-color: rgba(255, 255, 255, 0.3);
+   animation: pulse-ring 2s ease-out infinite;
+}
+
+@keyframes pulse-ring {
+   0% {
+      transform: scale(0.8);
+      opacity: 1;
+   }
+   100% {
+      transform: scale(2);
+      opacity: 0;
+   }
 }
 
 .status-title {
    font-size: 36rpx;
-   font-weight: 600;
+   font-weight: 700;
+   color: #fff;
    letter-spacing: 2rpx;
+   line-height: 50rpx;
 }
 
-/* ── 元信息条 ── */
-.meta-strip {
-   display: flex;
-   align-items: center;
-   margin: 20rpx 24rpx 0;
-   padding: 28rpx 32rpx;
-   background-color: $bg-card;
-   border-radius: 20rpx;
-   box-shadow: $shadow-sm;
-}
-
-.meta-item {
-   flex: 1;
-   display: flex;
-   flex-direction: column;
-   gap: 8rpx;
-}
-
-.meta-key {
+.status-sub {
    font-size: 24rpx;
-   color: $text-muted;
-   line-height: 32rpx;
+   color: rgba(255, 255, 255, 0.75);
+   line-height: 34rpx;
+   margin-top: 4rpx;
 }
 
-.meta-val {
-   font-size: 28rpx;
-   color: $text-primary;
-   font-weight: 500;
-   line-height: 38rpx;
-}
-
-.meta-sep {
-   width: 2rpx;
-   height: 56rpx;
-   background-color: rgba(0, 0, 0, 0.06);
-   margin: 0 32rpx;
-   flex-shrink: 0;
-}
-
-/* ── 通用卡片 ── */
+/* ── Section Card (shared) ── */
 .section-card {
    margin: 20rpx 24rpx 0;
    padding: 32rpx;
@@ -340,14 +351,52 @@ onLoad(async options => {
    display: block;
 }
 
-/* ── 商品列表 ── */
+/* ── Meta Card ── */
+.meta-card {
+   padding: 28rpx 32rpx;
+}
+
+.meta-row {
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+   padding: 12rpx 0;
+}
+
+.meta-key {
+   font-size: 26rpx;
+   color: $text-muted;
+   line-height: 36rpx;
+   flex-shrink: 0;
+}
+
+.meta-val {
+   font-size: 26rpx;
+   color: $text-primary;
+   font-weight: 500;
+   line-height: 36rpx;
+   text-align: right;
+
+   &.mono {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      letter-spacing: 0.5rpx;
+   }
+}
+
+.meta-divider {
+   height: 1rpx;
+   background: linear-gradient(90deg, transparent, $border-light, transparent);
+   margin: 4rpx 0;
+}
+
+/* ── Product List ── */
 .product-entry {
    display: flex;
    gap: 24rpx;
    padding: 20rpx 0;
 
-   &.has-border {
-      border-bottom: 1rpx solid rgba(0, 0, 0, 0.05);
+   &.has-divider {
+      border-bottom: 1rpx solid rgba(0, 0, 0, 0.04);
    }
 }
 
@@ -431,7 +480,7 @@ onLoad(async options => {
    font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
-/* ── 费用明细 ── */
+/* ── Fee Breakdown ── */
 .fee-row {
    display: flex;
    justify-content: space-between;
@@ -493,36 +542,7 @@ onLoad(async options => {
    font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
-/* ── 操作区 ── */
-.action-dock {
-   margin: 32rpx 24rpx 0;
-}
-
-.cancel-action {
-   padding: 28rpx 0;
-   text-align: center;
-   border-radius: 24rpx;
-   background-color: $bg-card;
-   border: 2rpx solid rgba(238, 134, 43, 0.25);
-   box-shadow: $shadow-sm;
-
-   &.disabled {
-      opacity: 0.45;
-   }
-
-   &:active:not(.disabled) {
-      background-color: $bg-page;
-   }
-}
-
-.cancel-action-text {
-   font-size: 30rpx;
-   color: $brand-primary;
-   font-weight: 500;
-   line-height: 42rpx;
-}
-
-/* ── 滚动底部留白 ── */
+/* ── Bottom Safe Spacer ── */
 .scroll-bottom {
    height: calc(48rpx + env(safe-area-inset-bottom));
 }

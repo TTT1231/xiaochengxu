@@ -2,6 +2,9 @@ import { db, getOpenId } from '../utils/database';
 
 interface GetOrdersParams {
    orderId?: string;
+   mode?: 'all' | 'history';
+   historyLimit?: number;
+   historySkip?: number;
 }
 
 export async function main(event: GetOrdersParams) {
@@ -10,7 +13,7 @@ export async function main(event: GetOrdersParams) {
       return { success: false, message: 'Authentication failed' };
    }
 
-   const { orderId } = event;
+   const { orderId, mode, historyLimit = 3, historySkip = 0 } = event;
 
    try {
       // Get single order detail
@@ -31,7 +34,29 @@ export async function main(event: GetOrdersParams) {
          return { success: true, data: { order }, message: 'Success' };
       }
 
-      // Get all orders for user (max 100 per query)
+      // Paginated history orders (completed / cancelled only)
+      if (mode === 'history') {
+         const cmd = db.command;
+         const fetchLimit = historyLimit + 1;
+
+         const { data: orders } = await db
+            .collection('orders')
+            .where({
+               user_id: openid,
+               order_status: cmd.in(['completed', 'cancelled']),
+            })
+            .orderBy('created_at', 'desc')
+            .skip(historySkip)
+            .limit(fetchLimit)
+            .get();
+
+         const hasMore = orders.length > historyLimit;
+         const result = hasMore ? orders.slice(0, historyLimit) : orders;
+
+         return { success: true, data: { orders: result, hasMore }, message: 'Success' };
+      }
+
+      // Default: get all orders for user (max 100 per query)
       const { data: orders } = await db
          .collection('orders')
          .where({ user_id: openid })
