@@ -14,7 +14,16 @@ import { useHeaderHeight } from '@/composables/useHeaderHeight';
 const showActive = ref(true);
 const { headerHeight } = useHeaderHeight();
 
-const { activeOrders, historyOrders, hasMoreHistory, historyLoading, loading, fetchOrders, toggleOrderType, loadMoreHistory } = useOrder();
+const {
+   activeOrders,
+   historyOrders,
+   hasMoreHistory,
+   historyLoading,
+   loading,
+   fetchOrders,
+   toggleOrderType,
+   loadMoreHistory,
+} = useOrder();
 
 const refreshing = ref(false);
 const isFirstLoad = ref(true);
@@ -160,13 +169,11 @@ onShow(async () => {
                   <text class="no-more-text">暂无历史订单</text>
                </view>
 
-               <view
-                  v-else-if="hasMoreHistory"
-                  class="load-more-wrap"
-                  @click="handleScrollBottom"
-               >
+               <view v-else-if="hasMoreHistory" class="load-more-wrap" @click="handleScrollBottom">
                   <view v-if="historyLoading" class="load-more-spinner" />
-                  <text class="load-more-label">{{ historyLoading ? '正在加载' : '查看更多订单' }}</text>
+                  <text class="load-more-label">{{
+                     historyLoading ? '正在加载' : '查看更多订单'
+                  }}</text>
                   <view v-if="!historyLoading" class="load-more-arrow" />
                </view>
 

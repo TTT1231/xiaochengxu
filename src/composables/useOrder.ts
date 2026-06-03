@@ -76,9 +76,7 @@ export function useOrder() {
    };
 
    const activeOrders = computed(() =>
-      orderList.value.filter(
-         o => o.order_status !== 'completed' && o.order_status !== 'cancelled',
-      ),
+      orderList.value.filter(o => o.order_status !== 'completed' && o.order_status !== 'cancelled'),
    );
 
    const toggleOrderType = (isCurrent: boolean): void => {
