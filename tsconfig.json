@@ -7,9 +7,7 @@
       },
       "lib": ["esnext", "dom"],
       "types": ["@dcloudio/types"],
-      "ignoreDeprecations": "6.0",
-      "importsNotUsedAsValues": "remove",
-      "preserveValueImports": false
+      "verbatimModuleSyntax": true
    },
    "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"]
 }

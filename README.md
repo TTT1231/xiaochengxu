@@ -53,7 +53,6 @@ A dessert ordering mini app built for **WeChat Mini Program**. Users can browse 
 | State Management | Pinia                                      |
 | Backend          | WeChat Cloud Development (Database + Functions + Storage) |
 | Styling          | SCSS with `rpx` responsive units           |
-| i18n             | vue-i18n                                   |
 | Code Quality     | ESLint + Prettier + vue-tsc + cspell + vitest |
 
 <br />
@@ -180,7 +179,6 @@ Private project — all rights reserved.
 | 状态管理 | Pinia                                      |
 | 后端     | 微信云开发（云数据库 + 云函数 + 云存储）   |
 | 样式     | SCSS + `rpx` 响应式单位                    |
-| 国际化   | vue-i18n                                   |
 | 代码质量 | ESLint + Prettier + vue-tsc + cspell + vitest |
 
 <br />

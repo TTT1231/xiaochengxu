@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>订单小票预览</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, "PingFang SC", "Microsoft YaHei", monospace;
+      background: #f5f5f5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+      gap: 40px;
+    }
+    h2 {
+      font-size: 14px;
+      color: #888;
+      font-weight: 400;
+    }
+
+    .receipt {
+      width: 320px;
+      background: #fff;
+      border-radius: 4px;
+      box-shadow: 0 1px 12px rgba(0,0,0,0.06);
+      padding: 24px 20px;
+      font-size: 13px;
+      line-height: 1.7;
+      color: #000;
+    }
+
+    .order-no {
+      font-size: 12px;
+      color: #555;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px dashed #aaa;
+      margin: 12px 0;
+    }
+
+    /* 表头 */
+    .col-header {
+      display: flex;
+      font-size: 11px;
+      color: #555;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #000;
+      margin-bottom: 10px;
+    }
+    .col-header .col-name  { flex: 1; }
+    .col-header .col-qty   { width: 40px; text-align: center; }
+    .col-header .col-price { width: 80px; text-align: right; }
+
+    /* 商品行 */
+    .item-row {
+      display: flex;
+      align-items: baseline;
+      padding: 4px 0;
+    }
+    .item-row .col-name  { flex: 1; font-weight: 500; }
+    .item-row .col-qty   { width: 40px; text-align: center; }
+    .item-row .col-price { width: 80px; text-align: right; font-family: monospace; }
+
+    .item-spec {
+      font-size: 11px;
+      color: #555;
+      margin-top: -2px;
+      margin-bottom: 4px;
+    }
+
+    /* 会员价：实付在上，原价删除线在下 */
+    .price-group {
+      width: 80px;
+      text-align: right;
+      font-family: monospace;
+    }
+    .price-current {
+      display: block;
+    }
+    .price-original {
+      display: block;
+      text-decoration: line-through;
+      color: #555;
+      font-size: 11px;
+    }
+
+    /* 汇总 */
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 3px 0;
+    }
+    .summary-row.total {
+      font-size: 15px;
+      font-weight: 700;
+      padding-top: 10px;
+      border-top: 2px solid #000;
+      margin-top: 8px;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 11px;
+      color: #555;
+      padding-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ====== VIP 会员订单 ====== -->
+  <div>
+    <h2>VIP 会员订单</h2>
+    <div class="receipt">
+      <div class="order-no">订单号: ODM1ABC12345</div>
+      <div class="order-no">时间: 2026-06-03 12:05</div>
+
+      <hr class="divider" />
+
+      <div class="col-header">
+        <span class="col-name">商品</span>
+        <span class="col-qty">数量</span>
+        <span class="col-price">价格</span>
+      </div>
+
+      <div class="item-row">
+        <span class="col-name">提拉米苏</span>
+        <span class="col-qty">1</span>
+        <span class="col-price">¥30.00</span>
+      </div>
+      <div class="item-spec">甜度: 标准甜</div>
+
+      <div class="item-row">
+        <span class="col-name">曲奇饼干</span>
+        <span class="col-qty">2</span>
+        <span class="col-price">¥30.00</span>
+      </div>
+      <div class="item-spec">¥15.00 / 份</div>
+
+      <div class="item-row">
+        <span class="col-name">芒果果茶<br><span class="item-spec">包装: 精美礼盒</span></span>
+        <span class="col-qty">1</span>
+        <div class="price-group">
+          <span class="price-current">¥20.00</span>
+          <span class="price-original">¥25.00</span>
+        </div>
+      </div>
+
+      <hr class="divider" />
+
+      <div class="summary-row">
+        <span>商品总计</span>
+        <span>¥85.00</span>
+      </div>
+      <div class="summary-row">
+        <span>会员优惠</span>
+        <span>-¥5.00</span>
+      </div>
+      <div class="summary-row">
+        <span>余额支付</span>
+        <span>-¥10.00</span>
+      </div>
+      <div class="summary-row total">
+        <span>实付金额</span>
+        <span>¥70.00</span>
+      </div>
+
+      <div class="footer">感谢惠顾</div>
+    </div>
+  </div>
+
+  <!-- ====== 非会员订单 ====== -->
+  <div>
+    <h2>非会员订单（同样商品）</h2>
+    <div class="receipt">
+      <div class="order-no">订单号: ODM9XYZ67890</div>
+      <div class="order-no">时间: 2026-06-03 12:10</div>
+
+      <hr class="divider" />
+
+      <div class="col-header">
+        <span class="col-name">商品</span>
+        <span class="col-qty">数量</span>
+        <span class="col-price">价格</span>
+      </div>
+
+      <div class="item-row">
+        <span class="col-name">提拉米苏</span>
+        <span class="col-qty">1</span>
+        <span class="col-price">¥30.00</span>
+      </div>
+      <div class="item-spec">甜度: 标准甜</div>
+
+      <div class="item-row">
+        <span class="col-name">芒果果茶</span>
+        <span class="col-qty">1</span>
+        <span class="col-price">¥25.00</span>
+      </div>
+      <div class="item-spec">包装: 精美礼盒</div>
+
+      <hr class="divider" />
+
+      <div class="summary-row">
+        <span>商品总计</span>
+        <span>¥55.00</span>
+      </div>
+      <div class="summary-row total">
+        <span>实付金额</span>
+        <span>¥55.00</span>
+      </div>
+
+      <div class="footer">感谢惠顾</div>
+    </div>
+  </div>
+
+</body>
+</html>

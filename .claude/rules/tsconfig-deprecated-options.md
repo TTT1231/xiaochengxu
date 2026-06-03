@@ -3,20 +3,23 @@ paths:
    - 'tsconfig.json'
 ---
 
-# TypeScript Deprecated Options - Already Handled
+# TypeScript Config Options
 
 ## Status
 
-`importsNotUsedAsValues` and `preserveValueImports` are already overridden in `tsconfig.json` to suppress VS Code warnings. No further action needed.
+Project upgraded to **TypeScript 5.9 + vue-tsc 2.2**. The deprecated TS 4.x options have been replaced.
 
-## Context
+## Change History
 
-- These options are inherited from `@vue/tsconfig/tsconfig.json` (uni-app framework dependency)
-- Local tsc (4.9.5) does not report them as deprecated; only VS Code's bundled TS does
-- Current override: `importsNotUsedAsValues: "remove"`, `preserveValueImports: false`
+- **TS 4.9 → 5.9**: Replaced `importsNotUsedAsValues` + `preserveValueImports` with `verbatimModuleSyntax: true`
+- **TS 5.x**: Removed `ignoreDeprecations: "6.0"` (option no longer exists in TS 5)
+
+## Current Config
+
+`tsconfig.json` uses `verbatimModuleSyntax: true` — the TS 5 standard replacement for the deprecated combo.
 
 ## Enforcement
 
-- ❌ Do NOT suggest adding `verbatimModuleSyntax`
-- ❌ Do NOT remove the overrides (they suppress IDE warnings)
-- ✅ Ignore any remaining deprecation notices from VS Code
+- ✅ Use `verbatimModuleSyntax: true` (TS 5 standard)
+- ❌ Do NOT add back `importsNotUsedAsValues` or `preserveValueImports` (deprecated in TS 5)
+- ❌ Do NOT add back `ignoreDeprecations` (removed in TS 5)
