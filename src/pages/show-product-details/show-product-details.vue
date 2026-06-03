@@ -2,10 +2,12 @@
 import { ref, computed } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
 import type { Products, ProductSpecs } from '@/types';
-import { useHomeStore, useCartStore } from '@/stores';
+import { useHomeStore, useCartStore, useUserStore } from '@/stores';
+import { getItemDiscount } from '@/utils/discount';
 
 const homeStore = useHomeStore();
 const cartStore = useCartStore();
+const userStore = useUserStore();
 
 const product = ref<Products | null>(null);
 const selectedSpecs = ref<Record<string, string>>({});
@@ -27,15 +29,17 @@ const specGroups = computed(() => {
    return Object.values(specs);
 });
 
-const discountedPrice = computed(() => {
+const discount = computed(() => {
    if (!product.value) return 0;
-   return product.value.price - product.value.discount;
+   return getItemDiscount(product.value.price, product.value.categoried_id, userStore.isVip);
 });
 
-const hasDiscount = computed(() => {
-   if (!product.value) return false;
-   return product.value.discount > 0;
+const discountedPrice = computed(() => {
+   if (!product.value) return 0;
+   return product.value.price - discount.value;
 });
+
+const hasDiscount = computed(() => discount.value > 0);
 
 /** 初始化默认选中每个规格组的第一个可用选项 */
 const initDefaultSpecs = () => {
@@ -107,7 +111,7 @@ const handleAddToCart = () => {
                <text class="orig-amount">{{ product.price }}</text>
             </view>
             <view v-if="hasDiscount" class="discount-tag">
-               <text class="discount-tag-text">省¥{{ product.discount }}</text>
+               <text class="discount-tag-text">省¥{{ discount }}</text>
             </view>
          </view>
 

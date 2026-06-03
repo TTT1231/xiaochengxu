@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia';
 import type { Products } from '@/types';
+import { getItemDiscount } from '@/utils/discount';
+import { useUserStore } from './userStore';
 
 /** 购物车商品项 */
 export interface CartItem {
@@ -40,14 +42,32 @@ export const useCartStore = defineStore('cart', {
       totalCount: state => state.items.reduce((sum, item) => sum + item.quantity, 0),
 
       /** 折后价合计 */
-      totalAmount: state =>
-         state.items.reduce(
-            (sum, item) => sum + (item.product.price - item.product.discount) * item.quantity,
+      totalAmount(): number {
+         const userStore = useUserStore();
+         return this.items.reduce(
+            (sum, item) =>
+               sum +
+               (item.product.price -
+                  getItemDiscount(
+                     item.product.price,
+                     item.product.categoried_id,
+                     userStore.isVip,
+                  )) *
+                  item.quantity,
             0,
-         ),
+         );
+      },
 
-      totalDiscount: state =>
-         state.items.reduce((sum, item) => sum + item.product.discount * item.quantity, 0),
+      totalDiscount(): number {
+         const userStore = useUserStore();
+         return this.items.reduce(
+            (sum, item) =>
+               sum +
+               getItemDiscount(item.product.price, item.product.categoried_id, userStore.isVip) *
+                  item.quantity,
+            0,
+         );
+      },
 
       originalAmount: state =>
          state.items.reduce((sum, item) => sum + item.product.price * item.quantity, 0),

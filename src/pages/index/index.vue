@@ -17,7 +17,7 @@ const activeCategoryId = ref<string>('0');
 const { headerHeight } = useHeaderHeight();
 const currentScrollTop = ref(0);
 
-const { totalCount, totalAmount } = storeToRefs(cartStore);
+const { totalCount, totalAmount, totalDiscount } = storeToRefs(cartStore);
 const { getItemQuantity } = cartStore;
 
 const getProductsByCategory = homeStore.getProductsByCategory;
@@ -127,6 +127,7 @@ const handleProductClick = (productId: string): void => {
          v-if="totalCount > 0"
          :count="totalCount"
          :amount="totalAmount"
+         :discount="totalDiscount"
          @click="handleCartClick"
       />
 

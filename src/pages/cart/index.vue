@@ -3,6 +3,7 @@ import { ref, computed } from 'vue';
 import Header from '@/components/common/Header.vue';
 import { useCartStore, useUserStore } from '@/stores';
 import { formatPriceDisplay, getProductImage } from '@/utils/format';
+import { getItemDiscount } from '@/utils/discount';
 import type { Products } from '@/types';
 import { useHeaderHeight } from '@/composables/useHeaderHeight';
 import { createOrder } from '@/api/orderApi';
@@ -102,11 +103,26 @@ const handleCheckout = async () => {
                   </view>
                   <view class="item-price-group">
                      <text class="item-price">{{
-                        formatPriceDisplay(item.product.price - item.product.discount)
+                        formatPriceDisplay(
+                           item.product.price -
+                              getItemDiscount(
+                                 item.product.price,
+                                 item.product.categoried_id,
+                                 userStore.isVip,
+                              ),
+                        )
                      }}</text>
-                     <text v-if="item.product.discount > 0" class="item-original-price">{{
-                        formatPriceDisplay(item.product.price)
-                     }}</text>
+                     <text
+                        v-if="
+                           getItemDiscount(
+                              item.product.price,
+                              item.product.categoried_id,
+                              userStore.isVip,
+                           ) > 0
+                        "
+                        class="item-original-price"
+                        >{{ formatPriceDisplay(item.product.price) }}</text
+                     >
                   </view>
                </view>
                <view class="quantity-control">

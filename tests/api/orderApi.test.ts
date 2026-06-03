@@ -19,7 +19,7 @@ describe('createOrder', () => {
    it('calls create-order with correct params', async () => {
       const items = [
          {
-            product: { _id: '1', name: 'Cake', images: 'img1.png', price: 10, discount: 0 },
+            product: { _id: '1', name: 'Cake', images: 'img1.png', price: 10, categoried_id: '1' },
             selectedSpecs: { Size: 'Large' },
             quantity: 2,
          },

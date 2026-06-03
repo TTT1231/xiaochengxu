@@ -40,7 +40,6 @@ interface ProductDocument {
   price: number;            // Unit: cents (分)
   images: string;           // Storage paths (e.g. product-imgs/q1.png) joined by "&"
   specs: ProductSpecs | string; // JSON object, or JSON string in migrated data
-  discount: number;         // Discount amount in yuan (元), 0 = no discount
   status: boolean;          // true = on shelf, false = off shelf
 }
 ```

@@ -3,6 +3,8 @@ import { deductWallet, findWalletByUserId } from '../utils/wallet';
 
 const MAX_CART_ITEMS = 20;
 const EPSILON = 0.01;
+const VIP_DISCOUNT_CATEGORY_ID = '5';
+const VIP_DISCOUNT_RATE = 0.2;
 
 interface CartItem {
    product_id: string;
@@ -55,6 +57,12 @@ function hasAtMostTwoDecimals(amount: number): boolean {
 
 function normalizeAmount(amount: number): number {
    return Math.round(amount * 100) / 100;
+}
+
+function computeServerDiscount(price: number, categoriedId: unknown, isVip: boolean): number {
+   if (!isVip) return 0;
+   if (String(categoriedId) !== VIP_DISCOUNT_CATEGORY_ID) return 0;
+   return Math.round(price * VIP_DISCOUNT_RATE * 100) / 100;
 }
 
 function parseSpecs(rawSpecs: unknown): ProductSpecs {
@@ -116,10 +124,6 @@ function validateSelectedSpecs(productName: string, rawSpecs: unknown, selectedS
    return null;
 }
 
-function getFirstImage(images: unknown): string {
-   return typeof images === 'string' ? images.split('&')[0] || '' : '';
-}
-
 export async function main(event: Partial<CreateOrderParams> = {}) {
    const openid = getOpenId();
    if (!openid) {
@@ -148,7 +152,16 @@ export async function main(event: Partial<CreateOrderParams> = {}) {
       return { success: false, message: 'Invalid amount' };
    }
 
-   // Step 1: Validate products OUTSIDE transaction (read-only)
+   // Step 1: Check VIP status
+   let isVip = false;
+   try {
+      const wallet = await findWalletByUserId(openid);
+      isVip = (wallet?.total_recharged ?? 0) > 0;
+   } catch {
+      isVip = false;
+   }
+
+   // Step 2: Validate products OUTSIDE transaction (read-only)
    const validatedItems: OrderDetailItem[] = [];
    for (const item of items) {
       if (!item.product_id || !Number.isInteger(item.quantity) || item.quantity < 1) {
@@ -166,10 +179,7 @@ export async function main(event: Partial<CreateOrderParams> = {}) {
          }
          if (
             !isFiniteAmount(product.price) ||
-            !isFiniteAmount(product.discount) ||
-            product.price < 0 ||
-            product.discount < 0 ||
-            product.discount > product.price
+            product.price < 0
          ) {
             return { success: false, message: 'Invalid product pricing: ' + product.name };
          }
@@ -177,13 +187,14 @@ export async function main(event: Partial<CreateOrderParams> = {}) {
          if (specError) {
             return { success: false, message: specError };
          }
+         const itemDiscount = computeServerDiscount(product.price, product.categoried_id, isVip);
          validatedItems.push({
             product_id: item.product_id,
             product_name: product.name,
-            product_image: getFirstImage(product.images),
+            product_image: typeof product.image === 'string' ? product.image : '',
             specs: selectedSpecs,
             price: normalizeAmount(product.price),
-            discount: normalizeAmount(product.discount),
+            discount: itemDiscount,
             quantity: item.quantity,
          });
       } catch {

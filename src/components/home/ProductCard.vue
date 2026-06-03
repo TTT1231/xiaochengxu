@@ -1,19 +1,28 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import type { Products } from '@/types';
 import { formatPriceDisplay, getProductImage } from '@/utils/format';
+import { getItemDiscount } from '@/utils/discount';
+import { useUserStore } from '@/stores';
+
+const userStore = useUserStore();
 
 interface Props {
    product: Products;
    quantity?: number;
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
 
 interface Emits {
    (e: 'click'): void;
 }
 
 const emit = defineEmits<Emits>();
+
+const discount = computed(() =>
+   getItemDiscount(props.product.price, props.product.categoried_id, userStore.isVip),
+);
 
 const handleClick = (): void => {
    emit('click');
@@ -23,8 +32,8 @@ const handleClick = (): void => {
 <template>
    <view class="card-container" @click="handleClick">
       <image class="card-cover" :src="getProductImage(product.image)" mode="aspectFill" />
-      <view v-if="product.discount > 0" class="discount-badge">
-         <text class="discount-badge-text">省¥{{ product.discount }}</text>
+      <view v-if="discount > 0" class="discount-badge">
+         <text class="discount-badge-text">省¥{{ discount }}</text>
       </view>
 
       <view class="card-content">
@@ -35,8 +44,8 @@ const handleClick = (): void => {
 
          <view class="bottom-group">
             <view class="price-area">
-               <view class="price">{{ formatPriceDisplay(product.price - product.discount) }}</view>
-               <view v-if="product.discount > 0" class="original-price">{{
+               <view class="price">{{ formatPriceDisplay(product.price - discount) }}</view>
+               <view v-if="discount > 0" class="original-price">{{
                   formatPriceDisplay(product.price)
                }}</view>
             </view>

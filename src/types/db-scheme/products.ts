@@ -35,8 +35,6 @@ export interface Products {
    image: string;
    /** 产品规格 (JSON，云数据库迁移数据可能为字符串) */
    specs: ProductSpecs | string;
-   /** 优惠金额 (单位: 元)，0 表示无优惠 */
-   discount: number;
    /** 状态 (上架/下架) */
    status: boolean;
 }
