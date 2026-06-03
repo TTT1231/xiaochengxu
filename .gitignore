@@ -32,3 +32,4 @@ temp
 
 pnpm-lock.yaml
 .claude/settings.json
+.claude/plans
