@@ -4,9 +4,9 @@ export interface Categoried {
    _id: string;
    /** 分类名称 (唯一) */
    name: string;
-   /** 图标 (微信云 fileID) */
+   /** 图标名称 (如 "cake" 或 "cake.svg"，对应 /static/icons/project/cake.svg) */
    icon: string;
-   /** 激活状态图标 (微信云 fileID) */
+   /** 激活状态图标名称 (如 "cake"，对应 /static/icons/project/cake-active.svg) */
    active_icon: string;
    /** 排序顺序 (默认 0) */
    sort_order: number;

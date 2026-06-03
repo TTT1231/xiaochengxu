@@ -85,11 +85,7 @@ const handleAddToCart = () => {
 <template>
    <view class="page" v-if="product">
       <view class="image-section">
-         <image
-            class="product-image"
-            :src="product.image"
-            mode="aspectFill"
-         />
+         <image class="product-image" :src="product.image" mode="aspectFill" />
       </view>
 
       <view class="main-content">

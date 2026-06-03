@@ -19,12 +19,6 @@ export function toProductFileID(filename: string): string {
    return cloudStoragePrefix + normalizeStoragePath(filename, 'product-imgs/');
 }
 
-/** Convert an icon path, URL or bare filename to a cloud fileID. */
-export function toIconFileID(url: string): string {
-   if (!url || url.startsWith('cloud://')) return url;
-   return cloudStoragePrefix + normalizeStoragePath(url, 'project-icons/');
-}
-
 /** Convert a product image URL/path to a cloud fileID. */
 export function toProductImageFileID(url: string): string {
    if (!url || url.startsWith('cloud://')) return url;
@@ -93,4 +87,3 @@ export async function resolveFileID(fileID: string): Promise<string> {
    const map = await batchResolve([fileID]);
    return map.get(fileID) || fileID;
 }
-

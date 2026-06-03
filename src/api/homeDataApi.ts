@@ -1,32 +1,17 @@
 import type { Categoried } from '../types/db-scheme/categoried';
 import type { Products } from '../types';
-import { resolveFileIDs, toProductFileID, toIconFileID } from '@/utils/cloudStorage';
+import { resolveFileIDs, toProductFileID } from '@/utils/cloudStorage';
+import { resolveCategoryIcon, resolveCategoryActiveIcon } from '@/data/imgPaths';
 
 export async function getLeftMenuData(): Promise<Categoried[]> {
    const db = wx.cloud.database();
    const { data } = await db.collection('categoried').where({ status: true }).limit(100).get();
    const categories = (data as unknown as Categoried[]) || [];
 
-   const fileIDs = [
-      ...new Set(
-         categories.flatMap(c =>
-            [c.icon, c.active_icon]
-               .map(id => (id ? toIconFileID(id) : ''))
-               .filter(id => id.startsWith('cloud://')),
-         ),
-      ),
-   ];
-
-   if (fileIDs.length === 0) return categories;
-
-   const urlMap = await resolveFileIDs(fileIDs);
-
    return categories.map(c => ({
       ...c,
-      icon: c.icon ? urlMap.get(toIconFileID(c.icon)) || c.icon : c.icon,
-      active_icon: c.active_icon
-         ? urlMap.get(toIconFileID(c.active_icon)) || c.active_icon
-         : c.active_icon,
+      icon: resolveCategoryIcon(c.icon),
+      active_icon: resolveCategoryActiveIcon(c.active_icon),
    }));
 }
 
@@ -51,8 +36,6 @@ export async function getRightProductData(): Promise<Products[]> {
 
    return products.map(p => ({
       ...p,
-      image: p.image
-         ? urlMap.get(toProductFileID(p.image)) || toProductFileID(p.image)
-         : '',
+      image: p.image ? urlMap.get(toProductFileID(p.image)) || toProductFileID(p.image) : '',
    }));
 }
