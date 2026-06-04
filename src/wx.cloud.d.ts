@@ -3,6 +3,7 @@
 interface CloudDatabaseCollection {
    get(): Promise<{ data: Record<string, unknown>[] }>;
    limit(n: number): CloudDatabaseCollection;
+   skip(n: number): CloudDatabaseCollection;
    where(condition: Record<string, unknown>): CloudDatabaseCollection;
    orderBy(field: string, order: string): CloudDatabaseCollection;
    doc(id: string): {

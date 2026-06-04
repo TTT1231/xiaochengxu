@@ -15,7 +15,8 @@
       "qrcode",
       "shime",
       "postgrest",
-      "scrolltolower"
+      "scrolltolower",
+      "rrggbb"
    ],
    "ignorePaths": [
       ".claude/CLAUDE.md",

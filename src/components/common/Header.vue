@@ -17,6 +17,7 @@ withDefaults(defineProps<Props>(), {
 const { menuTop, menuHeight, menuRight } = useHeaderHeight();
 
 const icons = {
+   location: commonIcons.location,
    back: commonIcons.back,
 };
 
@@ -29,9 +30,14 @@ const handleBack = (): void => {
    <view class="header" :style="{ paddingTop: menuTop + 'px' }">
       <template v-if="mode === 'home'">
          <view
-            class="home-header-spacer"
+            class="home-header-bar"
             :style="{ height: menuHeight + 'px', paddingRight: menuRight + 'px' }"
-         />
+         >
+            <view class="store-name">
+               <image class="location-icon" :src="icons.location" mode="aspectFit" />
+               <text class="store-text">转角蛋糕店</text>
+            </view>
+         </view>
       </template>
 
       <template v-else>
@@ -62,8 +68,27 @@ const handleBack = (): void => {
    border-bottom-right-radius: 32rpx;
 }
 
-.home-header-spacer {
+.home-header-spacer,
+.home-header-bar {
    padding: 0 32rpx;
+}
+
+.store-name {
+   display: flex;
+   align-items: center;
+   gap: 12rpx;
+}
+
+.location-icon {
+   width: 36rpx;
+   height: 36rpx;
+}
+
+.store-text {
+   font-size: 32rpx;
+   font-weight: 600;
+   color: $text-primary;
+   line-height: 44rpx;
 }
 
 .simple-header {

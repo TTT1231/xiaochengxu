@@ -75,7 +75,7 @@ function handleBack(): void {
                <view class="card-circle"></view>
                <view class="card-circle card-circle--overlap"></view>
             </view>
-            <text class="card-brand">甜品屋 · 会员</text>
+            <text class="card-brand">拐角蛋糕店 · 会员</text>
             <text class="card-title">会员卡兑换</text>
             <text class="card-hint">输入卡号，即刻激活您的专属权益</text>
          </view>

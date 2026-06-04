@@ -45,7 +45,6 @@ export async function getCloudProfile(): Promise<UserProfile | null> {
 }
 
 export interface UpdateProfileParams {
-   name?: string;
    phone?: string;
    [key: string]: unknown;
 }

@@ -21,18 +21,6 @@ function normalizeOrder(raw: Record<string, unknown>): Orders {
    };
 }
 
-function parseDetails(rawDetails: unknown): OrderDetailItem[] {
-   if (Array.isArray(rawDetails)) return rawDetails;
-   if (typeof rawDetails === 'string') {
-      try {
-         return JSON.parse(rawDetails) as OrderDetailItem[];
-      } catch {
-         return [];
-      }
-   }
-   return [];
-}
-
 function resolveOrderImages(raw: Record<string, unknown>): Orders {
    const order = normalizeOrder(raw);
    return {

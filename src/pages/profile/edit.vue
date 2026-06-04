@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+
 import { onShow } from '@dcloudio/uni-app';
 import { useUserStore } from '@/stores';
 import { useHeaderHeight } from '@/composables/useHeaderHeight';
@@ -8,15 +9,11 @@ import Header from '@/components/common/Header.vue';
 const { headerHeight } = useHeaderHeight();
 const userStore = useUserStore();
 
-function getInputValue(e: unknown): string {
-   return (e as { detail: { value: string } }).detail.value;
-}
-
-const nickname = ref('');
 const phone = ref('');
-const originalNickname = ref('');
 const originalPhone = ref('');
 const isSaving = ref(false);
+
+const nickname = computed(() => userStore.user?.name ?? '');
 
 const hasPhone = computed(() => !!phone.value);
 const displayPhone = computed(() => {
@@ -25,15 +22,11 @@ const displayPhone = computed(() => {
    return p.slice(0, 3) + '****' + p.slice(7);
 });
 
-const hasChanges = computed(
-   () => nickname.value !== originalNickname.value || phone.value !== originalPhone.value,
-);
+const hasChanges = computed(() => phone.value !== originalPhone.value);
 
 onShow(() => {
    const user = userStore.user;
    if (user) {
-      nickname.value = user.name;
-      originalNickname.value = user.name;
       phone.value = user.phone ?? '';
       originalPhone.value = user.phone ?? '';
    }
@@ -42,22 +35,9 @@ onShow(() => {
 async function handleSave(): Promise<void> {
    if (!hasChanges.value || isSaving.value) return;
 
-   const trimmedName = nickname.value.trim();
-   if (!trimmedName) {
-      uni.showToast({ title: '昵称不能为空', icon: 'none' });
-      return;
-   }
-   if (trimmedName.length > 20) {
-      uni.showToast({ title: '昵称不能超过20个字符', icon: 'none' });
-      return;
-   }
-
    isSaving.value = true;
    try {
       const params: Record<string, string> = {};
-      if (trimmedName !== originalNickname.value) {
-         params.name = trimmedName;
-      }
       if (phone.value && phone.value !== originalPhone.value) {
          if (!/^1[3-9]\d{9}$/.test(phone.value)) {
             uni.showToast({ title: '手机号格式不正确', icon: 'none' });
@@ -73,8 +53,6 @@ async function handleSave(): Promise<void> {
 
       const result = await userStore.updateUserProfile(params);
       if (result.success) {
-         originalNickname.value = trimmedName;
-         nickname.value = trimmedName;
          if (params.phone) {
             originalPhone.value = params.phone;
             phone.value = params.phone;
@@ -128,17 +106,11 @@ function handleBindPhone(): void {
 
       <!-- 表单卡片 -->
       <view class="form-card">
-         <!-- 昵称 -->
+         <!-- 昵称（不可修改） -->
          <view class="form-item">
             <text class="form-label">昵称</text>
             <view class="form-value">
-               <input
-                  class="form-input"
-                  :value="nickname"
-                  placeholder="请输入昵称"
-                  maxlength="20"
-                  @input="nickname = getInputValue($event)"
-               />
+               <text class="form-text">{{ nickname }}</text>
             </view>
          </view>
 
@@ -240,6 +212,11 @@ function handleBindPhone(): void {
    text-align: right;
    font-size: 30rpx;
    color: $text-primary;
+}
+
+.form-text {
+   font-size: 30rpx;
+   color: $text-tertiary;
 }
 
 .phone-bound {

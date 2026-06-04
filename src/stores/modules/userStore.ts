@@ -6,7 +6,7 @@ import {
    rechargeWallet,
    redeemVipCard,
 } from '@/api/userApi';
-import type { UpdateProfileParams } from '@/api/userApi';
+import type { UpdateProfileParams, RedeemVipCardResult } from '@/api/userApi';
 import type { Users, Wallets } from '@/types';
 
 interface AuthState {
@@ -105,7 +105,6 @@ export const useUserStore = defineStore('user', {
             if (result.success && this.user) {
                this.user = {
                   ...this.user,
-                  ...(params.name !== undefined ? { name: params.name } : {}),
                   ...(params.phone !== undefined ? { phone: params.phone } : {}),
                };
             }
@@ -133,7 +132,7 @@ export const useUserStore = defineStore('user', {
          }
       },
 
-      async redeemVipCard(cardNo: string): Promise<{ success: boolean; message: string }> {
+      async redeemVipCard(cardNo: string): Promise<RedeemVipCardResult> {
          try {
             const result = await redeemVipCard(cardNo);
             if (result.success && result.data) {
