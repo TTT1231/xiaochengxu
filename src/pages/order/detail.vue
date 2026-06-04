@@ -5,6 +5,7 @@ import type { Orders } from '@/types';
 import { getOrderDetail } from '@/api/orderApi';
 import { formatPriceDisplay, formatDateTime } from '@/utils/format';
 import { getStatusText, getStatusColor } from '@/composables/useOrder';
+import { darkenHex } from '@/utils/color';
 import Header from '@/components/common/Header.vue';
 import { useHeaderHeight } from '@/composables/useHeaderHeight';
 
@@ -29,11 +30,7 @@ const statusColor = computed(() => (order.value ? getStatusColor(order.value.ord
 const statusBgStyle = computed(() => {
    if (!order.value) return {};
    const hex = statusColor.value;
-   // Create a darker variant by reducing each channel to ~60%
-   const r = Math.round(parseInt(hex.slice(1, 3), 16) * 0.6);
-   const g = Math.round(parseInt(hex.slice(3, 5), 16) * 0.6);
-   const b = Math.round(parseInt(hex.slice(5, 7), 16) * 0.6);
-   const dark = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+   const dark = darkenHex(hex, 0.6);
    return {
       background: `linear-gradient(135deg, ${hex} 0%, ${dark} 100%)`,
    };
@@ -51,8 +48,8 @@ const statusLabel = computed(() => {
 });
 
 const totalItemCount = computed(() => {
-   if (!order.value?.oder_details) return 0;
-   return order.value.oder_details.reduce((sum, item) => sum + item.quantity, 0);
+   if (!order.value?.order_details) return 0;
+   return order.value.order_details.reduce((sum, item) => sum + item.quantity, 0);
 });
 
 const fetchOrder = async () => {
@@ -130,10 +127,10 @@ onLoad(async options => {
          <view class="section-card">
             <text class="section-heading">商品明细</text>
             <view
-               v-for="(item, index) in order.oder_details"
+               v-for="(item, index) in order.order_details"
                :key="item.product_id"
                class="product-entry"
-               :class="{ 'has-divider': index < order.oder_details.length - 1 }"
+               :class="{ 'has-divider': index < order.order_details.length - 1 }"
             >
                <image class="product-thumb" :src="item.product_image" mode="aspectFill" />
                <view class="product-body">

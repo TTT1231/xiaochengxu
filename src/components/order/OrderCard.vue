@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import type { Orders } from '@/types';
 import { getStatusText, getStatusColor } from '@/composables/useOrder';
+import { hexToRgba } from '@/utils/color';
 
 interface Props {
    order: Orders;
@@ -16,12 +17,12 @@ const emit = defineEmits<{
 const statusColor = computed(() => getStatusColor(props.order.order_status));
 
 const firstThumb = computed(() => {
-   const items = props.order.oder_details ?? [];
+   const items = props.order.order_details ?? [];
    return items[0]?.product_image ?? '';
 });
 
 const itemsSummary = computed(() => {
-   const items = props.order.oder_details ?? [];
+   const items = props.order.order_details ?? [];
    if (items.length === 0) return '';
    return items.map(item => `${item.product_name} x${item.quantity}`).join(', ');
 });
@@ -43,16 +44,10 @@ const statusTextStyle = computed(() => ({
    color: statusColor.value,
 }));
 
-const footerStyle = computed(() => {
-   const hex = statusColor.value;
-   const r = parseInt(hex.slice(1, 3), 16);
-   const g = parseInt(hex.slice(3, 5), 16);
-   const b = parseInt(hex.slice(5, 7), 16);
-   return {
-      backgroundColor: `rgba(${r}, ${g}, ${b}, 0.06)`,
-      borderTopColor: `rgba(${r}, ${g}, ${b}, 0.1)`,
-   };
-});
+const footerStyle = computed(() => ({
+   backgroundColor: hexToRgba(statusColor.value, 0.06),
+   borderTopColor: hexToRgba(statusColor.value, 0.1),
+}));
 
 const hintStyle = computed(() => ({
    color: statusColor.value,

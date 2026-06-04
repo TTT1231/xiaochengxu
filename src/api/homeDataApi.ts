@@ -3,10 +3,35 @@ import type { Products } from '../types';
 import { resolveFileIDs, toProductFileID } from '@/utils/cloudStorage';
 import { resolveCategoryIcon, resolveCategoryActiveIcon } from '@/data/imgPaths';
 
-export async function getLeftMenuData(): Promise<Categoried[]> {
+/** Client SDK single-request hard limit — use skip/limit loop to fetch all records */
+const CLIENT_MAX_LIMIT = 20;
+
+async function fetchAll<T>(collection: string, where: Record<string, unknown>): Promise<T[]> {
    const db = wx.cloud.database();
-   const { data } = await db.collection('categoried').where({ status: true }).limit(100).get();
-   const categories = (data as unknown as Categoried[]) || [];
+   const allData: T[] = [];
+   let skip = 0;
+
+   try {
+      for (;;) {
+         const { data } = await db
+            .collection(collection)
+            .where(where)
+            .skip(skip)
+            .limit(CLIENT_MAX_LIMIT)
+            .get();
+         allData.push(...(data as T[]));
+         if (data.length < CLIENT_MAX_LIMIT) break;
+         skip += CLIENT_MAX_LIMIT;
+      }
+   } catch (error) {
+      console.error(`[fetchAll] 加载 ${collection} 失败:`, error);
+   }
+
+   return allData;
+}
+
+export async function getLeftMenuData(): Promise<Categoried[]> {
+   const categories = await fetchAll<Categoried>('categoried', { status: true });
 
    return categories.map(c => ({
       ...c,
@@ -16,9 +41,7 @@ export async function getLeftMenuData(): Promise<Categoried[]> {
 }
 
 export async function getRightProductData(): Promise<Products[]> {
-   const db = wx.cloud.database();
-   const { data } = await db.collection('products').where({ status: true }).limit(100).get();
-   const products = (data as unknown as Products[]) || [];
+   const products = await fetchAll<Products>('products', { status: true });
 
    const fileIDs = [
       ...new Set(

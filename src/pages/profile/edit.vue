@@ -8,6 +8,10 @@ import Header from '@/components/common/Header.vue';
 const { headerHeight } = useHeaderHeight();
 const userStore = useUserStore();
 
+function getInputValue(e: unknown): string {
+   return (e as { detail: { value: string } }).detail.value;
+}
+
 const nickname = ref('');
 const phone = ref('');
 const originalNickname = ref('');
@@ -133,7 +137,7 @@ function handleBindPhone(): void {
                   :value="nickname"
                   placeholder="请输入昵称"
                   maxlength="20"
-                  @input="nickname = ($event as any).detail.value"
+                  @input="nickname = getInputValue($event)"
                />
             </view>
          </view>

@@ -3,8 +3,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 const mockGet = vi.fn();
 
 function createDbMock() {
-   const mockWhere = vi.fn().mockReturnValue({ limit: vi.fn().mockReturnValue({ get: mockGet }) });
-   const mockCollection = vi.fn().mockReturnValue({ where: mockWhere, limit: vi.fn().mockReturnValue({ get: mockGet }) });
+   // Mock chain: .collection(x).where(y).skip(n).limit(n).get()
+   const mockChain = { skip: vi.fn().mockReturnThis(), limit: vi.fn().mockReturnThis(), get: mockGet };
+   const mockWhere = vi.fn().mockReturnValue(mockChain);
+   const mockCollection = vi.fn().mockReturnValue({ where: mockWhere });
    return {
       mockCollection,
       database: vi.fn().mockReturnValue({ collection: mockCollection }),

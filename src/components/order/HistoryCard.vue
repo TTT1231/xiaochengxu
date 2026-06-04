@@ -16,15 +16,15 @@ const emit = defineEmits<{
    reorder: [order: Orders];
 }>();
 
-const itemsSummary = computed(() => {
-   const items = props.order.oder_details ?? [];
-   if (items.length === 0) return '';
-   return items.map(item => `${item.product_name} x${item.quantity}`).join(', ');
+const firstThumb = computed(() => {
+   const items = props.order.order_details ?? [];
+   return items[0]?.product_image ?? '';
 });
 
-const firstThumb = computed(() => {
-   const items = props.order.oder_details ?? [];
-   return items[0]?.product_image ?? '';
+const itemsSummary = computed(() => {
+   const items = props.order.order_details ?? [];
+   if (items.length === 0) return '';
+   return items.map(item => `${item.product_name} x${item.quantity}`).join(', ');
 });
 
 const actualAmount = computed(() =>

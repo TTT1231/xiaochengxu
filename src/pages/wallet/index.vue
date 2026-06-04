@@ -13,6 +13,10 @@ const wallet = computed(() => userStore.wallet);
 const isVip = computed(() => userStore.isVip);
 const levelConfig = computed(() => useUserLevel(isVip.value));
 
+function getInputValue(e: unknown): string {
+   return (e as { detail: { value: string } }).detail.value;
+}
+
 const PRESET_AMOUNTS = [20, 30, 50];
 const selectedAmount = ref<number | null>(null);
 const customAmount = ref('');
@@ -108,7 +112,7 @@ async function handleRecharge(): Promise<void> {
                   placeholder="请输入金额"
                   :value="customAmount"
                   @input="
-                     customAmount = ($event as any).detail.value;
+                     customAmount = getInputValue($event);
                      selectedAmount = null;
                   "
                />

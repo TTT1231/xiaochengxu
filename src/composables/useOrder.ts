@@ -14,13 +14,6 @@ const STATUS_COLOR_MAP: Record<string, string> = {
 
 const HISTORY_PAGE_SIZE = 3;
 
-const orderList = ref<Orders[]>([]);
-const historyOrders = ref<Orders[]>([]);
-const hasMoreHistory = ref(true);
-const historyLoading = ref(false);
-const showActive = ref(true);
-const loading = ref(false);
-
 export function getStatusText(status: string): string {
    return ORDER_STATUS_TEXT[status as OrderStatus] ?? status;
 }
@@ -36,22 +29,23 @@ export function getStatusColor(status: string): string {
 export function useOrder() {
    const userStore = useUserStore();
 
+   // 状态移入函数体内 — 每次调用 useOrder() 返回独立状态
+   const orderList = ref<Orders[]>([]);
+   const historyOrders = ref<Orders[]>([]);
+   const hasMoreHistory = ref(true);
+   const historyLoading = ref(false);
+   const showActive = ref(true);
+   const loading = ref(false);
+
    const fetchOrders = async (silent = false): Promise<void> => {
-      if (!userStore.isAuthenticated) {
-         console.warn('[DEBUG fetchOrders] 用户未登录，跳过获取订单');
-         return;
-      }
+      if (!userStore.isAuthenticated) return;
       if (!silent) loading.value = true;
       try {
-         // Active orders: full load
          orderList.value = await getOrdersByUser();
-
-         // History orders: reset and load first page
          historyOrders.value = [];
          hasMoreHistory.value = true;
          await loadMoreHistory();
-      } catch (err) {
-         console.error('[DEBUG fetchOrders] 获取失败:', err);
+      } catch {
          orderList.value = [];
       } finally {
          if (!silent) loading.value = false;
@@ -68,8 +62,8 @@ export function useOrder() {
          );
          historyOrders.value = [...historyOrders.value, ...orders];
          hasMoreHistory.value = hasMore;
-      } catch (err) {
-         console.error('[DEBUG loadMoreHistory] 加载历史订单失败:', err);
+      } catch {
+         // 静默失败，保留已加载的数据
       } finally {
          historyLoading.value = false;
       }

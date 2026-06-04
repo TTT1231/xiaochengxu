@@ -139,7 +139,7 @@ const handleProductClick = (productId: string): void => {
 .page {
    min-height: 100vh;
    background-color: $bg-page;
-   padding-bottom: 128rpx;
+   padding-bottom: calc(128rpx + env(safe-area-inset-bottom));
    box-sizing: border-box;
 }
 

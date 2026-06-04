@@ -3,16 +3,22 @@ import type { Products, Categoried } from '@/types';
 import { getLeftMenuData, getRightProductData } from '@/api/homeDataApi';
 import { useUserStore } from './userStore';
 
+const CLOUD_TIMEOUT_MS = 10_000;
+
 function waitForCloud(): Promise<void> {
    const userStore = useUserStore();
    if (userStore.cloudReady) return Promise.resolve();
-   return new Promise(resolve => {
+   return new Promise((resolve, reject) => {
       const timer = setInterval(() => {
          if (userStore.cloudReady) {
             clearInterval(timer);
             resolve();
          }
       }, 50);
+      setTimeout(() => {
+         clearInterval(timer);
+         reject(new Error('云环境初始化超时'));
+      }, CLOUD_TIMEOUT_MS);
    });
 }
 
@@ -44,8 +50,8 @@ export const useHomeStore = defineStore('home', {
    },
 
    actions: {
-      async fetchData(): Promise<void> {
-         if (this.categories.length > 0) return;
+      async fetchData(forceRefresh = false): Promise<void> {
+         if (!forceRefresh && this.categories.length > 0) return;
          this.loading = true;
          this.error = null;
          try {

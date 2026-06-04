@@ -42,7 +42,11 @@ export const useUserStore = defineStore('user', {
    actions: {
       async init(): Promise<void> {
          this.cloudReady = true;
-         await this.login();
+         try {
+            await this.login();
+         } catch {
+            // init 阶段登录失败不阻断应用
+         }
       },
 
       async login(): Promise<LoginResult> {
@@ -53,7 +57,11 @@ export const useUserStore = defineStore('user', {
                return { success: false, message: result.message };
             }
 
-            const { user, wallet, isNewUser } = result.data!;
+            if (!result.data) {
+               return { success: false, message: '登录返回数据异常' };
+            }
+
+            const { user, wallet, isNewUser } = result.data;
             this.user = user;
             this.wallet = wallet;
             this.openid = user._id;
@@ -78,41 +86,66 @@ export const useUserStore = defineStore('user', {
       },
 
       async fetchProfile(): Promise<void> {
-         const profile = await getCloudProfile();
-         if (profile) {
-            this.user = profile.user;
-            this.wallet = profile.wallet;
+         try {
+            const profile = await getCloudProfile();
+            if (profile) {
+               this.user = profile.user;
+               this.wallet = profile.wallet;
+            }
+         } catch {
+            // fetchProfile 常在 onShow 高频调用，静默失败避免干扰用户
          }
       },
 
       async updateUserProfile(
          params: UpdateProfileParams,
       ): Promise<{ success: boolean; message: string }> {
-         const result = await updateCloudProfile(params);
-         if (result.success && this.user) {
-            this.user = {
-               ...this.user,
-               ...(params.name !== undefined ? { name: params.name } : {}),
-               ...(params.phone !== undefined ? { phone: params.phone } : {}),
+         try {
+            const result = await updateCloudProfile(params);
+            if (result.success && this.user) {
+               this.user = {
+                  ...this.user,
+                  ...(params.name !== undefined ? { name: params.name } : {}),
+                  ...(params.phone !== undefined ? { phone: params.phone } : {}),
+               };
+            }
+            return result;
+         } catch (error) {
+            return {
+               success: false,
+               message: error instanceof Error ? error.message : '更新失败',
             };
          }
-         return result;
       },
 
       async recharge(amount: number): Promise<{ success: boolean; message: string }> {
-         const result = await rechargeWallet(amount);
-         if (result.success && result.data) {
-            this.wallet = result.data.wallet as Wallets;
+         try {
+            const result = await rechargeWallet(amount);
+            if (result.success && result.data) {
+               this.wallet = result.data.wallet as Wallets;
+            }
+            return result;
+         } catch (error) {
+            return {
+               success: false,
+               message: error instanceof Error ? error.message : '充值失败',
+            };
          }
-         return result;
       },
 
-      async redeemVipCard(cardNo: string) {
-         const result = await redeemVipCard(cardNo);
-         if (result.success && result.data) {
-            this.wallet = result.data.wallet as Wallets;
+      async redeemVipCard(cardNo: string): Promise<{ success: boolean; message: string }> {
+         try {
+            const result = await redeemVipCard(cardNo);
+            if (result.success && result.data) {
+               this.wallet = result.data.wallet as Wallets;
+            }
+            return result;
+         } catch (error) {
+            return {
+               success: false,
+               message: error instanceof Error ? error.message : '兑换失败',
+            };
          }
-         return result;
       },
    },
 });

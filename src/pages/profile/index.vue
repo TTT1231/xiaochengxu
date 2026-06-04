@@ -169,6 +169,6 @@ function handleUserCardClick(): void {
 }
 
 .bottom-spacer {
-   height: 128rpx;
+   height: calc(128rpx + env(safe-area-inset-bottom));
 }
 </style>

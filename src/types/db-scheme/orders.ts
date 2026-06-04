@@ -1,4 +1,6 @@
-/** 订单商品详情 (oder_details JSON 中每个商品项) */
+import type { OrderStatus } from '../constants';
+
+/** 订单商品详情 (order_details JSON 中每个商品项) */
 export interface OrderDetailItem {
    /** 商品 ID */
    product_id: string;
@@ -25,7 +27,7 @@ export interface Orders {
    /** 用户 ID (openid) */
    user_id: string;
    /** 订单状态 */
-   order_status: string;
+   order_status: OrderStatus;
    /** 总金额（元）- 折前金额 */
    total_amount: number;
    /** 优惠金额（元） */
@@ -35,5 +37,5 @@ export interface Orders {
    /** 钱包扣款金额（元） */
    wallet_deduct: number;
    /** 订单商品详情 */
-   oder_details: OrderDetailItem[];
+   order_details: OrderDetailItem[];
 }

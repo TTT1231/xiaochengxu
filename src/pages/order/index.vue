@@ -58,7 +58,7 @@ const handleScrollBottom = () => {
 };
 
 const handleReorder = async (order: Orders) => {
-   const details = order.oder_details;
+   const details = order.order_details;
    if (!details || details.length === 0) {
       uni.showToast({ title: '订单无商品信息', icon: 'none' });
       return;
@@ -197,7 +197,7 @@ onShow(async () => {
    min-height: 100vh;
    background-color: $bg-page;
    padding-top: var(--header-height, 176rpx);
-   padding-bottom: 128rpx;
+   padding-bottom: calc(128rpx + env(safe-area-inset-bottom));
    box-sizing: border-box;
 }
 
