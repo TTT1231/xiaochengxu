@@ -6,58 +6,32 @@ interface Props {
    mode?: 'home' | 'simple';
    title?: string;
    showBack?: boolean;
-   storeName?: string;
 }
 
 withDefaults(defineProps<Props>(), {
    mode: 'simple',
    title: '',
    showBack: true,
-   storeName: '南昌红谷滩店',
 });
 
 const { menuTop, menuHeight, menuRight } = useHeaderHeight();
 
 const icons = {
-   location: commonIcons.location,
-   qrcode: commonIcons.qrcode,
    back: commonIcons.back,
 };
 
 const handleBack = (): void => {
    uni.navigateBack();
 };
-const handleLocationClick = (): void => {
-   // TODO: 门店选择
-};
-const handleQrcodeClick = (): void => {
-   // TODO: 扫码功能
-};
 </script>
 
 <template>
    <view class="header" :style="{ paddingTop: menuTop + 'px' }">
       <template v-if="mode === 'home'">
-         <view class="home-header-content">
-            <view
-               class="top-bar"
-               :style="{ height: menuHeight + 'px', paddingRight: menuRight + 'px' }"
-            >
-               <view class="location-selector" @click="handleLocationClick">
-                  <image class="location-icon" :src="icons.location" mode="aspectFit" />
-                  <text class="location-text">{{ storeName }}</text>
-               </view>
-               <view class="top-icons">
-                  <view
-                     class="icon-btn"
-                     @click="handleQrcodeClick"
-                     :style="{ width: menuHeight + 'px', height: menuHeight + 'px' }"
-                  >
-                     <image class="qrcode-icon" :src="icons.qrcode" mode="aspectFit" />
-                  </view>
-               </view>
-            </view>
-         </view>
+         <view
+            class="home-header-spacer"
+            :style="{ height: menuHeight + 'px', paddingRight: menuRight + 'px' }"
+         />
       </template>
 
       <template v-else>
@@ -88,70 +62,8 @@ const handleQrcodeClick = (): void => {
    border-bottom-right-radius: 32rpx;
 }
 
-.home-header-content {
+.home-header-spacer {
    padding: 0 32rpx;
-   display: flex;
-   flex-direction: column;
-   gap: 0;
-}
-
-.top-bar {
-   display: flex;
-   align-items: center;
-   justify-content: space-between;
-   gap: 24rpx;
-}
-
-.location-selector {
-   display: flex;
-   align-items: center;
-   gap: 12rpx;
-   padding: 8rpx 16rpx 8rpx 0;
-}
-
-.location-icon {
-   width: 36rpx;
-   height: 36rpx;
-}
-
-.location-text {
-   font-size: 32rpx;
-   font-weight: 600;
-   color: $text-primary;
-   max-width: 320rpx;
-   overflow: hidden;
-   text-overflow: ellipsis;
-   white-space: nowrap;
-   line-height: 44rpx;
-}
-
-.top-icons {
-   display: flex;
-   align-items: center;
-   gap: 24rpx;
-   margin-right: 32rpx;
-}
-
-.icon-btn {
-   display: flex;
-   align-items: center;
-   justify-content: center;
-   background-color: $bg-card;
-   border: 2rpx solid $border-light;
-   border-radius: 50%;
-   box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.03);
-   transition: all 0.2s ease;
-
-   &:active {
-      background-color: $bg-hover;
-      transform: scale(0.96);
-   }
-}
-
-.qrcode-icon {
-   width: 32rpx;
-   height: 32rpx;
-   opacity: 0.85;
 }
 
 .simple-header {
