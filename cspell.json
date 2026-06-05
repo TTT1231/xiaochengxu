@@ -16,7 +16,9 @@
       "shime",
       "postgrest",
       "scrolltolower",
-      "rrggbb"
+      "rrggbb",
+      "zhengjian",
+      "yinyezhizhao"
    ],
    "ignorePaths": [
       ".claude/CLAUDE.md",

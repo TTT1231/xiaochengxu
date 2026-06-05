@@ -64,6 +64,13 @@
          }
       },
       {
+         "path": "pages/profile/business",
+         "style": {
+            "navigationStyle": "custom",
+            "navigationBarTitleText": "经营公示"
+         }
+      },
+      {
          "path": "pages/cart/index",
          "style": {
             "navigationStyle": "custom",

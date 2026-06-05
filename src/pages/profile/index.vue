@@ -31,6 +31,7 @@ function handleMenuClick(key: string): void {
       vip: '/pages/vip-redeem/index',
       privacy: '/pages/profile/privacy',
       agreement: '/pages/profile/agreement',
+      business: '/pages/profile/business',
    };
    const url = routeMap[key];
    if (url) {

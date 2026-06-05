@@ -95,10 +95,6 @@ const handleAddToCart = () => {
       <view class="main-content">
          <view class="header-row">
             <text class="product-name">{{ product.name }}</text>
-            <view class="rating">
-               <text class="star">★</text>
-               <text class="score">4.9</text>
-            </view>
          </view>
 
          <view class="price-row">
@@ -190,24 +186,6 @@ const handleAddToCart = () => {
    font-weight: 500;
    color: $text-primary;
    line-height: 64rpx;
-}
-
-.rating {
-   display: flex;
-   align-items: center;
-   gap: 8rpx;
-}
-
-.star {
-   font-size: 28rpx;
-   color: $brand-primary;
-}
-
-.score {
-   font-size: 28rpx;
-   font-weight: 700;
-   color: $brand-primary;
-   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 .price-row {
