@@ -19,7 +19,11 @@ export async function main(): Promise<LoginResult> {
 
    // Parallel: fetch user + wallet in one round-trip
    const [userRes, walletRes] = await Promise.all([
-      db.collection('users').doc(openid).get().catch(() => null),
+      db
+         .collection('users')
+         .doc(openid)
+         .get()
+         .catch(() => null),
       db.collection('wallets').where({ user_id: openid }).limit(1).get(),
    ]);
 
@@ -36,10 +40,16 @@ export async function main(): Promise<LoginResult> {
    // New user: generate ID, then create user + wallet in transaction
    const displayId = await generateUniqueDisplayId();
    const now = new Date().toISOString();
-   const defaultWallet = { user_id: openid, balance: 0, total_recharged: 0, created_at: now, updated_at: now };
+   const defaultWallet = {
+      user_id: openid,
+      balance: 0,
+      total_recharged: 0,
+      created_at: now,
+      updated_at: now,
+   };
 
    try {
-      await db.runTransaction(async (transaction) => {
+      await db.runTransaction(async transaction => {
          await transaction.collection('users').add({
             data: { _id: openid, name: '微信用户', id: displayId, created_at: now },
          });

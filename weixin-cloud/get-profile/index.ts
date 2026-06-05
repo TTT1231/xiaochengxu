@@ -17,7 +17,11 @@ export async function main() {
          return { success: false, message: 'User not found' };
       }
 
-      const { data: wallets } = await db.collection('wallets').where({ user_id: openid }).limit(1).get();
+      const { data: wallets } = await db
+         .collection('wallets')
+         .where({ user_id: openid })
+         .limit(1)
+         .get();
       const wallet = wallets[0] || null;
 
       return {

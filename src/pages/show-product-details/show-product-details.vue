@@ -117,7 +117,10 @@ const handleAddToCart = () => {
 
          <view v-if="specGroups.length > 0" class="options-section">
             <view v-for="group in specGroups" :key="group.name" class="option-group">
-               <text class="option-title">{{ group.name }}</text>
+               <text class="option-title">
+                  <text v-if="group.required" class="required-star">*</text>
+                  {{ group.name }}
+               </text>
                <view class="option-items">
                   <view
                      v-for="option in group.options"
@@ -275,6 +278,11 @@ const handleAddToCart = () => {
    font-weight: 500;
    color: $text-primary;
    line-height: 40rpx;
+}
+
+.required-star {
+   color: $badge-error;
+   margin-right: 4rpx;
 }
 
 .option-items {

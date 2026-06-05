@@ -32,6 +32,10 @@ const handleAdd = (product: Products, selectedSpecs: Record<string, string>) => 
    addItem(product, selectedSpecs);
 };
 
+function goToMenu(): void {
+   uni.switchTab({ url: '/pages/index/index' });
+}
+
 function onCheckoutClick(): void {
    if (!submitting.value) {
       handleCheckout();
@@ -82,9 +86,17 @@ const handleCheckout = async () => {
 
       <view class="page-content" :style="{ paddingTop: headerHeight + 'px' }">
          <view v-if="cartItems.length === 0" class="empty-state">
-            <image class="empty-icon" src="/static/images/empty-order.png" mode="aspectFit" />
-            <text class="empty-text">购物车是空的</text>
-            <text class="empty-hint">去添加一些美味的商品吧</text>
+            <view class="empty-cart-icon">
+               <view class="cart-body" />
+               <view class="cart-handle" />
+               <view class="cart-wheel cart-wheel-left" />
+               <view class="cart-wheel cart-wheel-right" />
+            </view>
+            <text class="empty-title">购物车是空的</text>
+            <text class="empty-desc">快去挑选喜欢的甜品吧</text>
+            <view class="empty-action" @click="goToMenu">
+               <text class="empty-action-text">去逛逛</text>
+            </view>
          </view>
 
          <view v-else class="cart-list">
@@ -189,26 +201,83 @@ const handleCheckout = async () => {
    flex-direction: column;
    align-items: center;
    justify-content: center;
-   padding-top: 200rpx;
+   padding-top: 160rpx;
 }
 
-.empty-icon {
-   width: 240rpx;
-   height: 240rpx;
-   opacity: 0.4;
-   margin-bottom: 32rpx;
+/* 纯 CSS 购物车图标 */
+.empty-cart-icon {
+   position: relative;
+   width: 180rpx;
+   height: 160rpx;
+   margin-bottom: 48rpx;
 }
 
-.empty-text {
-   font-size: 32rpx;
+.cart-body {
+   position: absolute;
+   bottom: 40rpx;
+   left: 10rpx;
+   width: 160rpx;
+   height: 80rpx;
+   background: $brand-primary-light;
+   border: 6rpx solid $brand-primary;
+   border-radius: 12rpx 80rpx 16rpx 16rpx;
+}
+
+.cart-handle {
+   position: absolute;
+   top: 12rpx;
+   right: 10rpx;
+   width: 72rpx;
+   height: 72rpx;
+   border: 6rpx solid $brand-primary;
+   border-radius: 50% 50% 0 0;
+   border-bottom: none;
+   background: transparent;
+}
+
+.cart-wheel {
+   position: absolute;
+   bottom: 8rpx;
+   width: 24rpx;
+   height: 24rpx;
+   border-radius: 50%;
+   background: $brand-primary;
+
+   &.cart-wheel-left {
+      left: 30rpx;
+   }
+
+   &.cart-wheel-right {
+      right: 30rpx;
+   }
+}
+
+.empty-title {
+   font-size: 34rpx;
    color: $text-primary;
-   font-weight: 500;
-   margin-bottom: 16rpx;
+   font-weight: 600;
+   margin-bottom: 12rpx;
 }
 
-.empty-hint {
-   font-size: 28rpx;
+.empty-desc {
+   font-size: 26rpx;
    color: $text-muted;
+   margin-bottom: 48rpx;
+}
+
+.empty-action {
+   background-color: $brand-primary;
+   padding: 20rpx 80rpx;
+   border-radius: $radius-full;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+}
+
+.empty-action-text {
+   font-size: 28rpx;
+   font-weight: 500;
+   color: $uni-text-color-inverse;
 }
 
 .cart-list {

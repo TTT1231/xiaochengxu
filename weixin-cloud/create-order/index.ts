@@ -19,6 +19,7 @@ interface OrderDetailItem {
    specs: Record<string, string>;
    price: number;
    discount: number;
+   quantity: number;
 }
 
 interface CreateOrderParams {
@@ -78,7 +79,11 @@ function parseSpecs(rawSpecs: unknown): ProductSpecs {
       : {};
 }
 
-function validateSelectedSpecs(productName: string, rawSpecs: unknown, selectedSpecs: unknown): string | null {
+function validateSelectedSpecs(
+   productName: string,
+   rawSpecs: unknown,
+   selectedSpecs: unknown,
+): string | null {
    if (!selectedSpecs || typeof selectedSpecs !== 'object' || Array.isArray(selectedSpecs)) {
       selectedSpecs = {};
    }
@@ -156,7 +161,7 @@ export async function main(event: Partial<CreateOrderParams> = {}) {
    let isVip = false;
    try {
       const wallet = await findWalletByUserId(openid);
-      isVip = (wallet?.total_recharged ?? 0) > 0;
+      isVip = Number(wallet?.total_recharged) > 0;
    } catch {
       isVip = false;
    }
@@ -168,7 +173,9 @@ export async function main(event: Partial<CreateOrderParams> = {}) {
          return { success: false, message: 'Invalid item data' };
       }
       const selectedSpecs =
-         item.specs && typeof item.specs === 'object' && !Array.isArray(item.specs) ? item.specs : {};
+         item.specs && typeof item.specs === 'object' && !Array.isArray(item.specs)
+            ? item.specs
+            : {};
       try {
          const { data: product } = await db.collection('products').doc(item.product_id).get();
          if (!product) {
@@ -177,20 +184,17 @@ export async function main(event: Partial<CreateOrderParams> = {}) {
          if (product.status !== true) {
             return { success: false, message: 'Product is not available: ' + product.name };
          }
-         if (
-            !isFiniteAmount(product.price) ||
-            product.price < 0
-         ) {
+         if (!isFiniteAmount(product.price) || product.price < 0) {
             return { success: false, message: 'Invalid product pricing: ' + product.name };
          }
-         const specError = validateSelectedSpecs(product.name, product.specs, selectedSpecs);
+         const specError = validateSelectedSpecs(product.name as string, product.specs, selectedSpecs);
          if (specError) {
             return { success: false, message: specError };
          }
          const itemDiscount = computeServerDiscount(product.price, product.categoried_id, isVip);
          validatedItems.push({
             product_id: item.product_id,
-            product_name: product.name,
+            product_name: product.name as string,
             product_image: typeof product.image === 'string' ? product.image : '',
             specs: selectedSpecs,
             price: normalizeAmount(product.price),
@@ -241,9 +245,12 @@ export async function main(event: Partial<CreateOrderParams> = {}) {
 
    // Step 3: Create order and deduct wallet balance atomically.
    try {
-      await db.runTransaction(async (transaction) => {
+      await db.runTransaction(async transaction => {
          if (normalizedWalletDeduct > 0) {
-            const { data: wallet } = await transaction.collection('wallets').doc(walletId as string).get();
+            const { data: wallet } = await transaction
+               .collection('wallets')
+               .doc(walletId as string)
+               .get();
             if (!wallet || wallet.user_id !== openid) {
                throw new Error('Wallet not found');
             }
@@ -255,7 +262,10 @@ export async function main(event: Partial<CreateOrderParams> = {}) {
                throw new Error('Insufficient balance');
             }
             const updated = deductWallet(
-               { balance: wallet.balance as number, total_recharged: wallet.total_recharged as number },
+               {
+                  balance: wallet.balance as number,
+                  total_recharged: wallet.total_recharged as number,
+               },
                normalizedWalletDeduct,
             );
             await transaction

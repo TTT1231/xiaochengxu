@@ -16,12 +16,7 @@ interface Transaction {
 
 const MAX_CARD_NO_LENGTH = 64;
 
-const KNOWN_ERRORS = new Set([
-   '该卡号已被使用',
-   '该卡号无效',
-   '无效的卡面值',
-   'Wallet not found',
-]);
+const KNOWN_ERRORS = new Set(['该卡号已被使用', '该卡号无效', '无效的卡面值', 'Wallet not found']);
 
 export async function main(event: RedeemVipCardParams) {
    const openid = getOpenId();
@@ -80,13 +75,16 @@ export async function main(event: RedeemVipCardParams) {
          }
 
          // Mark card as used
-         await transaction.collection('vip_cards').doc(cardId).update({
-            data: {
-               status: 'used',
-               used_by: openid,
-               used_at: now,
-            },
-         });
+         await transaction
+            .collection('vip_cards')
+            .doc(cardId)
+            .update({
+               data: {
+                  status: 'used',
+                  used_by: openid,
+                  used_at: now,
+               },
+            });
 
          // Credit wallet with fresh balance
          const updated = rechargeWallet(

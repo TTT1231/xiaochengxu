@@ -18,7 +18,9 @@
       "scrolltolower",
       "rrggbb",
       "zhengjian",
-      "yinyezhizhao"
+      "yinyezhizhao",
+      "unionid",
+      "toctou"
    ],
    "ignorePaths": [
       ".claude/CLAUDE.md",

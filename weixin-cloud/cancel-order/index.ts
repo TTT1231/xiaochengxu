@@ -20,7 +20,7 @@ export async function main(event: CancelOrderParams) {
       const wallet = await findWalletByUserId(openid);
       const walletId = wallet?._id as string | undefined;
 
-      return await db.runTransaction(async (transaction) => {
+      return await db.runTransaction(async transaction => {
          let order: Record<string, unknown> | null = null;
          try {
             ({ data: order } = await transaction.collection('orders').doc(orderId).get());
@@ -36,7 +36,10 @@ export async function main(event: CancelOrderParams) {
          }
 
          if (order.order_status !== 'pending' && order.order_status !== 'preparing') {
-            return { success: false, message: 'Order cannot be cancelled (status: ' + order.order_status + ')' };
+            return {
+               success: false,
+               message: 'Order cannot be cancelled (status: ' + order.order_status + ')',
+            };
          }
 
          await transaction
@@ -51,7 +54,10 @@ export async function main(event: CancelOrderParams) {
                throw new Error('Wallet not found');
             }
 
-            const { data: currentWallet } = await transaction.collection('wallets').doc(walletId).get();
+            const { data: currentWallet } = await transaction
+               .collection('wallets')
+               .doc(walletId)
+               .get();
             if (!currentWallet || currentWallet.user_id !== openid) {
                throw new Error('Wallet not found');
             }

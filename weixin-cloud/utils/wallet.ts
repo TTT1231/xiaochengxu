@@ -43,7 +43,11 @@ export function refundWallet(current: WalletFields, amount: number): WalletField
 
 /** Find wallet by user_id. Returns null if not found. */
 export async function findWalletByUserId(openid: string): Promise<Record<string, unknown> | null> {
-   const { data: wallets } = await db.collection('wallets').where({ user_id: openid }).limit(1).get();
+   const { data: wallets } = await db
+      .collection('wallets')
+      .where({ user_id: openid })
+      .limit(1)
+      .get();
    return wallets.length > 0 ? wallets[0] : null;
 }
 

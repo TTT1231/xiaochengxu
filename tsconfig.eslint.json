@@ -4,7 +4,9 @@
       "src/**/*.ts",
       "src/**/*.d.ts",
       "src/**/*.vue",
-      "vite.config.ts"
+      "vite.config.ts",
+      "weixin-cloud/**/*.ts",
+      "weixin-cloud/**/*.d.ts"
    ],
    "exclude": [
       "node_modules",
