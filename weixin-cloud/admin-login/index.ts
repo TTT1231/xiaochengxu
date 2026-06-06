@@ -13,6 +13,7 @@ interface AdminDoc {
    _id: string;
    username: string;
    password: string;
+   authorized_openids?: string[];
 }
 
 /** 管理员登录云函数 */
