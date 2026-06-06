@@ -27,12 +27,10 @@ export async function authorizeAdmin(): Promise<string> {
    }
 
    try {
-      const { data } = await db
-         .collection('admins')
-         .doc('admin_config')
-         .get<{ authorized_openids: string[] }>();
+      const { data } = await db.collection('admins').doc('admin_config').get();
 
-      const allowed: string[] = data?.authorized_openids ?? [];
+      const config = data as { authorized_openids?: string[] } | null;
+      const allowed: string[] = config?.authorized_openids ?? [];
 
       if (!allowed.includes(openid)) {
          throw new AuthorizationError('无管理员权限');
