@@ -2,7 +2,14 @@
    "name": "weixin-cloud-functions",
    "version": "1.0.0",
    "private": true,
+   "scripts": {
+      "test": "vitest run"
+   },
    "dependencies": {
       "wx-server-sdk": "~2.6.3"
+   },
+   "devDependencies": {
+      "typescript": "^5.8.0",
+      "vitest": "^2.0.0"
    }
 }
