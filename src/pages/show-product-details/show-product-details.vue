@@ -12,14 +12,18 @@ const userStore = useUserStore();
 const product = ref<Products | null>(null);
 const selectedSpecs = ref<Record<string, string>>({});
 
-function normalizeProductSpecs(specs: Products['specs']): ProductSpecs {
+function normalizeProductSpecs(specs: Products['specs'] | undefined): ProductSpecs {
    if (!specs) return {};
-   if (typeof specs !== 'string') return specs;
-   try {
-      return JSON.parse(specs) as ProductSpecs;
-   } catch {
-      return {};
+   let parsed: unknown = specs;
+   if (typeof specs === 'string') {
+      try {
+         parsed = JSON.parse(specs);
+      } catch {
+         return {};
+      }
    }
+   if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
+   return parsed as ProductSpecs;
 }
 
 /** 规格组列表 */

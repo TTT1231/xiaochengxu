@@ -34,7 +34,7 @@ export interface Products {
    /** 产品图片 (微信云 fileID) */
    image: string;
    /** 产品规格 (JSON，云数据库迁移数据可能为字符串) */
-   specs: ProductSpecs | string;
+   specs?: ProductSpecs | string;
    /** 状态 (上架/下架) */
    status: boolean;
 }

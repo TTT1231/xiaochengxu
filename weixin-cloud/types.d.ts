@@ -11,6 +11,7 @@ declare module 'wx-server-sdk' {
       nin(values: unknown[]): unknown;
       and(...commands: unknown[]): unknown;
       or(...commands: unknown[]): unknown;
+      remove(): unknown;
    }
 
    // ── Result Types ───────────────────────────────────

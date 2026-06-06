@@ -1,84 +1,91 @@
 import { describe, it, expect } from 'vitest';
 import {
-   normalizeSpecifications,
-   mergeSpecifications,
+   normalizeEditableSpecs,
+   mergeProductSpecs,
+   parseProductSpecs,
    validateProductCreate,
    validateProductUpdate,
-   type SpecGroup,
+   type EditableSpecGroup,
 } from '../product-validation';
 
-// ── normalizeSpecifications ───────────────────────────
+// ── normalizeEditableSpecs ────────────────────────────
 
-describe('normalizeSpecifications', () => {
+describe('normalizeEditableSpecs', () => {
    it('returns undefined for undefined input', () => {
-      expect(normalizeSpecifications(undefined)).toBeUndefined();
+      expect(normalizeEditableSpecs(undefined)).toBeUndefined();
    });
 
    it('returns undefined for empty array', () => {
-      expect(normalizeSpecifications([])).toBeUndefined();
+      expect(normalizeEditableSpecs([])).toBeUndefined();
    });
 
    it('returns undefined for empty string', () => {
-      expect(normalizeSpecifications('')).toBeUndefined();
+      expect(normalizeEditableSpecs('')).toBeUndefined();
    });
 
    it('returns undefined for invalid JSON string', () => {
-      expect(normalizeSpecifications('{not json')).toBeUndefined();
+      expect(normalizeEditableSpecs('{not json')).toBeUndefined();
    });
 
    it('returns undefined for JSON string of non-array', () => {
-      expect(normalizeSpecifications('{"key": "value"}')).toBeUndefined();
+      expect(normalizeEditableSpecs('{"key": "value"}')).toBeUndefined();
    });
 
    it('returns undefined for JSON string of empty array', () => {
-      expect(normalizeSpecifications('[]')).toBeUndefined();
+      expect(normalizeEditableSpecs('[]')).toBeUndefined();
    });
 
-   it('parses valid JSON string into SpecGroup array', () => {
+   it('parses a valid JSON string into editable groups', () => {
       const input = JSON.stringify([
          { name: 'Size', required: true, options: [{ name: 'Large' }, { name: 'Small' }] },
       ]);
-      const result = normalizeSpecifications(input);
+      const result = normalizeEditableSpecs(input);
       expect(result).toHaveLength(1);
       expect(result![0].name).toBe('Size');
       expect(result![0].options).toHaveLength(2);
    });
 
-   it('returns array directly when input is already SpecGroup[]', () => {
-      const groups: SpecGroup[] = [
+   it('returns an existing editable group array directly', () => {
+      const groups: EditableSpecGroup[] = [
          { name: 'Temperature', required: false, options: [{ name: 'Hot' }] },
       ];
-      expect(normalizeSpecifications(groups)).toEqual(groups);
+      expect(normalizeEditableSpecs(groups)).toEqual(groups);
    });
 });
 
-// ── mergeSpecifications ───────────────────────────────
+// ── mergeProductSpecs ─────────────────────────────────
 
-describe('mergeSpecifications', () => {
-   it('returns edited specs when stored is undefined', () => {
-      const edited: SpecGroup[] = [{ name: 'Size', required: true, options: [{ name: 'L' }] }];
-      expect(mergeSpecifications(undefined, edited)).toEqual(edited);
+describe('mergeProductSpecs', () => {
+   it('converts edited specs to the canonical record', () => {
+      const edited: EditableSpecGroup[] = [
+         { name: 'Size', required: true, options: [{ name: 'L' }] },
+      ];
+      expect(mergeProductSpecs(undefined, edited)).toEqual({
+         Size: {
+            name: 'Size',
+            required: true,
+            options: [{ value: 'L', isSoldOut: false }],
+         },
+      });
    });
 
-   it('returns undefined when edited is undefined', () => {
-      expect(
-         mergeSpecifications([{ name: 'X', required: false, options: [] }], undefined),
-      ).toBeUndefined();
+   it('returns an empty record when edited is undefined', () => {
+      expect(mergeProductSpecs(undefined, undefined)).toEqual({});
    });
 
-   it('preserves legacy fields from stored options into edited options', () => {
-      const stored: SpecGroup[] = [
-         {
+   it('preserves supported fields from canonical stored options', () => {
+      const stored = JSON.stringify({
+         Size: {
             name: 'Size',
             required: true,
             options: [
-               { name: 'Large', price: 5, someLegacyField: 'keep-me' },
-               { name: 'Small', price: 0 },
+               { value: 'Large', isSoldOut: false, price: 5, someLegacyField: 'keep-me' },
+               { value: 'Small', isSoldOut: false, price: 0 },
             ],
          },
-      ];
+      });
 
-      const edited: SpecGroup[] = [
+      const edited: EditableSpecGroup[] = [
          {
             name: 'Size',
             required: true,
@@ -86,39 +93,62 @@ describe('mergeSpecifications', () => {
          },
       ];
 
-      const result = mergeSpecifications(stored, edited)!;
+      const result = mergeProductSpecs(stored, edited);
 
-      // Large: gets legacy price + someLegacyField merged in
-      const largeOpt = result[0].options.find(o => o.name === 'Large')!;
-      expect(largeOpt.sold_out).toBe(true);
+      const largeOpt = result.Size.options.find(o => o.value === 'Large')!;
+      expect(largeOpt.isSoldOut).toBe(true);
       expect(largeOpt.price).toBe(5);
       expect(largeOpt.someLegacyField).toBe('keep-me');
 
-      // Small: gets legacy price merged in
-      const smallOpt = result[0].options.find(o => o.name === 'Small')!;
+      const smallOpt = result.Size.options.find(o => o.value === 'Small')!;
       expect(smallOpt.price).toBe(0);
    });
 
-   it('does not overwrite edited fields with stored values', () => {
-      const stored: SpecGroup[] = [
-         {
+   it('uses canonical value and sold-out fields from the edit', () => {
+      const stored = {
+         Size: {
             name: 'Size',
             required: false,
-            options: [{ name: 'Large', price: 5 }],
+            options: [{ value: 'Large', isSoldOut: false, price: 5 }],
          },
-      ];
+      };
 
-      const edited: SpecGroup[] = [
+      const edited: EditableSpecGroup[] = [
          {
             name: 'Size',
             required: true,
-            options: [{ name: 'Large', price: 10 }],
+            options: [{ name: 'Large', sold_out: true }],
          },
       ];
 
-      const result = mergeSpecifications(stored, edited)!;
-      // Edited price (10) should win over stored price (5)
-      expect(result[0].options[0].price).toBe(10);
+      const result = mergeProductSpecs(stored, edited);
+      expect(result.Size.options[0]).toEqual({ value: 'Large', isSoldOut: true, price: 5 });
+   });
+
+   it('preserves the stored group key when the display name matches', () => {
+      const stored = {
+         packaging: {
+            name: '包装',
+            required: false,
+            options: [{ value: '普通包装', isSoldOut: false }],
+         },
+      };
+      const result = mergeProductSpecs(stored, [
+         { name: '包装', required: true, options: [{ name: '普通包装', sold_out: false }] },
+      ]);
+      expect(Object.keys(result)).toEqual(['packaging']);
+   });
+});
+
+describe('parseProductSpecs', () => {
+   it('parses a canonical JSON string', () => {
+      expect(parseProductSpecs('{"Size":{"name":"Size","required":true,"options":[]}}')).toEqual({
+         Size: { name: 'Size', required: true, options: [] },
+      });
+   });
+
+   it('rejects the old editable array shape', () => {
+      expect(parseProductSpecs('[{"name":"Size","options":[]} ]')).toEqual({});
    });
 });
 
@@ -127,7 +157,7 @@ describe('mergeSpecifications', () => {
 describe('validateProductCreate', () => {
    const validInput = {
       name: 'Test Product',
-      category_id: 'cat-1',
+      categoried_id: 'cat-1',
       price: 9.99,
    };
 
@@ -147,8 +177,8 @@ describe('validateProductCreate', () => {
       expect(validateProductCreate({ ...validInput, name: 'x'.repeat(101) }).valid).toBe(false);
    });
 
-   it('rejects missing category_id', () => {
-      expect(validateProductCreate({ ...validInput, category_id: '' }).valid).toBe(false);
+   it('rejects missing categoried_id', () => {
+      expect(validateProductCreate({ ...validInput, categoried_id: '' }).valid).toBe(false);
    });
 
    it('rejects missing price', () => {
@@ -183,29 +213,55 @@ describe('validateProductCreate', () => {
       );
    });
 
-   it('rejects specifications with empty group name', () => {
+   it('rejects specs with empty group name', () => {
       const result = validateProductCreate({
          ...validInput,
-         specifications: [{ name: '', required: true, options: [{ name: 'A' }] }],
+         specs: [{ name: '', required: true, options: [{ name: 'A' }] }],
       });
       expect(result.valid).toBe(false);
    });
 
-   it('rejects specifications with unnamed option', () => {
+   it('rejects specs with unnamed option', () => {
       const result = validateProductCreate({
          ...validInput,
-         specifications: [{ name: 'Size', required: true, options: [{ name: '' }] }],
+         specs: [{ name: 'Size', required: true, options: [{ name: '' }] }],
       });
       expect(result.valid).toBe(false);
    });
 
-   it('accepts product with valid specifications', () => {
+   it('accepts product with valid specs', () => {
       expect(
          validateProductCreate({
             ...validInput,
-            specifications: [{ name: 'Size', required: true, options: [{ name: 'Large' }] }],
+            specs: [{ name: 'Size', required: true, options: [{ name: 'Large' }] }],
          }).valid,
       ).toBe(true);
+   });
+
+   it('accepts an empty specs array to clear specs', () => {
+      expect(validateProductCreate({ ...validInput, specs: [] }).valid).toBe(true);
+   });
+
+   it('rejects malformed specs JSON', () => {
+      expect(validateProductCreate({ ...validInput, specs: '{broken' }).valid).toBe(false);
+   });
+
+   it('rejects duplicate groups and options', () => {
+      expect(
+         validateProductCreate({
+            ...validInput,
+            specs: [{ name: 'Size', required: true, options: [{ name: 'L' }, { name: 'L' }] }],
+         }).valid,
+      ).toBe(false);
+      expect(
+         validateProductCreate({
+            ...validInput,
+            specs: [
+               { name: 'Size', required: true, options: [] },
+               { name: 'Size', required: false, options: [] },
+            ],
+         }).valid,
+      ).toBe(false);
    });
 });
 
@@ -232,15 +288,15 @@ describe('validateProductUpdate', () => {
       expect(validateProductUpdate({ _id: 'p1', image: 'new.png' }).valid).toBe(true);
    });
 
-   it('rejects empty category_id when provided', () => {
-      expect(validateProductUpdate({ _id: 'p1', category_id: '' }).valid).toBe(false);
+   it('rejects empty categoried_id when provided', () => {
+      expect(validateProductUpdate({ _id: 'p1', categoried_id: '' }).valid).toBe(false);
    });
 
-   it('rejects whitespace category_id when provided', () => {
-      expect(validateProductUpdate({ _id: 'p1', category_id: '   ' }).valid).toBe(false);
+   it('rejects whitespace categoried_id when provided', () => {
+      expect(validateProductUpdate({ _id: 'p1', categoried_id: '   ' }).valid).toBe(false);
    });
 
-   it('accepts valid category_id update', () => {
-      expect(validateProductUpdate({ _id: 'p1', category_id: 'cat-2' }).valid).toBe(true);
+   it('accepts valid categoried_id update', () => {
+      expect(validateProductUpdate({ _id: 'p1', categoried_id: 'cat-2' }).valid).toBe(true);
    });
 });

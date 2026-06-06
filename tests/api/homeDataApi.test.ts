@@ -59,4 +59,34 @@ describe('getRightProductData', () => {
       expect(result).toHaveLength(1);
       expect(result[0].name).toBe('Cookie');
    });
+
+   it('ignores old specifications when specs is missing', async () => {
+      mockGet.mockResolvedValue({
+         data: [
+            {
+               _id: 'p1',
+               name: 'Legacy product',
+               image: '',
+               specifications: [
+                  { name: '包装', required: false, options: [{ name: '普通包装' }] },
+               ],
+            },
+         ],
+      });
+
+      const result = await getRightProductData();
+      expect(result[0].specs).toBeUndefined();
+      expect(result[0]).not.toHaveProperty('specifications');
+   });
+
+   it('keeps canonical specs when both fields exist', async () => {
+      const specs = { packaging: { name: '包装', required: false, options: [] } };
+      mockGet.mockResolvedValue({
+         data: [{ _id: 'p1', name: 'Mixed product', image: '', specs, specifications: [] }],
+      });
+
+      const result = await getRightProductData();
+      expect(result[0].specs).toEqual(specs);
+      expect(result[0]).not.toHaveProperty('specifications');
+   });
 });

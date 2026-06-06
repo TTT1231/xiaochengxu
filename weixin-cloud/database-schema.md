@@ -57,6 +57,8 @@ interface ProductDocument {
 
 - `_id` MUST preserve the original numeric ID. Cloud functions use `doc(id).get()` inside transactions which requires the exact `_id`.
 - `images` stores stable storage paths or cloud fileIDs separated by `&`. Frontend helpers prepend the cloud storage prefix when needed.
+- `specs` and `categoried_id` are the only canonical product fields used by clients and cloud-function writes.
+- Historical `specifications` is ignored and never rendered. Product list APIs omit old fields, and `admin-products.update` removes them.
 
 ## Collection: `orders`
 

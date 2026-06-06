@@ -8,44 +8,42 @@
 
 // ── Types ─────────────────────────────────────────────
 
-export interface SpecGroup {
+export interface EditableSpecGroup {
    name: string;
    required: boolean;
-   options: SpecOption[];
+   options: EditableSpecOption[];
 }
 
-export interface SpecOption {
+export interface EditableSpecOption {
    name: string;
    sold_out?: boolean;
-   /** Legacy fields preserved when option is retained in an edit */
    [key: string]: unknown;
 }
 
 export interface ProductInput {
    name?: string;
-   category_id?: string;
+   categoried_id?: string;
    description?: string;
    price?: number;
    image?: string;
    status?: boolean;
-   specifications?: SpecGroup[] | string;
+   specs?: EditableSpecGroup[] | string;
 }
 
 export interface StoredProduct extends ProductInput {
    _id: string;
-   specifications?: SpecGroup[] | string;
    [key: string]: unknown;
 }
 
 // ── Specification normalization ───────────────────────
 
 /**
- * Parse legacy JSON-string or object specifications into a normalized
- * SpecGroup array. Returns `undefined` for empty / invalid specs.
+ * Parse the admin editor's array-shaped specs into a normalized array.
+ * Returns `undefined` for empty or invalid input.
  */
-export function normalizeSpecifications(
-   raw: SpecGroup[] | string | undefined,
-): SpecGroup[] | undefined {
+export function normalizeEditableSpecs(
+   raw: EditableSpecGroup[] | string | undefined,
+): EditableSpecGroup[] | undefined {
    if (!raw) return undefined;
 
    // Already an array of groups
@@ -69,44 +67,83 @@ export function normalizeSpecifications(
 }
 
 /**
- * Merge edited specification groups into the stored specifications,
- * preserving supported legacy option fields that remain present in
- * the edited options.
+ * Convert edited groups to the canonical product specs record while preserving
+ * supported option fields (for example `price`) from the stored record.
  */
-export function mergeSpecifications(
-   stored: SpecGroup[] | string | undefined,
-   edited: SpecGroup[] | undefined,
-): SpecGroup[] | undefined {
-   const normalized = normalizeSpecifications(stored);
-   if (!edited || edited.length === 0) return edited;
-
-   if (!normalized) return edited;
-
-   // Build a lookup of stored options by group name + option name
-   const storedLookup = new Map<string, SpecOption>();
-   for (const group of normalized) {
+export function mergeProductSpecs(
+   stored: unknown,
+   edited: EditableSpecGroup[] | undefined,
+): Record<
+   string,
+   {
+      name: string;
+      required: boolean;
+      options: Array<{ value: string; isSoldOut: boolean; [key: string]: unknown }>;
+   }
+> {
+   const storedRecord = parseProductSpecs(stored);
+   const storedLookup = new Map<string, Record<string, unknown>>();
+   const storedGroupKeys = new Map<string, string>();
+   for (const [groupKey, group] of Object.entries(storedRecord)) {
+      storedGroupKeys.set(group.name, groupKey);
       for (const option of group.options ?? []) {
-         storedLookup.set(`${group.name}::${option.name}`, option);
+         storedLookup.set(`${group.name}::${option.value}`, option);
       }
    }
 
-   // Merge legacy fields from stored into edited options
-   for (const group of edited) {
-      for (let i = 0; i < (group.options ?? []).length; i++) {
-         const key = `${group.name}::${group.options[i].name}`;
-         const storedOpt = storedLookup.get(key);
-         if (storedOpt) {
-            // Preserve legacy fields from stored that aren't in the edited version
-            for (const [field, value] of Object.entries(storedOpt)) {
-               if (!(field in group.options[i])) {
-                  group.options[i][field] = value;
-               }
-            }
-         }
+   const record: Record<
+      string,
+      {
+         name: string;
+         required: boolean;
+         options: Array<{ value: string; isSoldOut: boolean; [key: string]: unknown }>;
+      }
+   > = {};
+
+   for (const group of edited ?? []) {
+      const groupKey = storedGroupKeys.get(group.name) ?? group.name;
+      record[groupKey] = {
+         name: group.name,
+         required: group.required ?? false,
+         options: (group.options ?? []).map(option => {
+            const storedOption = storedLookup.get(`${group.name}::${option.name}`);
+            return {
+               ...storedOption,
+               value: option.name,
+               isSoldOut: option.sold_out ?? false,
+            };
+         }),
+      };
+   }
+   return record;
+}
+
+/** Parse canonical product specs stored as a record or JSON string. */
+export function parseProductSpecs(raw: unknown): Record<
+   string,
+   {
+      name: string;
+      required: boolean;
+      options: Array<{ value: string; isSoldOut: boolean; [key: string]: unknown }>;
+   }
+> {
+   let parsed = raw;
+   if (typeof raw === 'string') {
+      try {
+         parsed = JSON.parse(raw);
+      } catch {
+         return {};
       }
    }
-
-   return edited;
+   if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
+   return parsed as Record<
+      string,
+      {
+         name: string;
+         required: boolean;
+         options: Array<{ value: string; isSoldOut: boolean; [key: string]: unknown }>;
+      }
+   >;
 }
 
 // ── Product field validation ──────────────────────────
@@ -127,7 +164,7 @@ export function validateProductCreate(input: ProductInput): ValidationResult {
    if (input.name.length > MAX_NAME_LENGTH) {
       return { valid: false, message: `商品名称不能超过${MAX_NAME_LENGTH}个字符` };
    }
-   if (input.category_id == null || String(input.category_id).trim().length === 0) {
+   if (input.categoried_id == null || String(input.categoried_id).trim().length === 0) {
       return { valid: false, message: '请选择商品分类' };
    }
    if (
@@ -153,14 +190,8 @@ export function validateProductCreate(input: ProductInput): ValidationResult {
       return { valid: false, message: `商品描述不能超过${MAX_DESCRIPTION_LENGTH}个字符` };
    }
 
-   // Validate specifications structure if provided
-   if (input.specifications) {
-      const specs = normalizeSpecifications(input.specifications);
-      if (specs) {
-         const specResult = validateSpecGroups(specs);
-         if (!specResult.valid) return specResult;
-      }
-   }
+   const specResult = validateSpecsInput(input.specs);
+   if (!specResult.valid) return specResult;
 
    return { valid: true, message: '' };
 }
@@ -181,8 +212,8 @@ export function validateProductUpdate(
       }
    }
 
-   if (input.category_id !== undefined) {
-      if (String(input.category_id).trim().length === 0) {
+   if (input.categoried_id !== undefined) {
+      if (String(input.categoried_id).trim().length === 0) {
          return { valid: false, message: '请选择商品分类' };
       }
    }
@@ -209,30 +240,48 @@ export function validateProductUpdate(
       return { valid: false, message: `商品描述不能超过${MAX_DESCRIPTION_LENGTH}个字符` };
    }
 
-   // Validate specifications structure if provided
-   if (input.specifications) {
-      const specs = normalizeSpecifications(input.specifications);
-      if (specs) {
-         const specResult = validateSpecGroups(specs);
-         if (!specResult.valid) return specResult;
-      }
-   }
+   const specResult = validateSpecsInput(input.specs);
+   if (!specResult.valid) return specResult;
 
    return { valid: true, message: '' };
 }
 
-function validateSpecGroups(specs: SpecGroup[]): ValidationResult {
+function validateSpecsInput(raw: EditableSpecGroup[] | string | undefined): ValidationResult {
+   if (raw === undefined || raw === '' || (Array.isArray(raw) && raw.length === 0)) {
+      return { valid: true, message: '' };
+   }
+   const specs = normalizeEditableSpecs(raw);
+   if (!specs) return { valid: false, message: '商品规格格式不正确' };
+   return validateSpecGroups(specs);
+}
+
+function validateSpecGroups(specs: EditableSpecGroup[]): ValidationResult {
+   const groupNames = new Set<string>();
    for (const group of specs) {
-      if (!group.name || typeof group.name !== 'string' || group.name.trim().length === 0) {
+      if (
+         !group ||
+         typeof group !== 'object' ||
+         typeof group.name !== 'string' ||
+         !group.name.trim()
+      ) {
          return { valid: false, message: '规格组名称不能为空' };
       }
+      if (groupNames.has(group.name)) {
+         return { valid: false, message: `规格组「${group.name}」重复` };
+      }
+      groupNames.add(group.name);
       if (!Array.isArray(group.options)) {
          return { valid: false, message: `规格组「${group.name}」的选项格式不正确` };
       }
+      const optionNames = new Set<string>();
       for (const opt of group.options) {
-         if (!opt.name || typeof opt.name !== 'string' || opt.name.trim().length === 0) {
+         if (!opt || typeof opt !== 'object' || typeof opt.name !== 'string' || !opt.name.trim()) {
             return { valid: false, message: `规格组「${group.name}」中有未命名的选项` };
          }
+         if (optionNames.has(opt.name)) {
+            return { valid: false, message: `规格组「${group.name}」中选项「${opt.name}」重复` };
+         }
+         optionNames.add(opt.name);
       }
    }
    return { valid: true, message: '' };

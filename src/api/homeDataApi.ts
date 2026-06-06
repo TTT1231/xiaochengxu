@@ -41,7 +41,22 @@ export async function getLeftMenuData(): Promise<Categoried[]> {
 }
 
 export async function getRightProductData(): Promise<Products[]> {
-   const products = await fetchAll<Products>('products', { status: true });
+   const rawProducts = await fetchAll<
+      Products & { specifications?: unknown; category_id?: string | number }
+   >('products', { status: true });
+   const products = rawProducts.map(product => {
+      const normalized = { ...product };
+      if (
+         normalized.categoried_id === undefined &&
+         normalized.category_id !== undefined &&
+         normalized.category_id !== 'undefined'
+      ) {
+         normalized.categoried_id = normalized.category_id;
+      }
+      delete normalized.category_id;
+      delete normalized.specifications;
+      return normalized;
+   });
 
    const fileIDs = [
       ...new Set(

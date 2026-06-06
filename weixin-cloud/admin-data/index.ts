@@ -1,5 +1,4 @@
 import cloud from 'wx-server-sdk';
-
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV as unknown as string });
 
 const db = cloud.database();
@@ -28,9 +27,32 @@ export async function main(
       }
 
       if (action === 'products') {
-         const { data } = await db.collection('products').where({ status: true }).orderBy('_id', 'asc').limit(100).get();
+         const { data } = await db
+            .collection('products')
+            .where({ status: true })
+            .orderBy('_id', 'asc')
+            .limit(100)
+            .get();
 
-         const products = data as Array<{ image: string }>;
+         const products = data as Array<{
+            image: string;
+            specs?: unknown;
+            specifications?: unknown;
+            categoried_id?: string | number;
+            category_id?: string | number;
+         }>;
+
+         for (const product of products) {
+            if (
+               product.categoried_id === undefined &&
+               product.category_id !== undefined &&
+               product.category_id !== 'undefined'
+            ) {
+               product.categoried_id = product.category_id;
+            }
+            delete product.category_id;
+            delete product.specifications;
+         }
 
          // Step 1: 将所有类型的图片统一转为 cloud:// fileID
          for (const p of products) {
@@ -47,11 +69,13 @@ export async function main(
          }
 
          // Step 2: 收集所有 cloud:// fileID，批量转为 HTTPS 临时 URL
-         const fileIDs = [...new Set(
-            products
-               .map(p => p.image)
-               .filter((img): img is string => !!img && img.startsWith('cloud://'))
-         )];
+         const fileIDs = [
+            ...new Set(
+               products
+                  .map(p => p.image)
+                  .filter((img): img is string => !!img && img.startsWith('cloud://')),
+            ),
+         ];
 
          if (fileIDs.length > 0) {
             const urlResult = await cloud.getTempFileURL({ fileList: fileIDs });
