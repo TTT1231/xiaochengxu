@@ -186,7 +186,7 @@ export async function main(
 ): Promise<{ success: boolean; data?: Record<string, unknown>; message: string }> {
    try {
       // Every action requires admin authorization
-      await authorizeAdmin();
+      await authorizeAdmin((event as { adminOpenId?: string }).adminOpenId);
    } catch (error) {
       if (isAuthorizationError(error)) {
          return { success: false, message: error.message };

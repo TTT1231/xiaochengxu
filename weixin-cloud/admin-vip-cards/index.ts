@@ -178,7 +178,7 @@ export async function main(
    event: AdminVipCardsEvent,
 ): Promise<{ success: boolean; data?: Record<string, unknown>; message: string }> {
    try {
-      await authorizeAdmin();
+      await authorizeAdmin((event as { adminOpenId?: string }).adminOpenId);
    } catch (error) {
       if (isAuthorizationError(error)) {
          return { success: false, message: error.message };
