@@ -106,6 +106,7 @@ export const useUserStore = defineStore('user', {
                this.user = {
                   ...this.user,
                   ...(params.phone !== undefined ? { phone: params.phone } : {}),
+                  ...(params.address !== undefined ? { address: params.address } : {}),
                };
             }
             return result;
