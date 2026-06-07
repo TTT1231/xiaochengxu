@@ -5,30 +5,38 @@ import { onShow } from '@dcloudio/uni-app';
 import { useUserStore } from '@/stores';
 import { useHeaderHeight } from '@/composables/useHeaderHeight';
 import Header from '@/components/common/Header.vue';
+import type { UpdateProfileParams } from '@/api/userApi';
 
 const { headerHeight } = useHeaderHeight();
 const userStore = useUserStore();
 
 const phone = ref('');
 const originalPhone = ref('');
+const address = ref('');
+const originalAddress = ref('');
 const isSaving = ref(false);
 
 const nickname = computed(() => userStore.user?.name ?? '');
 
 const hasPhone = computed(() => !!phone.value);
+const isPhoneLocked = computed(() => !!phone.value);
 const displayPhone = computed(() => {
    const p = phone.value;
    if (!p || p.length !== 11) return p || '';
    return p.slice(0, 3) + '****' + p.slice(7);
 });
 
-const hasChanges = computed(() => phone.value !== originalPhone.value);
+const hasChanges = computed(() => {
+   return phone.value !== originalPhone.value || address.value !== originalAddress.value;
+});
 
 onShow(() => {
    const user = userStore.user;
    if (user) {
       phone.value = user.phone ?? '';
       originalPhone.value = user.phone ?? '';
+      address.value = user.address ?? '';
+      originalAddress.value = user.address ?? '';
    }
 });
 
@@ -37,13 +45,20 @@ async function handleSave(): Promise<void> {
 
    isSaving.value = true;
    try {
-      const params: Record<string, string> = {};
-      if (phone.value && phone.value !== originalPhone.value) {
-         if (!/^1[3-9]\d{9}$/.test(phone.value)) {
+      const params: UpdateProfileParams = {};
+
+      if (phone.value !== originalPhone.value) {
+         if (phone.value && !/^1[3-9]\d{9}$/.test(phone.value)) {
             uni.showToast({ title: '手机号格式不正确', icon: 'none' });
             return;
          }
-         params.phone = phone.value;
+         if (phone.value) {
+            params.phone = phone.value;
+         }
+      }
+
+      if (address.value !== originalAddress.value) {
+         params.address = address.value;
       }
 
       if (Object.keys(params).length === 0) {
@@ -53,10 +68,8 @@ async function handleSave(): Promise<void> {
 
       const result = await userStore.updateUserProfile(params);
       if (result.success) {
-         if (params.phone) {
-            originalPhone.value = params.phone;
-            phone.value = params.phone;
-         }
+         originalPhone.value = phone.value;
+         originalAddress.value = address.value;
          uni.showToast({ title: '保存成功', icon: 'success' });
          setTimeout(() => {
             uni.navigateBack();
@@ -75,8 +88,10 @@ async function handleSave(): Promise<void> {
 }
 
 function handleBindPhone(): void {
+   if (isPhoneLocked.value) return;
+
    uni.showModal({
-      title: hasPhone.value ? '修改手机号' : '绑定手机号',
+      title: '绑定手机号',
       editable: true,
       placeholderText: '请输入手机号',
       success: res => {
@@ -87,6 +102,20 @@ function handleBindPhone(): void {
                return;
             }
             phone.value = input;
+         }
+      },
+   });
+}
+
+function handleEditAddress(): void {
+   uni.showModal({
+      title: '编辑地址',
+      editable: true,
+      placeholderText: '请输入地址',
+      content: address.value,
+      success: res => {
+         if (res.confirm) {
+            address.value = res.content?.trim() ?? '';
          }
       },
    });
@@ -117,11 +146,27 @@ function handleBindPhone(): void {
          <view class="form-divider" />
 
          <!-- 手机号 -->
-         <view class="form-item" @click="handleBindPhone()">
+         <view
+            class="form-item"
+            :class="{ 'form-item--disabled': isPhoneLocked }"
+            @click="handleBindPhone()"
+         >
             <text class="form-label">手机号</text>
             <view class="form-value form-value--phone">
                <text v-if="hasPhone" class="phone-bound">{{ displayPhone }}</text>
                <text v-else class="phone-unbound">点击绑定</text>
+               <text v-if="!isPhoneLocked" class="arrow">›</text>
+            </view>
+         </view>
+
+         <view class="form-divider form-divider--full" />
+
+         <!-- 地址 -->
+         <view class="form-item" @click="handleEditAddress()">
+            <text class="form-label">地址</text>
+            <view class="form-value form-value--phone">
+               <text v-if="address" class="phone-bound">{{ address }}</text>
+               <text v-else class="phone-unbound">点击填写</text>
                <text class="arrow">›</text>
             </view>
          </view>
@@ -228,6 +273,14 @@ function handleBindPhone(): void {
 .phone-unbound {
    font-size: 28rpx;
    color: $brand-primary;
+}
+
+.form-item--disabled {
+   opacity: 0.5;
+}
+
+.form-divider--full {
+   margin-left: 0;
 }
 
 .arrow {
