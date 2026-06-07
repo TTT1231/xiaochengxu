@@ -39,29 +39,46 @@ onShow(() => {
 async function handleSave(): Promise<void> {
    if (!hasChanges.value || isSaving.value) return;
 
-   isSaving.value = true;
-   try {
-      const params: UpdateProfileParams = {};
+   const params: UpdateProfileParams = {};
 
-      if (phone.value !== originalPhone.value) {
-         if (phone.value && !/^1[3-9]\d{9}$/.test(phone.value)) {
-            uni.showToast({ title: '手机号格式不正确', icon: 'none' });
-            return;
-         }
-         if (phone.value) {
-            params.phone = phone.value;
-         }
-      }
-
-      if (address.value !== originalAddress.value) {
-         params.address = address.value;
-      }
-
-      if (Object.keys(params).length === 0) {
-         isSaving.value = false;
+   if (phone.value !== originalPhone.value) {
+      if (phone.value && !/^1[3-9]\d{9}$/.test(phone.value)) {
+         uni.showToast({ title: '手机号格式不正确', icon: 'none' });
          return;
       }
+      if (phone.value) {
+         params.phone = phone.value;
+      }
+   }
 
+   if (address.value !== originalAddress.value) {
+      params.address = address.value;
+   }
+
+   if (Object.keys(params).length === 0) {
+      return;
+   }
+
+   // 手机号绑定前弹警醒框
+   if (params.phone) {
+      return uni.showModal({
+         title: '确认绑定',
+         content: '手机号一旦绑定，不可更改，是否确认？',
+         success: res => {
+            if (res.confirm) {
+               doSave(params);
+            }
+         },
+      });
+   }
+
+   // 仅修改地址，直接保存
+   doSave(params);
+}
+
+async function doSave(params: UpdateProfileParams): Promise<void> {
+   isSaving.value = true;
+   try {
       const result = await userStore.updateUserProfile(params);
       if (result.success) {
          originalPhone.value = phone.value;
