@@ -10,6 +10,8 @@ export interface Users {
    created_at: string;
    /** 手机号 */
    phone?: string;
+   /** 地址 */
+   address?: string;
 }
 
 /** @deprecated 旧积分表，已废弃，使用 Wallets 替代 */

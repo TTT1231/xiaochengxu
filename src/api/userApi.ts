@@ -46,7 +46,7 @@ export async function getCloudProfile(): Promise<UserProfile | null> {
 
 export interface UpdateProfileParams {
    phone?: string;
-   [key: string]: unknown;
+   address?: string;
 }
 
 export interface UpdateProfileResult {
@@ -58,7 +58,10 @@ export async function updateCloudProfile(
    params: UpdateProfileParams,
 ): Promise<UpdateProfileResult> {
    try {
-      const res = await wx.cloud.callFunction({ name: 'update-profile', data: params });
+      const res = await wx.cloud.callFunction({
+         name: 'update-profile',
+         data: params as Record<string, unknown>,
+      });
       return res.result as UpdateProfileResult;
    } catch (error) {
       return {
