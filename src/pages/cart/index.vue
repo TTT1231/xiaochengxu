@@ -199,6 +199,73 @@ const handleCheckout = async () => {
                   </view>
                </view>
             </view>
+
+            <view class="delivery-section">
+               <view class="delivery-header">
+                  <text class="delivery-title">取餐方式</text>
+               </view>
+               <view class="delivery-toggle">
+                  <view
+                     class="toggle-option"
+                     :class="{ active: deliveryType === 'pickup' }"
+                     @click="deliveryType = 'pickup'"
+                  >
+                     <text class="toggle-mark">店</text>
+                     <text class="toggle-label">到店自提</text>
+                  </view>
+                  <view
+                     class="toggle-option"
+                     :class="{ active: deliveryType === 'delivery' }"
+                     @click="deliveryType = 'delivery'"
+                  >
+                     <text class="toggle-mark">送</text>
+                     <text class="toggle-label">商家配送</text>
+                  </view>
+               </view>
+
+               <view v-if="deliveryType === 'delivery'" class="delivery-panel">
+                  <view v-if="!isDeliveryInfoComplete" class="delivery-hint">
+                     <view class="hint-text">
+                        <text class="hint-title">配送信息缺失</text>
+                        <text class="hint-desc">请先绑定手机号和地址</text>
+                     </view>
+                     <view class="hint-action" @click="goToProfile">去绑定</view>
+                  </view>
+                  <view v-else class="delivery-info">
+                     <view class="info-row">
+                        <text class="info-label">地址</text>
+                        <text class="info-text">{{ userStore.user?.address }}</text>
+                     </view>
+                     <view class="info-row">
+                        <text class="info-label">手机</text>
+                        <text class="info-text">{{ userStore.user?.phone }}</text>
+                     </view>
+                  </view>
+               </view>
+
+               <view v-if="deliveryType === 'delivery'" class="delivery-fee-row">
+                  <view class="fee-left">
+                     <text class="fee-label">配送费</text>
+                     <text class="fee-threshold"
+                        >(满{{ deliveryConfig.free_threshold }}免{{
+                           deliveryConfig.delivery_fee
+                        }})</text
+                     >
+                  </view>
+                  <text class="fee-value" :class="{ free: deliveryFee === 0 }">
+                     {{ deliveryFee === 0 ? '免配送费' : formatPriceDisplay(deliveryFee) }}
+                  </text>
+               </view>
+
+               <view class="remark-section">
+                  <input
+                     class="remark-input"
+                     v-model="remark"
+                     placeholder="订单备注（选填）"
+                     maxlength="200"
+                  />
+               </view>
+            </view>
          </view>
       </view>
 
@@ -215,71 +282,6 @@ const handleCheckout = async () => {
                <text class="deduct-text">使用余额</text>
             </view>
             <text class="deduct-amount">抵扣 {{ formatPriceDisplay(availableWalletDeduct) }}</text>
-         </view>
-
-         <view class="delivery-section">
-            <view class="delivery-toggle">
-               <view
-                  class="toggle-option"
-                  :class="{ active: deliveryType === 'pickup' }"
-                  @click="deliveryType = 'pickup'"
-               >
-                  <text class="toggle-icon">🏪</text>
-                  <text class="toggle-label">到店自提</text>
-               </view>
-               <view
-                  class="toggle-option"
-                  :class="{ active: deliveryType === 'delivery' }"
-                  @click="deliveryType = 'delivery'"
-               >
-                  <text class="toggle-icon">🛵</text>
-                  <text class="toggle-label">商家配送</text>
-               </view>
-            </view>
-
-            <view v-if="deliveryType === 'delivery'" class="delivery-panel">
-               <view v-if="!isDeliveryInfoComplete" class="delivery-hint">
-                  <text class="hint-icon">⚠️</text>
-                  <view class="hint-text">
-                     <text class="hint-title">配送信息缺失</text>
-                     <text class="hint-desc">请先绑定手机号和地址</text>
-                  </view>
-                  <view class="hint-action" @click="goToProfile">去绑定 ❯</view>
-               </view>
-               <view v-else class="delivery-info">
-                  <view class="info-row">
-                     <text class="info-icon">📍</text>
-                     <text class="info-text">{{ userStore.user?.address }}</text>
-                  </view>
-                  <view class="info-row">
-                     <text class="info-icon">📱</text>
-                     <text class="info-text">{{ userStore.user?.phone }}</text>
-                  </view>
-               </view>
-            </view>
-
-            <view v-if="deliveryType === 'delivery'" class="delivery-fee-row">
-               <view class="fee-left">
-                  <text class="fee-label">配送费</text>
-                  <text class="fee-threshold"
-                     >(满{{ deliveryConfig.free_threshold }}免{{
-                        deliveryConfig.delivery_fee
-                     }})</text
-                  >
-               </view>
-               <text class="fee-value" :class="{ free: deliveryFee === 0 }">
-                  {{ deliveryFee === 0 ? '免配送费' : formatPriceDisplay(deliveryFee) }}
-               </text>
-            </view>
-
-            <view class="remark-section">
-               <input
-                  class="remark-input"
-                  v-model="remark"
-                  placeholder="订单备注（选填）"
-                  maxlength="200"
-               />
-            </view>
          </view>
 
          <view class="checkout-row">
@@ -300,7 +302,7 @@ const handleCheckout = async () => {
 .cart-page {
    min-height: 100vh;
    background-color: $bg-page;
-   padding-bottom: calc(220rpx + env(safe-area-inset-bottom));
+   padding-bottom: calc(210rpx + env(safe-area-inset-bottom));
 }
 
 .page-content {
@@ -515,9 +517,10 @@ const handleCheckout = async () => {
    background-color: $bg-card;
    display: flex;
    flex-direction: column;
-   gap: 18rpx;
-   padding: 18rpx 32rpx calc(22rpx + env(safe-area-inset-bottom));
-   box-shadow: 0px -4rpx 16rpx rgba(0, 0, 0, 0.05);
+   gap: 14rpx;
+   padding: 16rpx 32rpx calc(22rpx + env(safe-area-inset-bottom));
+   border-radius: 24rpx 24rpx 0 0;
+   box-shadow: 0 -8rpx 28rpx rgba(43, 28, 15, 0.08);
 }
 
 .checkout-row {
@@ -570,7 +573,7 @@ const handleCheckout = async () => {
    justify-content: space-between;
    gap: 20rpx;
    min-height: 56rpx;
-   padding-bottom: 14rpx;
+   padding: 0 4rpx 14rpx;
    border-bottom: 1rpx solid $border-default;
 }
 
@@ -616,17 +619,35 @@ const handleCheckout = async () => {
 }
 
 .delivery-section {
-   padding: 14rpx 0;
-   border-top: 1rpx solid $border-default;
-   margin-top: 10rpx;
+   display: flex;
+   flex-direction: column;
+   gap: 16rpx;
+   background: $bg-card;
+   border-radius: $radius-lg;
+   padding: 24rpx;
+}
+
+.delivery-header {
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   padding: 0 4rpx;
+}
+
+.delivery-title {
+   font-size: 24rpx;
+   font-weight: 600;
+   color: $text-secondary;
+   line-height: 34rpx;
 }
 
 .delivery-toggle {
    display: flex;
-   background: $bg-page;
-   border-radius: 12rpx;
-   padding: 4rpx;
-   gap: 4rpx;
+   background: #f8f5f2;
+   border: 1rpx solid rgba(238, 134, 43, 0.12);
+   border-radius: 16rpx;
+   padding: 6rpx;
+   gap: 6rpx;
 }
 
 .toggle-option {
@@ -634,99 +655,128 @@ const handleCheckout = async () => {
    display: flex;
    align-items: center;
    justify-content: center;
-   gap: 8rpx;
-   padding: 12rpx 0;
-   border-radius: 10rpx;
-   font-size: 24rpx;
-   color: $text-muted;
+   gap: 10rpx;
+   min-height: 58rpx;
+   border-radius: 12rpx;
+   color: $text-secondary;
    transition: all 0.2s;
 
    &.active {
-      background: $bg-card;
+      background: #fffaf5;
+      border: 1rpx solid rgba(238, 134, 43, 0.36);
       color: $brand-primary;
       font-weight: 600;
-      box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+      box-shadow: 0 4rpx 14rpx rgba(238, 134, 43, 0.12);
+
+      .toggle-mark {
+         background: $brand-primary;
+         color: $uni-text-color-inverse;
+      }
    }
 }
 
-.toggle-icon {
-   font-size: 28rpx;
+.toggle-mark {
+   width: 34rpx;
+   height: 34rpx;
+   border-radius: 50%;
+   background: rgba(238, 134, 43, 0.12);
+   color: $brand-primary;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   font-size: 20rpx;
+   font-weight: 700;
+   line-height: 1;
 }
 
 .toggle-label {
-   font-size: 24rpx;
+   font-size: 25rpx;
+   line-height: 34rpx;
 }
 
 .delivery-panel {
-   margin-top: 12rpx;
+   margin-top: 0;
 }
 
 .delivery-hint {
    display: flex;
    align-items: center;
-   gap: 10rpx;
-   background: #fef2f2;
-   border: 1rpx solid #fecaca;
+   gap: 16rpx;
+   background: #fff7ed;
+   border: 1rpx solid rgba(238, 134, 43, 0.22);
    border-radius: 12rpx;
-   padding: 14rpx;
-}
-
-.hint-icon {
-   font-size: 28rpx;
+   padding: 16rpx 18rpx;
 }
 
 .hint-text {
    flex: 1;
+   display: flex;
+   flex-direction: column;
+   gap: 2rpx;
+   min-width: 0;
 }
 
 .hint-title {
    font-size: 24rpx;
    font-weight: 600;
-   color: #991b1b;
+   color: $text-primary;
+   line-height: 34rpx;
 }
 
 .hint-desc {
-   font-size: 20rpx;
-   color: #b91c1c;
+   font-size: 21rpx;
+   color: $text-muted;
+   line-height: 30rpx;
 }
 
 .hint-action {
    font-size: 22rpx;
    color: $brand-primary;
    font-weight: 600;
-   padding: 6rpx 14rpx;
-   background: #fef3c7;
-   border-radius: 16rpx;
+   padding: 8rpx 18rpx;
+   background: $bg-card;
+   border: 1rpx solid rgba(238, 134, 43, 0.28);
+   border-radius: $radius-full;
+   flex-shrink: 0;
 }
 
 .delivery-info {
-   background: #f0fdf4;
-   border: 1rpx solid #bbf7d0;
+   background: #f5fff8;
+   border: 1rpx solid #ccefd7;
    border-radius: 12rpx;
-   padding: 14rpx;
+   padding: 16rpx 18rpx;
 }
 
 .info-row {
    display: flex;
-   align-items: center;
-   gap: 8rpx;
-   padding: 4rpx 0;
+   align-items: flex-start;
+   gap: 14rpx;
+   padding: 3rpx 0;
 }
 
-.info-icon {
-   font-size: 24rpx;
+.info-label {
+   width: 58rpx;
+   font-size: 21rpx;
+   font-weight: 600;
+   color: #16834b;
+   line-height: 32rpx;
+   flex-shrink: 0;
 }
 
 .info-text {
-   font-size: 24rpx;
+   flex: 1;
+   min-width: 0;
+   font-size: 23rpx;
    color: #166534;
+   line-height: 32rpx;
+   word-break: break-all;
 }
 
 .delivery-fee-row {
    display: flex;
    justify-content: space-between;
    align-items: center;
-   padding: 10rpx 0 4rpx;
+   padding: 2rpx 4rpx 0;
 }
 
 .fee-left {
@@ -738,11 +788,13 @@ const handleCheckout = async () => {
 .fee-label {
    font-size: 24rpx;
    color: $text-secondary;
+   line-height: 34rpx;
 }
 
 .fee-threshold {
    font-size: 20rpx;
    color: $text-muted;
+   line-height: 30rpx;
 }
 
 .fee-value {
@@ -756,15 +808,15 @@ const handleCheckout = async () => {
 }
 
 .remark-section {
-   margin-top: 8rpx;
+   margin-top: 0;
 }
 
 .remark-input {
    width: 100%;
-   height: 64rpx;
+   height: 66rpx;
    background: $bg-page;
-   border-radius: 10rpx;
-   padding: 0 20rpx;
+   border-radius: 12rpx;
+   padding: 0 22rpx;
    font-size: 24rpx;
    color: $text-primary;
    box-sizing: border-box;

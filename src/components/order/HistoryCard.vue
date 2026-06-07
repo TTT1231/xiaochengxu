@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import type { Orders } from '@/types';
 import { commonIcons } from '@/data/imgPaths';
 import { formatPriceDisplay, formatDateTime } from '@/utils/format';
+import { calcOrderActualAmount } from '@/utils/orderAmount';
 import { getStatusText, getStatusColor } from '@/composables/useOrder';
 import { hexToRgba } from '@/utils/color';
 
@@ -33,14 +34,7 @@ const userIdTail = computed(() => {
    return id.length >= 4 ? id.slice(-4) : id;
 });
 
-const actualAmount = computed(() =>
-   Math.max(
-      props.order.total_amount -
-         (props.order.discount_amount ?? 0) -
-         (props.order.wallet_deduct ?? 0),
-      0,
-   ),
-);
+const actualAmount = computed(() => calcOrderActualAmount(props.order));
 
 const statusColor = computed(() => getStatusColor(props.order.order_status));
 const statusText = computed(() => getStatusText(props.order.order_status));

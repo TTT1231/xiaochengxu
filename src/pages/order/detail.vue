@@ -3,7 +3,10 @@ import { ref, computed } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
 import type { Orders } from '@/types';
 import { getOrderDetail } from '@/api/orderApi';
+import { getDeliveryConfig } from '@/api/deliveryApi';
+import type { DeliveryConfigResult } from '@/api/deliveryApi';
 import { formatPriceDisplay, formatDateTime } from '@/utils/format';
+import { calcOrderActualAmount } from '@/utils/orderAmount';
 import { getStatusText, getStatusColor } from '@/composables/useOrder';
 import { darkenHex } from '@/utils/color';
 import Header from '@/components/common/Header.vue';
@@ -14,16 +17,11 @@ const { headerHeight } = useHeaderHeight();
 const order = ref<Orders | null>(null);
 const loading = ref(true);
 const orderId = ref('');
+const deliveryConfig = ref<DeliveryConfigResult>({ free_threshold: 30, delivery_fee: 8 });
 
 const actualAmount = computed(() => {
    if (!order.value) return 0;
-   return Math.max(
-      order.value.total_amount +
-         (order.value.delivery_fee ?? 0) -
-         (order.value.discount_amount ?? 0) -
-         (order.value.wallet_deduct ?? 0),
-      0,
-   );
+   return calcOrderActualAmount(order.value);
 });
 
 const statusColor = computed(() => (order.value ? getStatusColor(order.value.order_status) : ''));
@@ -56,8 +54,12 @@ const totalItemCount = computed(() => {
 const fetchOrder = async () => {
    loading.value = true;
    try {
-      const data = await getOrderDetail(orderId.value);
+      const [data, config] = await Promise.all([
+         getOrderDetail(orderId.value),
+         getDeliveryConfig(),
+      ]);
       order.value = data;
+      deliveryConfig.value = config;
    } catch {
       uni.showToast({ title: '获取订单失败', icon: 'none' });
    } finally {
@@ -78,7 +80,13 @@ onLoad(async options => {
 </script>
 
 <template>
-   <view class="detail-page" :style="{ paddingTop: headerHeight + 'px' }">
+   <view
+      class="detail-page"
+      :style="{
+         paddingTop: headerHeight + 'px',
+         '--header-height': headerHeight + 'px',
+      }"
+   >
       <Header title="订单详情" :show-back="true" />
 
       <view v-if="loading" class="state-view">
@@ -194,9 +202,21 @@ onLoad(async options => {
                <text class="fee-label">商品总价</text>
                <text class="fee-amount">{{ formatPriceDisplay(order.total_amount) }}</text>
             </view>
-            <view v-if="order.delivery_fee > 0" class="fee-row">
+            <view v-if="order.delivery_type === 'delivery'" class="fee-row">
                <text class="fee-label">配送费</text>
-               <text class="fee-amount">{{ formatPriceDisplay(order.delivery_fee) }}</text>
+               <view class="fee-delivery-value">
+                  <template v-if="order.delivery_fee === 0">
+                     <text class="fee-free-note"
+                        >满{{ deliveryConfig.free_threshold }}免配送费</text
+                     >
+                     <text class="fee-amount fee-original-amount">{{
+                        formatPriceDisplay(deliveryConfig.delivery_fee)
+                     }}</text>
+                  </template>
+                  <text v-else class="fee-amount">{{
+                     formatPriceDisplay(order.delivery_fee)
+                  }}</text>
+               </view>
             </view>
             <view v-if="order.discount_amount > 0" class="fee-row">
                <text class="fee-label">优惠减免</text>
@@ -270,7 +290,7 @@ onLoad(async options => {
 
 /* ── Scroll Container ── */
 .content-scroll {
-   height: calc(100vh - var(--window-top, 0px));
+   height: calc(100vh - var(--header-height, 0px));
 }
 
 /* ── Status Banner ── */
@@ -542,6 +562,23 @@ onLoad(async options => {
    &.discount {
       color: $badge-error;
    }
+}
+
+.fee-delivery-value {
+   display: flex;
+   align-items: center;
+   gap: 12rpx;
+}
+
+.fee-original-amount {
+   color: $text-muted;
+   text-decoration: line-through;
+}
+
+.fee-free-note {
+   font-size: 22rpx;
+   color: #5ba96f;
+   line-height: 32rpx;
 }
 
 .fee-divider {

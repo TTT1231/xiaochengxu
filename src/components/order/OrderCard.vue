@@ -4,6 +4,7 @@ import type { Orders } from '@/types';
 import { getStatusText, getStatusColor } from '@/composables/useOrder';
 import { hexToRgba } from '@/utils/color';
 import { formatDateTime, formatPriceDisplay } from '@/utils/format';
+import { calcOrderActualAmount } from '@/utils/orderAmount';
 
 interface Props {
    order: Orders;
@@ -42,14 +43,7 @@ const statusHint = computed(() => {
    return hints[props.order.order_status] ?? '';
 });
 
-const actualAmount = computed(() =>
-   Math.max(
-      props.order.total_amount -
-         (props.order.discount_amount ?? 0) -
-         (props.order.wallet_deduct ?? 0),
-      0,
-   ),
-);
+const actualAmount = computed(() => calcOrderActualAmount(props.order));
 
 const statusDotStyle = computed(() => ({
    backgroundColor: statusColor.value,
