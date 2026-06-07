@@ -18,6 +18,11 @@ function normalizeOrder(raw: Record<string, unknown>): Orders {
       created_at: raw.created_at as string,
       wallet_deduct: (raw.wallet_deduct ?? 0) as number,
       order_details: details,
+      delivery_type: (raw.delivery_type ?? 'pickup') as Orders['delivery_type'],
+      delivery_fee: (raw.delivery_fee ?? 0) as number,
+      remark: raw.remark as string | undefined,
+      delivery_address: raw.delivery_address as string | undefined,
+      delivery_phone: raw.delivery_phone as string | undefined,
    };
 }
 
@@ -37,6 +42,11 @@ interface CreateOrderParams {
    totalAmount: number;
    discountAmount?: number;
    walletDeduct?: number;
+   deliveryType: 'pickup' | 'delivery';
+   deliveryFee: number;
+   remark?: string;
+   deliveryAddress?: string;
+   deliveryPhone?: string;
 }
 
 interface CreateOrderItem {
@@ -46,7 +56,17 @@ interface CreateOrderItem {
 }
 
 export async function createOrder(params: CreateOrderParams): Promise<Orders> {
-   const { items, totalAmount, discountAmount = 0, walletDeduct = 0 } = params;
+   const {
+      items,
+      totalAmount,
+      discountAmount = 0,
+      walletDeduct = 0,
+      deliveryType,
+      deliveryFee,
+      remark,
+      deliveryAddress,
+      deliveryPhone,
+   } = params;
 
    const orderItems: CreateOrderItem[] = items.map(item => ({
       product_id: item.product._id,
@@ -57,7 +77,17 @@ export async function createOrder(params: CreateOrderParams): Promise<Orders> {
    try {
       const res = await wx.cloud.callFunction({
          name: 'create-order',
-         data: { items: orderItems, totalAmount, discountAmount, walletDeduct },
+         data: {
+            items: orderItems,
+            totalAmount,
+            discountAmount,
+            walletDeduct,
+            deliveryType,
+            deliveryFee,
+            ...(remark !== undefined ? { remark } : {}),
+            ...(deliveryAddress !== undefined ? { deliveryAddress } : {}),
+            ...(deliveryPhone !== undefined ? { deliveryPhone } : {}),
+         },
       });
 
       const result = res.result as {
