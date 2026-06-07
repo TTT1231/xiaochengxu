@@ -20,11 +20,7 @@ const nickname = computed(() => userStore.user?.name ?? '');
 
 const hasPhone = computed(() => !!phone.value);
 const isPhoneLocked = computed(() => !!phone.value);
-const displayPhone = computed(() => {
-   const p = phone.value;
-   if (!p || p.length !== 11) return p || '';
-   return p.slice(0, 3) + '****' + p.slice(7);
-});
+const displayPhone = computed(() => phone.value || '');
 
 const hasChanges = computed(() => {
    return phone.value !== originalPhone.value || address.value !== originalAddress.value;
