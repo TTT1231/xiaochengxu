@@ -1,4 +1,5 @@
 export type { Categoried } from './categoried';
+export type { DeliveryConfig } from './delivery-config';
 export type { OrderDetailItem, Orders } from './orders';
 export type { ProductSpecOption, ProductSpecGroup, ProductSpecs, Products } from './products';
 export type { Credits, Users } from './users';

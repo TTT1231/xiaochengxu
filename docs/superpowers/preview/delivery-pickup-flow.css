@@ -1,0 +1,371 @@
+* {
+   margin: 0;
+   padding: 0;
+   box-sizing: border-box;
+}
+body {
+   font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+   background: #f5f5f7;
+   color: #1e293b;
+   line-height: 1.6;
+}
+.wrap {
+   max-width: 1100px;
+   margin: 0 auto;
+   padding: 48px 24px;
+}
+
+h1 {
+   font-size: 26px;
+   font-weight: 700;
+   letter-spacing: -0.5px;
+}
+.subtitle {
+   color: #94a3b8;
+   font-size: 14px;
+   margin-top: 4px;
+   margin-bottom: 36px;
+}
+
+/* ── Comparison Section ── */
+.cmp-section {
+   margin-bottom: 56px;
+}
+.cmp-header {
+   margin-bottom: 20px;
+}
+.cmp-header h2 {
+   font-size: 18px;
+   font-weight: 700;
+}
+.cmp-header p {
+   font-size: 13px;
+   color: #64748b;
+   margin-top: 4px;
+}
+
+.cmp-grid {
+   display: grid;
+   grid-template-columns: repeat(3, 1fr);
+   gap: 20px;
+}
+
+.option-card {
+   background: #fff;
+   border: 1.5px solid #e2e8f0;
+   border-radius: 14px;
+   overflow: hidden;
+   transition: box-shadow 0.2s;
+}
+.option-card:hover {
+   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+.option-card.recommended {
+   border-color: #f59e0b;
+   box-shadow: 0 0 0 1px #f59e0b;
+}
+
+.option-head {
+   padding: 16px 18px 12px;
+   border-bottom: 1px solid #f1f5f9;
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+}
+.option-head h3 {
+   font-size: 15px;
+   font-weight: 700;
+}
+.badge {
+   font-size: 10px;
+   font-weight: 600;
+   padding: 2px 8px;
+   border-radius: 10px;
+   background: #f1f5f9;
+   color: #64748b;
+}
+.badge.rec {
+   background: #fef3c7;
+   color: #b45309;
+}
+
+.option-body {
+   padding: 16px 18px;
+}
+
+/* ── Phone Mockup ── */
+.phone-frame {
+   border: 1.5px solid #e2e8f0;
+   border-radius: 18px;
+   overflow: hidden;
+   background: #fff;
+   margin-bottom: 14px;
+   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+.phone-status {
+   padding: 10px 14px 6px;
+   display: flex;
+   justify-content: space-between;
+   font-size: 10px;
+   color: #94a3b8;
+}
+.phone-screen {
+   padding: 0 14px 14px;
+}
+
+/* ── UI Elements ── */
+.screen-title {
+   font-size: 14px;
+   font-weight: 600;
+   margin-bottom: 10px;
+   text-align: center;
+   color: #0f172a;
+}
+
+.toggle-row {
+   display: flex;
+   background: #f1f5f9;
+   border-radius: 8px;
+   padding: 3px;
+   margin-bottom: 12px;
+}
+.toggle-opt {
+   flex: 1;
+   text-align: center;
+   padding: 6px 0;
+   border-radius: 6px;
+   font-size: 12px;
+   font-weight: 500;
+   cursor: default;
+   transition: all 0.15s;
+}
+.toggle-opt.active {
+   background: #fff;
+   color: #f59e0b;
+   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+.toggle-opt.inactive {
+   color: #94a3b8;
+}
+
+.product-item {
+   display: flex;
+   gap: 8px;
+   padding: 8px 0;
+   border-bottom: 1px solid #f1f5f9;
+}
+.product-item:last-child {
+   border-bottom: none;
+}
+.prod-img {
+   width: 44px;
+   height: 44px;
+   border-radius: 8px;
+   background: #f1f5f9;
+   flex-shrink: 0;
+}
+.prod-info {
+   flex: 1;
+   min-width: 0;
+}
+.prod-name {
+   font-size: 12px;
+   font-weight: 500;
+}
+.prod-price {
+   font-size: 12px;
+   color: #f59e0b;
+   font-weight: 600;
+   margin-top: 2px;
+}
+
+.divider-line {
+   height: 1px;
+   background: #f1f5f9;
+   margin: 10px 0;
+}
+
+.fee-row {
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+   font-size: 12px;
+   padding: 4px 0;
+}
+.fee-row .label {
+   color: #64748b;
+}
+.fee-row .value {
+   font-weight: 600;
+}
+.fee-row .value.free {
+   color: #16a34a;
+}
+.fee-row .value.charge {
+   color: #ef4444;
+}
+.fee-row.total {
+   border-top: 1px solid #f1f5f9;
+   margin-top: 4px;
+   padding-top: 8px;
+}
+.fee-row.total .label {
+   font-size: 13px;
+   font-weight: 600;
+   color: #1e293b;
+}
+.fee-row.total .value {
+   font-size: 16px;
+   color: #f59e0b;
+}
+
+.btn-checkout {
+   background: #f59e0b;
+   color: #fff;
+   text-align: center;
+   padding: 10px 0;
+   border-radius: 8px;
+   font-size: 14px;
+   font-weight: 600;
+   margin-top: 10px;
+}
+.btn-checkout.disabled {
+   background: #e2e8f0;
+   color: #94a3b8;
+}
+
+.alert-box {
+   background: #fffbeb;
+   border: 1px solid #fde68a;
+   border-radius: 8px;
+   padding: 10px 12px;
+   font-size: 11px;
+   color: #92400e;
+   margin-bottom: 10px;
+}
+.alert-box.error {
+   background: #fef2f2;
+   border-color: #fecaca;
+   color: #991b1b;
+}
+.alert-box.success {
+   background: #f0fdf4;
+   border-color: #bbf7d0;
+   color: #166534;
+}
+.alert-box.info {
+   background: #eff6ff;
+   border-color: #bfdbfe;
+   color: #1e40af;
+}
+.alert-box strong {
+   display: block;
+   margin-bottom: 2px;
+}
+
+.btn-row {
+   display: flex;
+   gap: 8px;
+   margin-top: 10px;
+}
+.btn-cancel {
+   flex: 1;
+   text-align: center;
+   padding: 8px 0;
+   border-radius: 8px;
+   font-size: 12px;
+   font-weight: 500;
+   background: #f1f5f9;
+   color: #64748b;
+}
+.btn-confirm {
+   flex: 1;
+   text-align: center;
+   padding: 8px 0;
+   border-radius: 8px;
+   font-size: 12px;
+   font-weight: 500;
+   background: #f59e0b;
+   color: #fff;
+}
+
+/* ── Pros/Cons ── */
+.pros-cons {
+   margin-top: 14px;
+}
+.pros-cons h4 {
+   font-size: 12px;
+   font-weight: 600;
+   margin-bottom: 6px;
+}
+.pros-cons ul {
+   list-style: none;
+   padding: 0;
+}
+.pros-cons li {
+   font-size: 11px;
+   color: #64748b;
+   padding: 3px 0 3px 14px;
+   position: relative;
+}
+.pros-cons li::before {
+   content: '';
+   position: absolute;
+   left: 0;
+   top: 9px;
+   width: 5px;
+   height: 5px;
+   border-radius: 50%;
+}
+.pros-cons li.pro::before {
+   background: #16a34a;
+}
+.pros-cons li.con::before {
+   background: #ef4444;
+}
+
+/* ── Recommendation ── */
+.recommendation {
+   background: linear-gradient(135deg, #fef3c7 0%, #fffbeb 100%);
+   border: 1px solid #f59e0b;
+   border-radius: 12px;
+   padding: 20px 24px;
+   margin-top: 24px;
+}
+.recommendation h3 {
+   font-size: 15px;
+   font-weight: 700;
+   color: #b45309;
+   margin-bottom: 6px;
+}
+.recommendation p {
+   font-size: 13px;
+   color: #92400e;
+   line-height: 1.7;
+}
+
+/* ── Address display panel ── */
+.address-panel {
+   background: #fff;
+   border: 1px solid #f59e0b;
+   border-radius: 10px;
+   padding: 12px;
+   margin-bottom: 12px;
+   box-shadow: 0 2px 10px rgba(245, 158, 11, 0.1);
+}
+
+.remark-input {
+   border: 1px solid #e2e8f0;
+   border-radius: 6px;
+   padding: 8px 10px;
+   font-size: 12px;
+   color: #94a3b8;
+   margin-bottom: 10px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+   .cmp-grid {
+      grid-template-columns: 1fr;
+   }
+}

@@ -1,4 +1,4 @@
-import type { OrderStatus } from '../constants';
+import type { DeliveryType, OrderStatus } from '../constants';
 
 /** 订单商品详情 (order_details JSON 中每个商品项) */
 export interface OrderDetailItem {
@@ -36,6 +36,16 @@ export interface Orders {
    created_at: string;
    /** 钱包扣款金额（元） */
    wallet_deduct: number;
+   /** 配送类型 */
+   delivery_type: DeliveryType;
+   /** 配送费（元） */
+   delivery_fee: number;
+   /** 订单备注 */
+   remark?: string;
+   /** 配送地址 */
+   delivery_address?: string;
+   /** 配送联系电话 */
+   delivery_phone?: string;
    /** 订单商品详情 */
    order_details: OrderDetailItem[];
 }
