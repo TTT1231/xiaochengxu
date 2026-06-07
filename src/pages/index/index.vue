@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { nextTick, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useHomeStore, useCartStore } from '@/stores';
-import { onLoad } from '@dcloudio/uni-app';
+import { onLoad, onPageScroll } from '@dcloudio/uni-app';
 import Header from '@/components/common/Header.vue';
 import TabBar from '@/components/common/TabBar.vue';
 import Banner from '@/components/home/Banner.vue';
@@ -16,6 +16,11 @@ const cartStore = useCartStore();
 const activeCategoryId = ref<string>('0');
 const { headerHeight } = useHeaderHeight();
 const currentScrollTop = ref(0);
+let scrollSyncTimer: ReturnType<typeof setTimeout> | null = null;
+
+interface SectionRect {
+   top: number;
+}
 
 const { totalCount, totalAmount, totalDiscount } = storeToRefs(cartStore);
 const { getItemQuantity } = cartStore;
@@ -38,20 +43,64 @@ watch(
    },
 );
 
-const handleCategorySelect = (id: string): void => {
-   activeCategoryId.value = id;
-
+const querySectionRect = (id: string, callback: (rect: SectionRect | undefined) => void): void => {
    const query = uni.createSelectorQuery();
    query.select('#section-' + id).boundingClientRect();
    query.exec(res => {
-      if (res && res[0]) {
-         const sectionRect = res[0];
-         const targetScrollTop = currentScrollTop.value + sectionRect.top - headerHeight.value - 10;
+      callback(res?.[0] as SectionRect | undefined);
+   });
+};
+
+const syncActiveCategoryByScroll = (): void => {
+   const categories = homeStore.categories;
+   if (categories.length === 0) return;
+
+   const query = uni.createSelectorQuery();
+   query.selectAll('.category-section').boundingClientRect();
+   query.exec(res => {
+      const sections = (res?.[0] ?? []) as SectionRect[];
+      if (sections.length === 0) return;
+
+      const activationLine = headerHeight.value + uni.upx2px(40);
+      const activeIndex = sections.reduce((lastVisibleIndex, section, index) => {
+         return section.top <= activationLine ? index : lastVisibleIndex;
+      }, 0);
+      const activeCategory = categories[activeIndex];
+      if (activeCategory && activeCategoryId.value !== activeCategory._id) {
+         activeCategoryId.value = activeCategory._id;
+      }
+   });
+};
+
+const scheduleActiveCategorySync = (): void => {
+   if (scrollSyncTimer) return;
+
+   scrollSyncTimer = setTimeout(() => {
+      scrollSyncTimer = null;
+      syncActiveCategoryByScroll();
+   }, 80);
+};
+
+onPageScroll(({ scrollTop }) => {
+   currentScrollTop.value = scrollTop;
+   scheduleActiveCategorySync();
+});
+
+const handleCategorySelect = (id: string): void => {
+   activeCategoryId.value = id;
+
+   nextTick(() => {
+      querySectionRect(id, sectionRect => {
+         if (!sectionRect) return;
+         const targetScrollTop = Math.max(
+            0,
+            currentScrollTop.value + sectionRect.top - headerHeight.value - uni.upx2px(10),
+         );
          uni.pageScrollTo({
             scrollTop: targetScrollTop,
             duration: 300,
          });
-      }
+      });
    });
 };
 
