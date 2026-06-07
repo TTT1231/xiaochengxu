@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import { onShow } from '@dcloudio/uni-app';
 import Header from '@/components/common/Header.vue';
+import { getDeliveryConfig, calcDeliveryFee } from '@/api/deliveryApi';
+import type { DeliveryConfigResult } from '@/api/deliveryApi';
 import { useCartStore, useUserStore } from '@/stores';
 import { formatPriceDisplay, getProductImage } from '@/utils/format';
 import { getItemDiscount } from '@/utils/discount';
@@ -15,6 +18,9 @@ const userStore = useUserStore();
 const { items: cartItems, removeItem, addItem } = cartStore;
 const submitting = ref(false);
 const useWallet = ref(false);
+const deliveryType = ref<'pickup' | 'delivery'>('pickup');
+const remark = ref('');
+const deliveryConfig = ref<DeliveryConfigResult>({ free_threshold: 30, delivery_fee: 8 });
 
 const wallet = computed(() => userStore.wallet);
 const availableWalletDeduct = computed(() => {
@@ -23,6 +29,32 @@ const availableWalletDeduct = computed(() => {
 });
 const walletDeductAmount = computed(() => (useWallet.value ? availableWalletDeduct.value : 0));
 const payableAmount = computed(() => Math.max(cartStore.totalAmount - walletDeductAmount.value, 0));
+
+const deliveryFee = computed(() =>
+   calcDeliveryFee(cartStore.totalAmount, deliveryType.value, deliveryConfig.value),
+);
+
+const isDeliveryInfoComplete = computed(() => {
+   if (deliveryType.value === 'pickup') return true;
+   return !!userStore.user?.phone && !!userStore.user?.address;
+});
+
+const canCheckout = computed(
+   () => cartItems.length > 0 && isDeliveryInfoComplete.value && !submitting.value,
+);
+
+const finalPayableAmount = computed(() =>
+   Math.max(cartStore.totalAmount - walletDeductAmount.value + deliveryFee.value, 0),
+);
+
+onShow(async () => {
+   const config = await getDeliveryConfig();
+   deliveryConfig.value = config;
+});
+
+function goToProfile(): void {
+   uni.navigateTo({ url: '/pages/profile/edit' });
+}
 
 const handleRemove = (productId: string, selectedSpecs: Record<string, string>) => {
    removeItem(productId, selectedSpecs);
@@ -53,6 +85,11 @@ const handleCheckout = async () => {
       return;
    }
 
+   if (!isDeliveryInfoComplete.value) {
+      uni.showToast({ title: '配送信息不完整', icon: 'none' });
+      return;
+   }
+
    submitting.value = true;
    try {
       const order = await createOrder({
@@ -60,10 +97,19 @@ const handleCheckout = async () => {
          totalAmount: cartStore.originalAmount,
          discountAmount: cartStore.totalDiscount,
          walletDeduct: walletDeductAmount.value,
+         deliveryType: deliveryType.value,
+         deliveryFee: deliveryFee.value,
+         remark: remark.value || undefined,
+         deliveryAddress:
+            deliveryType.value === 'delivery' ? (userStore.user?.address ?? undefined) : undefined,
+         deliveryPhone:
+            deliveryType.value === 'delivery' ? (userStore.user?.phone ?? undefined) : undefined,
       });
 
       cartStore.clearCart();
       useWallet.value = false;
+      remark.value = '';
+      deliveryType.value = 'pickup';
       userStore.fetchProfile();
 
       uni.redirectTo({
@@ -171,13 +217,78 @@ const handleCheckout = async () => {
             <text class="deduct-amount">抵扣 {{ formatPriceDisplay(availableWalletDeduct) }}</text>
          </view>
 
+         <view class="delivery-section">
+            <view class="delivery-toggle">
+               <view
+                  class="toggle-option"
+                  :class="{ active: deliveryType === 'pickup' }"
+                  @click="deliveryType = 'pickup'"
+               >
+                  <text class="toggle-icon">🏪</text>
+                  <text class="toggle-label">到店自提</text>
+               </view>
+               <view
+                  class="toggle-option"
+                  :class="{ active: deliveryType === 'delivery' }"
+                  @click="deliveryType = 'delivery'"
+               >
+                  <text class="toggle-icon">🛵</text>
+                  <text class="toggle-label">商家配送</text>
+               </view>
+            </view>
+
+            <view v-if="deliveryType === 'delivery'" class="delivery-panel">
+               <view v-if="!isDeliveryInfoComplete" class="delivery-hint">
+                  <text class="hint-icon">⚠️</text>
+                  <view class="hint-text">
+                     <text class="hint-title">配送信息缺失</text>
+                     <text class="hint-desc">请先绑定手机号和地址</text>
+                  </view>
+                  <view class="hint-action" @click="goToProfile">去绑定 ❯</view>
+               </view>
+               <view v-else class="delivery-info">
+                  <view class="info-row">
+                     <text class="info-icon">📍</text>
+                     <text class="info-text">{{ userStore.user?.address }}</text>
+                  </view>
+                  <view class="info-row">
+                     <text class="info-icon">📱</text>
+                     <text class="info-text">{{ userStore.user?.phone }}</text>
+                  </view>
+               </view>
+            </view>
+
+            <view v-if="deliveryType === 'delivery'" class="delivery-fee-row">
+               <view class="fee-left">
+                  <text class="fee-label">配送费</text>
+                  <text class="fee-threshold"
+                     >(满{{ deliveryConfig.free_threshold }}免{{
+                        deliveryConfig.delivery_fee
+                     }})</text
+                  >
+               </view>
+               <text class="fee-value" :class="{ free: deliveryFee === 0 }">
+                  {{ deliveryFee === 0 ? '免配送费' : formatPriceDisplay(deliveryFee) }}
+               </text>
+            </view>
+
+            <view class="remark-section">
+               <input
+                  class="remark-input"
+                  v-model="remark"
+                  placeholder="订单备注（选填）"
+                  maxlength="200"
+               />
+            </view>
+         </view>
+
          <view class="checkout-row">
             <view class="total-info">
                <text class="total-label">{{ useWallet ? '实付' : '合计' }}</text>
-               <text class="total-amount">{{ formatPriceDisplay(payableAmount) }}</text>
+               <text class="total-amount">{{ formatPriceDisplay(finalPayableAmount) }}</text>
             </view>
 
-            <view class="checkout-btn" :class="{ disabled: submitting }" @click="onCheckoutClick">
+            <view class="checkout-btn" :class="{ disabled: !canCheckout }" @click="onCheckoutClick">
                <text class="checkout-text">{{ submitting ? '下单中...' : '去结算' }}</text>
             </view>
          </view>
@@ -502,5 +613,160 @@ const handleCheckout = async () => {
    font-size: 24rpx;
    color: $brand-primary;
    line-height: 34rpx;
+}
+
+.delivery-section {
+   padding: 14rpx 0;
+   border-top: 1rpx solid $border-default;
+   margin-top: 10rpx;
+}
+
+.delivery-toggle {
+   display: flex;
+   background: $bg-page;
+   border-radius: 12rpx;
+   padding: 4rpx;
+   gap: 4rpx;
+}
+
+.toggle-option {
+   flex: 1;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   gap: 8rpx;
+   padding: 12rpx 0;
+   border-radius: 10rpx;
+   font-size: 24rpx;
+   color: $text-muted;
+   transition: all 0.2s;
+
+   &.active {
+      background: $bg-card;
+      color: $brand-primary;
+      font-weight: 600;
+      box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+   }
+}
+
+.toggle-icon {
+   font-size: 28rpx;
+}
+
+.toggle-label {
+   font-size: 24rpx;
+}
+
+.delivery-panel {
+   margin-top: 12rpx;
+}
+
+.delivery-hint {
+   display: flex;
+   align-items: center;
+   gap: 10rpx;
+   background: #fef2f2;
+   border: 1rpx solid #fecaca;
+   border-radius: 12rpx;
+   padding: 14rpx;
+}
+
+.hint-icon {
+   font-size: 28rpx;
+}
+
+.hint-text {
+   flex: 1;
+}
+
+.hint-title {
+   font-size: 24rpx;
+   font-weight: 600;
+   color: #991b1b;
+}
+
+.hint-desc {
+   font-size: 20rpx;
+   color: #b91c1c;
+}
+
+.hint-action {
+   font-size: 22rpx;
+   color: $brand-primary;
+   font-weight: 600;
+   padding: 6rpx 14rpx;
+   background: #fef3c7;
+   border-radius: 16rpx;
+}
+
+.delivery-info {
+   background: #f0fdf4;
+   border: 1rpx solid #bbf7d0;
+   border-radius: 12rpx;
+   padding: 14rpx;
+}
+
+.info-row {
+   display: flex;
+   align-items: center;
+   gap: 8rpx;
+   padding: 4rpx 0;
+}
+
+.info-icon {
+   font-size: 24rpx;
+}
+
+.info-text {
+   font-size: 24rpx;
+   color: #166534;
+}
+
+.delivery-fee-row {
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+   padding: 10rpx 0 4rpx;
+}
+
+.fee-left {
+   display: flex;
+   align-items: baseline;
+   gap: 8rpx;
+}
+
+.fee-label {
+   font-size: 24rpx;
+   color: $text-secondary;
+}
+
+.fee-threshold {
+   font-size: 20rpx;
+   color: $text-muted;
+}
+
+.fee-value {
+   font-size: 26rpx;
+   font-weight: 600;
+   color: $text-primary;
+
+   &.free {
+      color: #16a34a;
+   }
+}
+
+.remark-section {
+   margin-top: 8rpx;
+}
+
+.remark-input {
+   width: 100%;
+   height: 64rpx;
+   background: $bg-page;
+   border-radius: 10rpx;
+   padding: 0 20rpx;
+   font-size: 24rpx;
+   color: $text-primary;
+   box-sizing: border-box;
 }
 </style>
