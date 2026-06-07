@@ -27,6 +27,11 @@ interface CreateOrderParams {
    totalAmount: number;
    discountAmount: number;
    walletDeduct?: number;
+   deliveryType: 'pickup' | 'delivery';
+   deliveryFee: number;
+   remark?: string;
+   deliveryAddress?: string;
+   deliveryPhone?: string;
 }
 
 interface ProductSpecOption {
@@ -135,7 +140,17 @@ export async function main(event: Partial<CreateOrderParams> = {}) {
       return { success: false, message: 'Authentication failed' };
    }
 
-   const { items, totalAmount, discountAmount, walletDeduct = 0 } = event;
+   const {
+      items,
+      totalAmount,
+      discountAmount,
+      walletDeduct = 0,
+      deliveryType = 'pickup',
+      deliveryFee = 0,
+      remark,
+      deliveryAddress,
+      deliveryPhone,
+   } = event;
 
    if (!Array.isArray(items) || items.length === 0) {
       return { success: false, message: 'Cart is empty' };
@@ -187,7 +202,11 @@ export async function main(event: Partial<CreateOrderParams> = {}) {
          if (!isFiniteAmount(product.price) || product.price < 0) {
             return { success: false, message: 'Invalid product pricing: ' + product.name };
          }
-         const specError = validateSelectedSpecs(product.name as string, product.specs, selectedSpecs);
+         const specError = validateSelectedSpecs(
+            product.name as string,
+            product.specs,
+            selectedSpecs,
+         );
          if (specError) {
             return { success: false, message: specError };
          }
@@ -224,6 +243,24 @@ export async function main(event: Partial<CreateOrderParams> = {}) {
    const normalizedWalletDeduct = normalizeAmount(walletDeduct);
    if (normalizedWalletDeduct - payableAmount > EPSILON) {
       return { success: false, message: 'Wallet deduction exceeds payable amount' };
+   }
+
+   // 配送费校验（服务端重新计算，防止前端篡改）
+   if (deliveryType !== 'pickup' && deliveryType !== 'delivery') {
+      return { success: false, message: 'Invalid delivery type' };
+   }
+   if (deliveryType === 'delivery') {
+      try {
+         const { data: configDoc } = await db.collection('delivery_config').doc('config').get();
+         const freeThreshold = (configDoc?.free_threshold ?? 30) as number;
+         const configFee = (configDoc?.delivery_fee ?? 8) as number;
+         const expectedFee = expectedTotal >= freeThreshold ? 0 : configFee;
+         if (Math.abs(deliveryFee - expectedFee) > EPSILON) {
+            return { success: false, message: '配送费异常' };
+         }
+      } catch {
+         return { success: false, message: '配送费配置读取失败' };
+      }
    }
 
    let walletId: string | null = null;
@@ -285,6 +322,11 @@ export async function main(event: Partial<CreateOrderParams> = {}) {
                wallet_deduct: normalizedWalletDeduct,
                created_at: now,
                oder_details: validatedItems,
+               delivery_type: deliveryType,
+               delivery_fee: deliveryType === 'pickup' ? 0 : deliveryFee,
+               ...(remark ? { remark } : {}),
+               ...(deliveryAddress ? { delivery_address: deliveryAddress } : {}),
+               ...(deliveryPhone ? { delivery_phone: deliveryPhone } : {}),
             },
          });
       });
