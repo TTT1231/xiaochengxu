@@ -18,7 +18,8 @@ const orderId = ref('');
 const actualAmount = computed(() => {
    if (!order.value) return 0;
    return Math.max(
-      order.value.total_amount -
+      order.value.total_amount +
+         (order.value.delivery_fee ?? 0) -
          (order.value.discount_amount ?? 0) -
          (order.value.wallet_deduct ?? 0),
       0,
@@ -121,7 +122,38 @@ onLoad(async options => {
                <text class="meta-key">商品数量</text>
                <text class="meta-val">{{ totalItemCount }} 件</text>
             </view>
+            <view class="meta-divider" />
+            <view class="meta-row">
+               <text class="meta-key">配送方式</text>
+               <text class="meta-val">{{
+                  order.delivery_type === 'delivery' ? '🛵 商家配送' : '🏪 到店自提'
+               }}</text>
+            </view>
+            <template v-if="order.delivery_type === 'delivery' && order.delivery_address">
+               <view class="meta-divider" />
+               <view class="meta-row">
+                  <text class="meta-key">配送地址</text>
+                  <text class="meta-val" style="max-width: 60%; text-align: right">{{
+                     order.delivery_address
+                  }}</text>
+               </view>
+            </template>
+            <template v-if="order.delivery_type === 'delivery' && order.delivery_phone">
+               <view class="meta-divider" />
+               <view class="meta-row">
+                  <text class="meta-key">联系电话</text>
+                  <text class="meta-val">{{ order.delivery_phone }}</text>
+               </view>
+            </template>
          </view>
+
+         <!-- Remark Card -->
+         <template v-if="order.remark">
+            <view class="section-card">
+               <text class="section-heading">订单备注</text>
+               <text class="remark-text">{{ order.remark }}</text>
+            </view>
+         </template>
 
          <!-- Product List Card -->
          <view class="section-card">
@@ -161,6 +193,10 @@ onLoad(async options => {
             <view class="fee-row">
                <text class="fee-label">商品总价</text>
                <text class="fee-amount">{{ formatPriceDisplay(order.total_amount) }}</text>
+            </view>
+            <view v-if="order.delivery_fee > 0" class="fee-row">
+               <text class="fee-label">配送费</text>
+               <text class="fee-amount">{{ formatPriceDisplay(order.delivery_fee) }}</text>
             </view>
             <view v-if="order.discount_amount > 0" class="fee-row">
                <text class="fee-label">优惠减免</text>
@@ -346,6 +382,12 @@ onLoad(async options => {
    line-height: 42rpx;
    margin-bottom: 28rpx;
    display: block;
+}
+
+.remark-text {
+   font-size: 26rpx;
+   color: $text-secondary;
+   line-height: 40rpx;
 }
 
 /* ── Meta Card ── */
