@@ -20,6 +20,8 @@ interface UserDocument {
    name: string; // User display name
    id: string; // 唯一7位用户ID (7-digit display ID)
    created_at: string; // ISO timestamp
+   phone?: string; // 手机号（绑定后不可修改）
+   address?: string; // 地址（简单文本，可随时修改）
 }
 ```
 
@@ -32,6 +34,7 @@ interface UserDocument {
 
 - `_id` must be non-empty string (openid)
 - `id` must be unique 7-digit string
+- `phone` is immutable once set to a non-empty value (enforced by update-profile cloud function)
 
 ## Collection: `products`
 
