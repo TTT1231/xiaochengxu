@@ -4,7 +4,11 @@ const mockGet = vi.fn();
 
 function createDbMock() {
    // Mock chain: .collection(x).where(y).skip(n).limit(n).get()
-   const mockChain = { skip: vi.fn().mockReturnThis(), limit: vi.fn().mockReturnThis(), get: mockGet };
+   const mockChain = {
+      skip: vi.fn().mockReturnThis(),
+      limit: vi.fn().mockReturnThis(),
+      get: mockGet,
+   };
    const mockWhere = vi.fn().mockReturnValue(mockChain);
    const mockCollection = vi.fn().mockReturnValue({ where: mockWhere });
    return {
@@ -46,6 +50,21 @@ describe('getLeftMenuData', () => {
       expect(result).toHaveLength(1);
       expect(result[0].name).toBe('Cake');
    });
+
+   it('maps dessert category names to local project icons', async () => {
+      mockGet.mockResolvedValue({
+         data: [
+            { icon: 'old-icon', active_icon: 'old-icon', name: '饮料咖啡' },
+            { icon: 'old-icon', active_icon: 'old-icon', name: '生日蛋糕' },
+         ],
+      });
+
+      const result = await getLeftMenuData();
+      expect(result[0].icon).toBe('/static/icons/project/drinks-coffee.svg');
+      expect(result[0].active_icon).toBe('/static/icons/project/drinks-coffee-active.svg');
+      expect(result[1].icon).toBe('/static/icons/project/birthday-cake.svg');
+      expect(result[1].active_icon).toBe('/static/icons/project/birthday-cake-active.svg');
+   });
 });
 
 describe('getRightProductData', () => {
@@ -67,9 +86,7 @@ describe('getRightProductData', () => {
                _id: 'p1',
                name: 'Legacy product',
                image: '',
-               specifications: [
-                  { name: '包装', required: false, options: [{ name: '普通包装' }] },
-               ],
+               specifications: [{ name: '包装', required: false, options: [{ name: '普通包装' }] }],
             },
          ],
       });

@@ -17,6 +17,8 @@ const activeCategoryId = ref<string>('0');
 const { headerHeight } = useHeaderHeight();
 const currentScrollTop = ref(0);
 let scrollSyncTimer: ReturnType<typeof setTimeout> | null = null;
+let programmaticScrollEndTimer: ReturnType<typeof setTimeout> | null = null;
+let programmaticScrollTargetId: string | null = null;
 
 interface SectionRect {
    top: number;
@@ -52,12 +54,16 @@ const querySectionRect = (id: string, callback: (rect: SectionRect | undefined) 
 };
 
 const syncActiveCategoryByScroll = (): void => {
+   if (programmaticScrollTargetId) return;
+
    const categories = homeStore.categories;
    if (categories.length === 0) return;
 
    const query = uni.createSelectorQuery();
    query.selectAll('.category-section').boundingClientRect();
    query.exec(res => {
+      if (programmaticScrollTargetId) return;
+
       const sections = (res?.[0] ?? []) as SectionRect[];
       if (sections.length === 0) return;
 
@@ -81,13 +87,38 @@ const scheduleActiveCategorySync = (): void => {
    }, 80);
 };
 
+const releaseProgrammaticScrollLock = (delay = 180): void => {
+   if (programmaticScrollEndTimer) {
+      clearTimeout(programmaticScrollEndTimer);
+   }
+
+   programmaticScrollEndTimer = setTimeout(() => {
+      programmaticScrollTargetId = null;
+      programmaticScrollEndTimer = null;
+   }, delay);
+};
+
 onPageScroll(({ scrollTop }) => {
    currentScrollTop.value = scrollTop;
+
+   if (programmaticScrollTargetId) {
+      activeCategoryId.value = programmaticScrollTargetId;
+      releaseProgrammaticScrollLock();
+      return;
+   }
+
    scheduleActiveCategorySync();
 });
 
 const handleCategorySelect = (id: string): void => {
+   if (scrollSyncTimer) {
+      clearTimeout(scrollSyncTimer);
+      scrollSyncTimer = null;
+   }
+
+   programmaticScrollTargetId = id;
    activeCategoryId.value = id;
+   releaseProgrammaticScrollLock(1000);
 
    nextTick(() => {
       querySectionRect(id, sectionRect => {

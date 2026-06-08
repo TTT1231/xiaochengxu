@@ -35,8 +35,8 @@ export async function getLeftMenuData(): Promise<Categoried[]> {
 
    return categories.map(c => ({
       ...c,
-      icon: resolveCategoryIcon(c.icon),
-      active_icon: resolveCategoryActiveIcon(c.active_icon),
+      icon: resolveCategoryIcon(c.icon, c.name),
+      active_icon: resolveCategoryActiveIcon(c.active_icon, c.name),
    }));
 }
 

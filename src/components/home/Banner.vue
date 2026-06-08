@@ -19,8 +19,8 @@ const slides = ref<BannerSlide[]>([
       id: 1,
       badge: '会员特权',
       title: '会员饮品',
-      highlight: '8 折',
-      subtitle: '全场饮品尊享会员专属折扣',
+      highlight: '8.8 折',
+      subtitle: '饮料咖啡尊享会员专属折扣',
    },
 ]);
 </script>

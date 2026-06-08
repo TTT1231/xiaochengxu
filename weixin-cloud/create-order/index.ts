@@ -3,8 +3,8 @@ import { deductWallet, findWalletByUserId } from '../utils/wallet';
 
 const MAX_CART_ITEMS = 20;
 const EPSILON = 0.01;
-const VIP_DISCOUNT_CATEGORY_ID = '5';
-const VIP_DISCOUNT_RATE = 0.2;
+const VIP_DISCOUNT_CATEGORY_ID = '2';
+const VIP_DISCOUNT_RATE = 0.12;
 
 interface CartItem {
    product_id: string;

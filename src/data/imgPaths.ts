@@ -8,6 +8,18 @@ export const commonIconsPath = `${ICONS_BASE}/common`;
 // 分类图标
 export const categoryIconsPath = `${ICONS_BASE}/project`;
 
+const CATEGORY_ICON_BY_NAME: Record<string, string> = {
+   新品尝鲜: 'new-arrivals',
+   新品推荐: 'new-arrivals',
+   饮料咖啡: 'drinks-coffee',
+   生日蛋糕: 'birthday-cake',
+   甜品: 'dessert',
+   饼干: 'cookie',
+   下午茶: 'afternoon-tea',
+   面包: 'bread',
+   糕点: 'pastry',
+};
+
 export const commonIcons = {
    cartWhite: `${commonIconsPath}/cart-white.svg`,
    location: `${commonIconsPath}/location.svg`,
@@ -22,15 +34,15 @@ export const commonIcons = {
  * 将数据库中的图标名称（如 "fruit-tea" 或 "fruit-tea.svg"）解析为本地图标完整路径。
  * active 图标自动追加 "-active" 后缀。
  */
-export function resolveCategoryIcon(name: string): string {
-   if (!name) return '';
-   const base = name.replace(/\.svg$/, '');
+export function resolveCategoryIcon(name: string, categoryName = ''): string {
+   const base = CATEGORY_ICON_BY_NAME[categoryName] || name.replace(/\.svg$/, '');
+   if (!base) return '';
    return `${categoryIconsPath}/${base}.svg`;
 }
 
-export function resolveCategoryActiveIcon(name: string): string {
-   if (!name) return '';
-   const base = name.replace(/\.svg$/, '');
+export function resolveCategoryActiveIcon(name: string, categoryName = ''): string {
+   const base = CATEGORY_ICON_BY_NAME[categoryName] || name.replace(/\.svg$/, '');
+   if (!base) return '';
    // 防止数据库已存 "-active" 后缀导致重复拼接
    if (base.endsWith('-active')) {
       return `${categoryIconsPath}/${base}.svg`;
