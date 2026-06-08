@@ -19,10 +19,7 @@ interface OrderDoc {
 /**
  * 批量解析订单商品图片：将普通文件名/cloud:// 转为 HTTPS 临时 URL
  */
-async function resolveOrderImages(
-   orders: OrderDoc[],
-   storagePrefix?: string,
-): Promise<void> {
+async function resolveOrderImages(orders: OrderDoc[], storagePrefix?: string): Promise<void> {
    // Step 1: 收集所有需要解析的图片路径，统一转为 cloud:// fileID
    const fileIDs = new Set<string>();
 
@@ -104,6 +101,9 @@ export async function main(event: {
       if (status === 'active') {
          // 虚拟状态：进行中 = pending + preparing + ready
          baseQuery = ordersRef.where({ order_status: cmd.in(['pending', 'preparing', 'ready']) });
+      } else if (status === 'completed') {
+         // 已完成 = completed + cancelled
+         baseQuery = ordersRef.where({ order_status: cmd.in(['completed', 'cancelled']) });
       } else if (status && VALID_STATUSES.includes(status)) {
          baseQuery = ordersRef.where({ order_status: status });
       } else {
