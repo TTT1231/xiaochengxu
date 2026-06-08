@@ -137,7 +137,6 @@ export async function main(
                      },
                   });
 
-               // @ts-expect-error wx-server-sdk transaction add with _id works at runtime (same as mini-program create-order)
                await transaction.collection('orders').add({
                   data: {
                      _id: orderId,
