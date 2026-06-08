@@ -137,21 +137,20 @@ export async function main(
                      },
                   });
 
-               await transaction
-                  .collection('orders')
-                  .doc(orderId)
-                  .set({
-                     data: {
-                        order_id: orderId,
-                        user_id: memberOpenId!,
-                        order_status: 'pending',
-                        total_amount: totalAmount,
-                        discount_amount: discountAmount,
-                        wallet_deduct: actualDeduction,
-                        created_at: now,
-                        oder_details: orderDetails,
-                     },
-                  });
+               // @ts-expect-error wx-server-sdk transaction add with _id works at runtime (same as mini-program create-order)
+               await transaction.collection('orders').add({
+                  data: {
+                     _id: orderId,
+                     order_id: orderId,
+                     user_id: memberOpenId!,
+                     order_status: 'pending',
+                     total_amount: totalAmount,
+                     discount_amount: discountAmount,
+                     wallet_deduct: actualDeduction,
+                     created_at: now,
+                     oder_details: orderDetails,
+                  },
+               });
             });
 
             return {
