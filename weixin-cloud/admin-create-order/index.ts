@@ -90,7 +90,7 @@ export async function main(
          let discount = 0;
          if (isVip && String(product.categoried_id) === VIP_DISCOUNT_CATEGORY_ID) {
             discount = +(product.price * (1 - VIP_DISCOUNT_RATE)).toFixed(2);
-            discountAmount += +(discount * item.quantity).toFixed(2);
+            discountAmount += discount * item.quantity;
          }
 
          return {
@@ -158,7 +158,7 @@ export async function main(
                      order_status: 'pending',
                      total_amount: totalAmount,
                      discount_amount: discountAmount,
-                     wallet_deduct: walletDeduction,
+                     wallet_deduct: actualDeduction,
                      created_at: now,
                      oder_details: orderDetails,
                   },
