@@ -137,19 +137,21 @@ export async function main(
                      },
                   });
 
-               await transaction.collection('orders').add({
-                  data: {
-                     _id: orderId,
-                     order_id: orderId,
-                     user_id: memberOpenId!,
-                     order_status: 'pending',
-                     total_amount: totalAmount,
-                     discount_amount: discountAmount,
-                     wallet_deduct: actualDeduction,
-                     created_at: now,
-                     oder_details: orderDetails,
-                  },
-               });
+               await transaction
+                  .collection('orders')
+                  .doc(orderId)
+                  .set({
+                     data: {
+                        order_id: orderId,
+                        user_id: memberOpenId!,
+                        order_status: 'pending',
+                        total_amount: totalAmount,
+                        discount_amount: discountAmount,
+                        wallet_deduct: actualDeduction,
+                        created_at: now,
+                        oder_details: orderDetails,
+                     },
+                  });
             });
 
             return {
@@ -173,7 +175,6 @@ export async function main(
 
       // No wallet deduction: create order directly
       const orderData = {
-         _id: orderId,
          order_id: orderId,
          user_id: isVip ? memberOpenId! : 'admin',
          order_status: 'pending',
@@ -184,7 +185,7 @@ export async function main(
          oder_details: orderDetails,
       };
 
-      await db.collection('orders').add({ data: orderData });
+      await db.collection('orders').doc(orderId).set({ data: orderData });
 
       return {
          success: true,
