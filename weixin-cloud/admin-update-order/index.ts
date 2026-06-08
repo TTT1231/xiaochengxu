@@ -4,11 +4,13 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV as unknown as string });
 
 const db = cloud.database();
 
-/** 有效的状态转换 */
+/** 正向状态转换（普通订单流程） */
 const VALID_TRANSITIONS: Record<string, string[]> = {
    pending: ['preparing', 'cancelled'],
    preparing: ['ready'],
    ready: ['completed'],
+   completed: ['pending', 'cancelled'],
+   cancelled: ['pending'],
 };
 
 const ADMIN_ORDER_USER_ID = 'admin';

@@ -28,11 +28,7 @@ export async function main(
    }
 
    try {
-      const lookupRes = await db
-         .collection('orders')
-         .where({ order_id: orderId })
-         .limit(1)
-         .get();
+      const lookupRes = await db.collection('orders').where({ order_id: orderId }).limit(1).get();
 
       if (lookupRes.data.length === 0) {
          return { success: false, message: '订单不存在' };

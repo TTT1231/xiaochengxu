@@ -101,9 +101,6 @@ export async function main(event: {
       if (status === 'active') {
          // 虚拟状态：进行中 = pending + preparing + ready
          baseQuery = ordersRef.where({ order_status: cmd.in(['pending', 'preparing', 'ready']) });
-      } else if (status === 'completed') {
-         // 已完成 = completed + cancelled
-         baseQuery = ordersRef.where({ order_status: cmd.in(['completed', 'cancelled']) });
       } else if (status && VALID_STATUSES.includes(status)) {
          baseQuery = ordersRef.where({ order_status: status });
       } else {

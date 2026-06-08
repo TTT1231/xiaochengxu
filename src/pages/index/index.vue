@@ -227,6 +227,8 @@ const handleProductClick = (productId: string): void => {
    display: flex;
    flex-direction: row;
    background-color: $bg-page;
+   width: 100%;
+   min-width: 0;
 }
 
 .category-sidebar {
@@ -278,12 +280,15 @@ const handleProductClick = (productId: string): void => {
 
 .main-content {
    background-color: $bg-card;
+   width: 100%;
 }
 
 .product-area {
    flex: 1;
+   min-width: 0;
    background-color: $bg-card;
    padding: 0 24rpx;
+   box-sizing: border-box;
 }
 
 .category-section {

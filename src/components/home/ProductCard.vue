@@ -64,6 +64,9 @@ const handleClick = (): void => {
    display: flex;
    position: relative;
    width: 100%;
+   min-width: 0;
+   padding-right: 16rpx;
+   box-sizing: border-box;
 }
 
 .card-cover {
@@ -101,9 +104,7 @@ const handleClick = (): void => {
 .card-content {
    flex: 1;
    min-width: 0;
-   max-width: calc(100% - 248rpx);
    margin-left: 24rpx;
-   margin-right: 32rpx;
    display: flex;
    flex-direction: column;
    justify-content: space-between;

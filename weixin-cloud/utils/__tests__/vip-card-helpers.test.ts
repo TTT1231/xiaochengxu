@@ -59,7 +59,7 @@ describe('generateUniqueCardNos', () => {
 
    it('retries when collision detected in database', async () => {
       let callCount = 0;
-      const existsInDb = async (cardNo: string) => {
+      const existsInDb = async (_: string) => {
          // First card number always "exists", forcing a retry
          callCount++;
          return callCount === 1;
