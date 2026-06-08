@@ -116,14 +116,16 @@ export async function main(
 
          if (walletRes.data.length > 0) {
             const wallet = walletRes.data[0] as { _id: string; balance: number };
-            const walletDeduction = +Math.min(wallet.balance, discountedTotal).toFixed(2);
 
             // Transaction: update wallet + create order
+            let committedDeduction = 0;
+
             await db.runTransaction(async transaction => {
                const latestWallet = await transaction.collection('wallets').doc(wallet._id).get();
 
                const currentBalance = (latestWallet.data as { balance: number }).balance;
                const actualDeduction = +Math.min(currentBalance, discountedTotal).toFixed(2);
+               committedDeduction = actualDeduction;
 
                await transaction
                   .collection('wallets')
@@ -158,7 +160,7 @@ export async function main(
                      order_status: 'pending',
                      total_amount: totalAmount,
                      discount_amount: discountAmount,
-                     wallet_deduct: actualDeduction,
+                     wallet_deduct: committedDeduction,
                      created_at: now,
                      oder_details: orderDetails,
                   },
