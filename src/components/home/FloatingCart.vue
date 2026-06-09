@@ -64,7 +64,7 @@ const handleClick = (): void => {
 .cart-bg {
    position: absolute;
    inset: 0;
-   background-color: rgba($text-primary, 0.9);
+   background: linear-gradient(135deg, rgba(44, 27, 18, 0.96), rgba(91, 48, 25, 0.96));
    backdrop-filter: blur(12rpx);
    border-radius: $radius-full;
    box-shadow:
@@ -146,7 +146,8 @@ const handleClick = (): void => {
 }
 
 .checkout-btn {
-   background-color: $brand-primary;
+   background: linear-gradient(145deg, #c66b30, $brand-primary);
+   box-shadow: 0 8rpx 20rpx rgba(165, 79, 27, 0.28);
    padding: 20rpx 48rpx;
    border-radius: $radius-full;
 }

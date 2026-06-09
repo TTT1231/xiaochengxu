@@ -56,6 +56,7 @@ const emit = defineEmits<{
    align-items: flex-start;
    padding: 32rpx;
    box-shadow: $shadow-card;
+   border: 1rpx solid rgba(113, 52, 20, 0.06);
    gap: 12rpx;
 
    &:active {

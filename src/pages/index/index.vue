@@ -218,7 +218,7 @@ const handleProductClick = (productId: string): void => {
 <style lang="scss" scoped>
 .page {
    min-height: 100vh;
-   background-color: $bg-page;
+   background: linear-gradient(180deg, #fffdf9 0%, $bg-page 32%);
    padding-bottom: calc(128rpx + env(safe-area-inset-bottom));
    box-sizing: border-box;
 }
@@ -226,14 +226,16 @@ const handleProductClick = (productId: string): void => {
 .content-wrapper {
    display: flex;
    flex-direction: row;
-   background-color: $bg-page;
+   background-color: transparent;
+   padding: 0 16rpx;
+   box-sizing: border-box;
    width: 100%;
    min-width: 0;
 }
 
 .category-sidebar {
    position: sticky;
-   width: 192rpx;
+   width: 166rpx;
    height: fit-content;
    flex-shrink: 0;
    background-color: transparent;
@@ -248,14 +250,15 @@ const handleProductClick = (productId: string): void => {
    flex-direction: column;
    align-items: center;
    justify-content: center;
-   padding: 40rpx 8rpx;
-   border-left: 8rpx solid transparent;
+   margin: 10rpx 8rpx;
+   padding: 28rpx 8rpx;
+   border-radius: 24rpx;
    transition: all 0.2s;
    background-color: transparent;
 
    &.active {
-      background-color: $bg-card;
-      border-left-color: $brand-primary;
+      background: linear-gradient(145deg, #ffffff, #fff4e8);
+      box-shadow: 0 10rpx 24rpx rgba(113, 52, 20, 0.1);
 
       .category-name {
          color: $brand-primary;
@@ -279,15 +282,15 @@ const handleProductClick = (productId: string): void => {
 }
 
 .main-content {
-   background-color: $bg-card;
+   background-color: transparent;
    width: 100%;
 }
 
 .product-area {
    flex: 1;
    min-width: 0;
-   background-color: $bg-card;
-   padding: 0 24rpx;
+   background-color: transparent;
+   padding: 0 12rpx 0 18rpx;
    box-sizing: border-box;
 }
 
@@ -300,8 +303,9 @@ const handleProductClick = (productId: string): void => {
 }
 
 .section-title {
-   font-size: 28rpx;
-   color: $text-muted;
+   font-size: 32rpx;
+   font-weight: 800;
+   color: $text-primary;
    line-height: 40rpx;
 }
 

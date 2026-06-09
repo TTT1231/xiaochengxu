@@ -95,12 +95,12 @@
       "navigationBarTextStyle": "black",
       "navigationBarTitleText": "甜品屋",
       "navigationBarBackgroundColor": "#ffffff",
-      "backgroundColor": "#f8f7f6"
+      "backgroundColor": "#fbf6ef"
    },
    "tabBar": {
       "custom": true,
-      "color": "#94a3b8",
-      "selectedColor": "#ee862b",
+      "color": "#aa9688",
+      "selectedColor": "#a54f1b",
       "backgroundColor": "#ffffff",
       "borderStyle": "white",
       "list": [

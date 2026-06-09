@@ -19,3 +19,11 @@ onLaunch(async () => {
    await useUserStore().init();
 });
 </script>
+
+<style lang="scss">
+page {
+   background: $bg-page;
+   color: $text-primary;
+   font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+</style>

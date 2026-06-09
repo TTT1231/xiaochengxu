@@ -70,13 +70,13 @@ const slides = ref<BannerSlide[]>([
 <style lang="scss" scoped>
 /* ── 外容器 ── */
 .banner-section {
-   padding: 16rpx 32rpx 24rpx;
-   background-color: $bg-card;
+   padding: 24rpx 28rpx 30rpx;
+   background: linear-gradient(180deg, #fffdf9, $bg-page);
 }
 
 /* swiper 圆角包裹层：兼容原生组件 border-radius 不生效的问题 */
 .swiper-wrapper {
-   height: 220rpx;
+   height: 244rpx;
    border-radius: $radius-xl;
    overflow: hidden;
 }
@@ -88,12 +88,13 @@ const slides = ref<BannerSlide[]>([
 /* ── 卡片 ── */
 .slide-card {
    height: 100%;
-   background: linear-gradient(135deg, #ee862b 0%, #f5a623 100%);
+   background: linear-gradient(135deg, #713414 0%, #a54f1b 55%, #d48a4c 100%);
    display: flex;
    align-items: center;
    position: relative;
    overflow: hidden;
    padding: 0 40rpx;
+   box-shadow: 0 20rpx 42rpx rgba(113, 52, 20, 0.2);
 }
 
 /* ── 装饰圆圈 ── */

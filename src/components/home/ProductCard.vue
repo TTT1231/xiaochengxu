@@ -65,14 +65,18 @@ const handleClick = (): void => {
    position: relative;
    width: 100%;
    min-width: 0;
-   padding-right: 16rpx;
+   padding: 16rpx;
+   border: 1rpx solid rgba(113, 52, 20, 0.06);
+   border-radius: 30rpx;
+   background: linear-gradient(145deg, #ffffff, #fffbf6);
+   box-shadow: 0 12rpx 30rpx rgba(91, 52, 29, 0.07);
    box-sizing: border-box;
 }
 
 .card-cover {
-   width: 192rpx;
-   height: 192rpx;
-   border-radius: 32rpx;
+   width: 166rpx;
+   height: 166rpx;
+   border-radius: 24rpx;
    background-color: $bg-page;
    flex-shrink: 0;
 }
@@ -120,7 +124,7 @@ const handleClick = (): void => {
 
 .title {
    font-size: 28rpx;
-   font-weight: bold;
+   font-weight: 750;
    color: $text-primary;
    line-height: 40rpx;
    display: block;
@@ -183,7 +187,8 @@ const handleClick = (): void => {
 .action-btn {
    width: 48rpx;
    height: 48rpx;
-   background-color: $brand-primary;
+   background: linear-gradient(145deg, $brand-primary, $brand-primary-dark);
+   box-shadow: 0 8rpx 18rpx rgba(165, 79, 27, 0.26);
    border-radius: 50%;
    display: flex;
    align-items: center;

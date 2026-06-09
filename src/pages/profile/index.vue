@@ -162,7 +162,10 @@ function handleUserCardClick(): void {
 }
 
 .content {
-   padding: 0 24rpx;
+   padding: 24rpx;
+   margin-top: -24rpx;
+   position: relative;
+   z-index: 2;
 }
 
 .card-spacing {

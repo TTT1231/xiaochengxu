@@ -72,6 +72,7 @@ const emit = defineEmits<{
    background-color: $bg-card;
    border-radius: $radius-lg;
    overflow: hidden;
+   border: 1rpx solid rgba(113, 52, 20, 0.06);
 }
 
 .menu-item {

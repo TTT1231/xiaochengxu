@@ -60,10 +60,10 @@ const handleBack = (): void => {
    top: 0;
    left: 0;
    right: 0;
-   background-color: $bg-card;
+   background: rgba(255, 252, 248, 0.96);
    z-index: 999;
    padding-bottom: 20rpx;
-   box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
+   box-shadow: 0 8rpx 28rpx rgba(91, 52, 29, 0.07);
    border-bottom-left-radius: 32rpx;
    border-bottom-right-radius: 32rpx;
 }
@@ -85,8 +85,8 @@ const handleBack = (): void => {
 }
 
 .store-text {
-   font-size: 32rpx;
-   font-weight: 600;
+   font-size: 34rpx;
+   font-weight: 750;
    color: $text-primary;
    line-height: 44rpx;
 }
@@ -115,7 +115,7 @@ const handleBack = (): void => {
 
 .header-title {
    font-size: 32rpx;
-   font-weight: 600;
+   font-weight: 750;
    color: $text-primary;
    line-height: 44rpx;
 }

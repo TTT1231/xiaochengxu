@@ -72,8 +72,9 @@ function handleTabClick(index: number, pagePath: string): void {
    right: 0;
    height: 128rpx;
    display: flex;
-   background-color: $bg-card;
-   border-top: 1rpx solid $bg-input;
+   background: rgba(255, 252, 248, 0.97);
+   border-top: 1rpx solid rgba(113, 52, 20, 0.06);
+   box-shadow: 0 -12rpx 36rpx rgba(91, 52, 29, 0.08);
    padding-bottom: constant(safe-area-inset-bottom);
    padding-bottom: env(safe-area-inset-bottom);
    z-index: 999;
@@ -89,19 +90,28 @@ function handleTabClick(index: number, pagePath: string): void {
    padding: 18rpx 0 32rpx;
 
    &.active {
+      .tab-icon {
+         background: $brand-primary-light;
+      }
       .tab-text {
          color: $brand-primary;
+         font-weight: 700;
       }
    }
 }
 
 .tab-icon {
-   width: 36rpx;
-   height: 40rpx;
+   width: 64rpx;
+   height: 52rpx;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   border-radius: 24rpx;
+   transition: background-color 0.2s;
 
    .icon {
-      width: 100%;
-      height: 100%;
+      width: 36rpx;
+      height: 40rpx;
    }
 }
 
