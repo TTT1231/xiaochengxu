@@ -99,6 +99,10 @@ const handleCardClick = () => {
                   <text class="info-label">订单号</text>
                   <text class="info-value order-id">#{{ order.order_id }}</text>
                </view>
+               <view v-if="order.expected_time" class="info-item order-no-item">
+                  <text class="info-label">预约时间</text>
+                  <text class="info-value">{{ order.expected_time }}</text>
+               </view>
             </view>
          </view>
       </view>

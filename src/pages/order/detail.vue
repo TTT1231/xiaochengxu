@@ -137,6 +137,15 @@ onLoad(async options => {
                   order.delivery_type === 'delivery' ? '🛵 商家配送' : '🏪 到店自提'
                }}</text>
             </view>
+            <template v-if="order.expected_time">
+               <view class="meta-divider" />
+               <view class="meta-row">
+                  <text class="meta-key">{{
+                     order.delivery_type === 'delivery' ? '期望到货' : '到店时间'
+                  }}</text>
+                  <text class="meta-val">{{ order.expected_time }}</text>
+               </view>
+            </template>
             <template v-if="order.delivery_type === 'delivery' && order.delivery_address">
                <view class="meta-divider" />
                <view class="meta-row">

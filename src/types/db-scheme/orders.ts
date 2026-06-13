@@ -46,6 +46,8 @@ export interface Orders {
    delivery_address?: string;
    /** 配送联系电话 */
    delivery_phone?: string;
+   /** 期望到店/到货时间 HH:MM（用户下单时选择的预约时间） */
+   expected_time?: string;
    /** 订单商品详情 */
    order_details: OrderDetailItem[];
 }

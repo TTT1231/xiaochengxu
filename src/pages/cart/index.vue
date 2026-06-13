@@ -10,6 +10,15 @@ import { getItemDiscount } from '@/utils/discount';
 import type { Products } from '@/types';
 import { useHeaderHeight } from '@/composables/useHeaderHeight';
 import { createOrder } from '@/api/orderApi';
+import { getBusinessHours } from '@/api/businessHoursApi';
+import {
+   hasBirthdayCake,
+   isCakeProduct,
+   getUnavailableReason,
+   earliestPickupMinutes,
+   validateOrderTime,
+   formatMinutesToTime,
+} from '@/utils/orderTime';
 
 const { headerHeight } = useHeaderHeight();
 
@@ -21,6 +30,9 @@ const useWallet = ref(false);
 const deliveryType = ref<'pickup' | 'delivery'>('pickup');
 const remark = ref('');
 const deliveryConfig = ref<DeliveryConfigResult>({ free_threshold: 30, delivery_fee: 8 });
+const businessHours = ref({ open_time: '09:00', close_time: '22:00' });
+const expectedTime = ref('');
+const nowSnapshot = ref(new Date());
 
 const wallet = computed(() => userStore.wallet);
 const availableWalletDeduct = computed(() => {
@@ -39,8 +51,37 @@ const isDeliveryInfoComplete = computed(() => {
    return !!userStore.user?.phone && !!userStore.user?.address;
 });
 
+const hasCakeInCart = computed(() => hasBirthdayCake(cartItems));
+
+const unavailableReason = computed(() =>
+   getUnavailableReason({
+      openTime: businessHours.value.open_time,
+      closeTime: businessHours.value.close_time,
+      hasCake: hasCakeInCart.value,
+      now: nowSnapshot.value,
+   }),
+);
+
+const pickerStart = computed(() =>
+   formatMinutesToTime(
+      earliestPickupMinutes({
+         openTime: businessHours.value.open_time,
+         closeTime: businessHours.value.close_time,
+         hasCake: hasCakeInCart.value,
+         now: nowSnapshot.value,
+      }),
+   ),
+);
+
+const pickerEnd = computed(() => businessHours.value.close_time);
+
 const canCheckout = computed(
-   () => cartItems.length > 0 && isDeliveryInfoComplete.value && !submitting.value,
+   () =>
+      cartItems.length > 0 &&
+      isDeliveryInfoComplete.value &&
+      !submitting.value &&
+      !unavailableReason.value &&
+      !!expectedTime.value,
 );
 
 const finalPayableAmount = computed(() =>
@@ -48,8 +89,10 @@ const finalPayableAmount = computed(() =>
 );
 
 onShow(async () => {
-   const config = await getDeliveryConfig();
+   nowSnapshot.value = new Date();
+   const [config, hours] = await Promise.all([getDeliveryConfig(), getBusinessHours()]);
    deliveryConfig.value = config;
+   businessHours.value = hours;
 });
 
 function goToProfile(): void {
@@ -74,6 +117,10 @@ function onCheckoutClick(): void {
    }
 }
 
+function onTimeChange(event: { detail: { value: string } }): void {
+   expectedTime.value = event.detail.value;
+}
+
 const handleCheckout = async () => {
    if (cartItems.length === 0) {
       uni.showToast({ title: '购物车为空', icon: 'none' });
@@ -90,6 +137,27 @@ const handleCheckout = async () => {
       return;
    }
 
+   if (unavailableReason.value) {
+      uni.showToast({
+         title: unavailableReason.value === 'closed' ? '今日营业已结束' : '生日蛋糕今日已无法预订',
+         icon: 'none',
+      });
+      return;
+   }
+
+   // submit 时用即时时间复算，防止页面停留过久导致所选时间过期
+   const timeCheck = validateOrderTime({
+      expectedTime: expectedTime.value,
+      openTime: businessHours.value.open_time,
+      closeTime: businessHours.value.close_time,
+      hasCake: hasCakeInCart.value,
+      now: new Date(),
+   });
+   if (!timeCheck.valid) {
+      uni.showToast({ title: timeCheck.message ?? '预约时间无效', icon: 'none' });
+      return;
+   }
+
    submitting.value = true;
    try {
       const order = await createOrder({
@@ -99,6 +167,7 @@ const handleCheckout = async () => {
          walletDeduct: walletDeductAmount.value,
          deliveryType: deliveryType.value,
          deliveryFee: deliveryFee.value,
+         expectedTime: expectedTime.value,
          remark: remark.value || undefined,
          deliveryAddress:
             deliveryType.value === 'delivery' ? (userStore.user?.address ?? undefined) : undefined,
@@ -109,6 +178,7 @@ const handleCheckout = async () => {
       cartStore.clearCart();
       useWallet.value = false;
       remark.value = '';
+      expectedTime.value = '';
       deliveryType.value = 'pickup';
       userStore.fetchProfile();
 
@@ -146,6 +216,10 @@ const handleCheckout = async () => {
          </view>
 
          <view v-else class="cart-list">
+            <view v-if="hasCakeInCart" class="cake-banner">
+               <text class="cake-banner-icon">🎂</text>
+               <text class="cake-banner-text">本单含生日蛋糕，需提前 3 小时预订</text>
+            </view>
             <view v-for="item in cartItems" :key="item.product._id" class="cart-item">
                <image
                   class="item-image"
@@ -154,6 +228,9 @@ const handleCheckout = async () => {
                />
                <view class="item-info">
                   <text class="item-name">{{ item.product.name }}</text>
+                  <view v-if="isCakeProduct(item.product)" class="cake-item-tag">
+                     <text class="cake-item-tag-text">🎂 需提前 3 小时预订</text>
+                  </view>
                   <view v-if="Object.keys(item.selectedSpecs).length > 0" class="specs-tags">
                      <text v-for="(value, key) in item.selectedSpecs" :key="key" class="spec-tag">
                         {{ value }}
@@ -255,6 +332,63 @@ const handleCheckout = async () => {
                   <text class="fee-value" :class="{ free: deliveryFee === 0 }">
                      {{ deliveryFee === 0 ? '免配送费' : formatPriceDisplay(deliveryFee) }}
                   </text>
+               </view>
+
+               <!-- 预约时间 -->
+               <view class="reservation-section">
+                  <text class="reservation-title">预约时间</text>
+                  <view
+                     v-if="unavailableReason === 'closed'"
+                     class="reservation-unavailable closed"
+                  >
+                     <text class="reservation-unavailable-main">🌙 今日营业已结束</text>
+                     <text class="reservation-unavailable-sub"
+                        >营业时间 {{ businessHours.open_time }} -
+                        {{ businessHours.close_time }}，请明日再来</text
+                     >
+                  </view>
+                  <view
+                     v-else-if="unavailableReason === 'cake'"
+                     class="reservation-unavailable cake"
+                  >
+                     <text class="reservation-unavailable-main"
+                        >🎂 今日营业时间内已无法预订生日蛋糕</text
+                     >
+                     <text class="reservation-unavailable-sub">需提前 3 小时，但距关店已不足</text>
+                  </view>
+                  <view
+                     v-else
+                     class="reservation-picker-row"
+                     :class="{ 'has-value': expectedTime }"
+                  >
+                     <picker
+                        mode="time"
+                        :value="expectedTime || pickerStart"
+                        :start="pickerStart"
+                        :end="pickerEnd"
+                        @change="onTimeChange"
+                     >
+                        <view class="reservation-picker-inner">
+                           <text class="reservation-icon">🕐</text>
+                           <text class="reservation-value" :class="{ set: expectedTime }">
+                              {{
+                                 expectedTime ||
+                                 '请选择期望' +
+                                    (deliveryType === 'pickup' ? '到店' : '到货') +
+                                    '时间'
+                              }}
+                           </text>
+                           <text class="reservation-arrow">❯</text>
+                        </view>
+                     </picker>
+                  </view>
+                  <view v-if="!unavailableReason" class="reservation-hint">
+                     营业时间 {{ businessHours.open_time }} - {{ businessHours.close_time }} ·
+                     仅限当天
+                  </view>
+                  <view v-if="hasCakeInCart && !unavailableReason" class="reservation-cake-hint">
+                     🎂 含生日蛋糕，需提前 3 小时预订，最早 {{ pickerStart }}
+                  </view>
                </view>
 
                <view class="remark-section">
@@ -397,6 +531,45 @@ const handleCheckout = async () => {
    display: flex;
    flex-direction: column;
    gap: 24rpx;
+}
+
+.cake-banner {
+   display: flex;
+   align-items: center;
+   gap: 12rpx;
+   background: #fef6ec;
+   border: 1rpx solid rgba(245, 158, 11, 0.35);
+   border-radius: $radius-lg;
+   padding: 20rpx 24rpx;
+}
+
+.cake-banner-icon {
+   font-size: 32rpx;
+   line-height: 1;
+}
+
+.cake-banner-text {
+   flex: 1;
+   font-size: 25rpx;
+   font-weight: 600;
+   color: #92610a;
+   line-height: 36rpx;
+}
+
+.cake-item-tag {
+   align-self: flex-start;
+   background: #fef6ec;
+   border: 1rpx solid rgba(245, 158, 11, 0.3);
+   border-radius: $radius-full;
+   padding: 4rpx 16rpx;
+   margin-top: 6rpx;
+}
+
+.cake-item-tag-text {
+   font-size: 20rpx;
+   font-weight: 600;
+   color: #92610a;
+   line-height: 30rpx;
 }
 
 .cart-item {
@@ -805,6 +978,115 @@ const handleCheckout = async () => {
    &.free {
       color: #16a34a;
    }
+}
+
+.reservation-section {
+   display: flex;
+   flex-direction: column;
+   gap: 12rpx;
+}
+
+.reservation-title {
+   font-size: 24rpx;
+   font-weight: 600;
+   color: $text-secondary;
+   line-height: 34rpx;
+   padding: 0 4rpx;
+}
+
+.reservation-picker-row {
+   background: $bg-input;
+   border-radius: 16rpx;
+   border: 2rpx solid transparent;
+   transition: all 0.2s;
+
+   &.has-value {
+      background: $bg-hover;
+      border-color: rgba(165, 79, 27, 0.36);
+   }
+}
+
+.reservation-picker-inner {
+   display: flex;
+   align-items: center;
+   gap: 14rpx;
+   padding: 22rpx 24rpx;
+}
+
+.reservation-icon {
+   font-size: 32rpx;
+   line-height: 1;
+}
+
+.reservation-value {
+   flex: 1;
+   font-size: 26rpx;
+   color: $text-muted;
+
+   &.set {
+      color: $brand-primary;
+      font-weight: 700;
+      font-size: 34rpx;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      letter-spacing: 1rpx;
+   }
+}
+
+.reservation-arrow {
+   font-size: 24rpx;
+   color: $text-muted;
+}
+
+.reservation-hint {
+   font-size: 22rpx;
+   color: $text-muted;
+   line-height: 32rpx;
+   padding: 0 4rpx;
+}
+
+.reservation-cake-hint {
+   font-size: 22rpx;
+   color: #92610a;
+   background: #fef6ec;
+   border: 1rpx solid rgba(245, 158, 11, 0.35);
+   border-radius: 12rpx;
+   padding: 12rpx 18rpx;
+   line-height: 32rpx;
+}
+
+.reservation-unavailable {
+   display: flex;
+   flex-direction: column;
+   gap: 4rpx;
+   border-radius: 16rpx;
+   padding: 24rpx;
+   text-align: center;
+
+   &.closed {
+      background: $bg-input;
+   }
+
+   &.cake {
+      background: #fdeeec;
+      border: 1rpx solid rgba(239, 68, 68, 0.3);
+
+      .reservation-unavailable-main {
+         color: #b42318;
+      }
+   }
+}
+
+.reservation-unavailable-main {
+   font-size: 26rpx;
+   font-weight: 600;
+   color: $text-secondary;
+   line-height: 36rpx;
+}
+
+.reservation-unavailable-sub {
+   font-size: 22rpx;
+   color: $text-muted;
+   line-height: 32rpx;
 }
 
 .remark-section {

@@ -1,0 +1,758 @@
+<!doctype html>
+<html lang="zh-CN">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>预约时间 · 购物车交互预览</title>
+      <style>
+         /* ── 暖棕色设计令牌（取自 src/uni.scss）── */
+         :root {
+            --brand: #a54f1b;
+            --brand-light: rgba(165, 79, 27, 0.1);
+            --brand-soft: rgba(165, 79, 27, 0.36);
+            --bg-page: #fbf6ef;
+            --bg-card: #ffffff;
+            --bg-input: #f5eee6;
+            --bg-hover: #fff8f1;
+            --text-primary: #2c1b12;
+            --text-secondary: #654b3b;
+            --text-muted: #aa9688;
+            --border-light: #eee1d6;
+            --border-default: #dbc8b9;
+            --shadow-card: 0 6px 18px rgba(105, 61, 34, 0.09);
+            --warn-bg: #fef6ec;
+            --warn-border: rgba(245, 158, 11, 0.35);
+            --warn-text: #92610a;
+            --error-bg: #fdeeec;
+            --error-border: rgba(239, 68, 68, 0.3);
+            --error-text: #b42318;
+            --ok: #10b981;
+         }
+         * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+         }
+         body {
+            margin: 0;
+            font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: #e9e1d6;
+            color: var(--text-primary);
+         }
+         .wrap {
+            max-width: 880px;
+            margin: 0 auto;
+            padding: 32px 20px 64px;
+         }
+         h1 {
+            margin: 0 0 6px;
+            font-size: 22px;
+         }
+         .subtitle {
+            margin: 0 0 20px;
+            color: var(--text-secondary);
+            font-size: 13px;
+         }
+         .scenarios {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+         }
+         .scn-btn {
+            border: 1px solid var(--border-default);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            padding: 9px 16px;
+            border-radius: 9999px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.15s;
+         }
+         .scn-btn:hover {
+            border-color: var(--brand-soft);
+         }
+         .scn-btn.active {
+            background: var(--brand);
+            border-color: var(--brand);
+            color: #fff;
+            font-weight: 600;
+         }
+         .stage {
+            display: flex;
+            gap: 28px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+         }
+         .phone {
+            width: 390px;
+            background: var(--bg-page);
+            border-radius: 38px;
+            box-shadow: 0 20px 60px rgba(43, 28, 15, 0.22), 0 0 0 10px #2c1b12;
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+         }
+         .status-bar {
+            display: flex;
+            justify-content: space-between;
+            padding: 14px 26px 6px;
+            font-size: 13px;
+            font-weight: 600;
+         }
+         .nav-bar {
+            display: flex;
+            align-items: center;
+            padding: 4px 20px 12px;
+            position: relative;
+         }
+         .nav-back {
+            font-size: 22px;
+            line-height: 1;
+         }
+         .nav-title {
+            position: absolute;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 17px;
+            font-weight: 600;
+         }
+         .screen {
+            height: 640px;
+            overflow-y: auto;
+            padding: 4px 16px 120px;
+         }
+         .screen::-webkit-scrollbar {
+            width: 0;
+         }
+         .cart-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--bg-card);
+            padding: 12px;
+            border-radius: 16px;
+            margin-bottom: 10px;
+         }
+         .item-img {
+            width: 64px;
+            height: 64px;
+            border-radius: 12px;
+            flex-shrink: 0;
+         }
+         .item-info {
+            flex: 1;
+            min-width: 0;
+         }
+         .item-name {
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+         }
+         .cake-tag {
+            font-size: 10px;
+            background: var(--brand-light);
+            color: var(--brand);
+            padding: 2px 7px;
+            border-radius: 9999px;
+            font-weight: 600;
+         }
+         .item-spec {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 3px;
+         }
+         .item-price {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--brand);
+            margin-top: 4px;
+         }
+         .qty {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+         }
+         .qty-btn {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            line-height: 1;
+         }
+         .qty-minus {
+            background: var(--bg-page);
+            border: 1px solid var(--border-default);
+         }
+         .qty-plus {
+            background: var(--brand);
+            color: #fff;
+         }
+         .config-card {
+            background: var(--bg-card);
+            border-radius: 18px;
+            padding: 14px;
+            margin-top: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+         }
+         .config-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+         }
+         .delivery-toggle {
+            display: flex;
+            background: var(--bg-input);
+            border-radius: 12px;
+            padding: 5px;
+            gap: 5px;
+         }
+         .delivery-opt {
+            flex: 1;
+            text-align: center;
+            padding: 9px 0;
+            border-radius: 10px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.15s;
+         }
+         .delivery-opt.active {
+            background: var(--bg-hover);
+            box-shadow: 0 2px 7px rgba(165, 79, 27, 0.12);
+            color: var(--brand);
+            font-weight: 600;
+            outline: 1px solid var(--brand-soft);
+         }
+         /* ── ★ 预约时间 ── */
+         .reserv-block {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+         }
+         .reserv-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg-input);
+            border-radius: 12px;
+            padding: 13px 14px;
+            cursor: pointer;
+            transition: background 0.15s;
+            border: 1.5px solid transparent;
+         }
+         .reserv-row:hover {
+            background: var(--bg-hover);
+         }
+         .reserv-row.has-value {
+            border-color: var(--brand-soft);
+            background: var(--bg-hover);
+         }
+         .reserv-icon {
+            font-size: 18px;
+         }
+         .reserv-value {
+            flex: 1;
+            font-size: 15px;
+            color: var(--text-muted);
+         }
+         .reserv-value.set {
+            color: var(--brand);
+            font-weight: 700;
+            font-size: 18px;
+            font-family: 'SF Mono', monospace;
+            letter-spacing: 1px;
+         }
+         .reserv-arrow {
+            color: var(--text-muted);
+            font-size: 14px;
+         }
+         .reserv-hint {
+            font-size: 11px;
+            color: var(--text-muted);
+            padding: 0 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+         }
+         .reserv-hint .dot {
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: var(--text-muted);
+         }
+         /* 今日无法下单的占位说明（替代隐藏的时间选择器） */
+         .unavailable {
+            padding: 16px 14px;
+            border-radius: 12px;
+            font-size: 13px;
+            line-height: 1.5;
+            text-align: center;
+         }
+         .unavailable.closed {
+            background: var(--bg-input);
+            color: var(--text-secondary);
+         }
+         .unavailable.cake {
+            background: var(--error-bg);
+            border: 1px solid var(--error-border);
+            color: var(--error-text);
+         }
+         .remark {
+            background: var(--bg-input);
+            border-radius: 12px;
+            padding: 12px 14px;
+            font-size: 13px;
+            color: var(--text-muted);
+         }
+         .bottom-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            padding: 12px 18px calc(18px + env(safe-area-inset-bottom));
+            box-shadow: 0 -4px 14px rgba(43, 28, 15, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+         }
+         .total-label {
+            font-size: 11px;
+            color: var(--text-muted);
+         }
+         .total-amount {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--brand);
+         }
+         .checkout-btn {
+            background: var(--brand);
+            color: #fff;
+            padding: 13px 30px;
+            border-radius: 9999px;
+            font-size: 15px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: opacity 0.15s;
+         }
+         .checkout-btn.disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+         }
+         .sheet-mask {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            display: none;
+            z-index: 20;
+         }
+         .sheet-mask.show {
+            display: block;
+         }
+         .picker-sheet {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-card);
+            border-radius: 24px 24px 0 0;
+            padding: 10px 20px calc(24px + env(safe-area-inset-bottom));
+            display: none;
+            z-index: 21;
+         }
+         .picker-sheet.show {
+            display: block;
+         }
+         .sheet-handle {
+            width: 36px;
+            height: 4px;
+            border-radius: 2px;
+            background: var(--border-default);
+            margin: 4px auto 14px;
+         }
+         .sheet-title {
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 4px;
+         }
+         .sheet-sub {
+            font-size: 12px;
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+         }
+         .time-input-wrap {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 14px;
+         }
+         .time-input {
+            font-size: 30px;
+            font-weight: 700;
+            color: var(--brand);
+            text-align: center;
+            border: 1.5px solid var(--brand-soft);
+            background: var(--bg-hover);
+            border-radius: 16px;
+            padding: 14px 28px;
+            font-family: 'SF Mono', monospace;
+            letter-spacing: 2px;
+            outline: none;
+         }
+         .sheet-actions {
+            display: flex;
+            gap: 12px;
+         }
+         .sheet-btn {
+            flex: 1;
+            padding: 13px 0;
+            border-radius: 9999px;
+            font-size: 15px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+         }
+         .sheet-btn.cancel {
+            background: var(--bg-input);
+            color: var(--text-secondary);
+         }
+         .sheet-btn.confirm {
+            background: var(--brand);
+            color: #fff;
+         }
+         .notes {
+            flex: 1;
+            min-width: 280px;
+            max-width: 380px;
+         }
+         .note-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 18px 20px;
+            margin-bottom: 14px;
+            box-shadow: var(--shadow-card);
+         }
+         .note-card h3 {
+            margin: 0 0 10px;
+            font-size: 14px;
+            color: var(--brand);
+         }
+         .note-card ul {
+            margin: 0;
+            padding-left: 18px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            line-height: 1.7;
+         }
+         .note-card li {
+            margin-bottom: 4px;
+         }
+         .pill {
+            display: inline-block;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            background: var(--brand-light);
+            color: var(--brand);
+            font-weight: 600;
+            margin-left: 4px;
+         }
+         .q-card {
+            background: #fff8f1;
+            border: 1px dashed var(--brand-soft);
+         }
+         .q-card ol {
+            margin: 0;
+            padding-left: 20px;
+            font-size: 13px;
+            line-height: 1.8;
+         }
+      </style>
+   </head>
+   <body>
+      <div class="wrap">
+         <h1>🕐 预约时间 · 购物车交互预览</h1>
+         <p class="subtitle">选择器只给有效时间 → 不再有"营业外/已过"错误提示；今天无有效时间时直接隐藏选择器</p>
+
+         <div class="scenarios">
+            <button class="scn-btn active" data-scn="normal">普通订单（14:00）</button>
+            <button class="scn-btn" data-scn="cake">含生日蛋糕（14:00）</button>
+            <button class="scn-btn" data-scn="late">关店前下蛋糕（21:00）</button>
+            <button class="scn-btn" data-scn="closed">营业已结束（23:00）</button>
+         </div>
+
+         <div class="stage">
+            <div class="phone">
+               <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+               <div class="nav-bar">
+                  <span class="nav-back">‹</span>
+                  <span class="nav-title">购物车</span>
+               </div>
+
+               <div class="screen">
+                  <div id="items"></div>
+
+                  <div class="config-card">
+                     <div>
+                        <div class="config-title">取餐方式</div>
+                        <div class="delivery-toggle" style="margin-top: 8px">
+                           <div class="delivery-opt active" data-dlv="pickup">🏪 到店自提</div>
+                           <div class="delivery-opt" data-dlv="delivery">🛵 商家配送</div>
+                        </div>
+                     </div>
+
+                     <!-- ★ 预约时间：有有效时间才显示选择器，否则显示原因占位 -->
+                     <div class="reserv-block" id="reservBlock">
+                        <div class="config-title">
+                           预约时间 <span class="pill" id="dlvLabel">到店时间</span>
+                        </div>
+                        <div id="reservBody"><!-- JS 注入：选择器 或 不可用占位 --></div>
+                     </div>
+
+                     <div class="remark">📝 订单备注（选填）</div>
+                  </div>
+               </div>
+
+               <div class="bottom-bar">
+                  <div>
+                     <div class="total-label">合计</div>
+                     <div class="total-amount" id="totalAmount">¥0.00</div>
+                  </div>
+                  <button class="checkout-btn disabled" id="checkoutBtn" onclick="onCheckout()">
+                     请选择时间
+                  </button>
+               </div>
+
+               <div class="sheet-mask" id="sheetMask" onclick="closePicker()"></div>
+               <div class="picker-sheet" id="pickerSheet">
+                  <div class="sheet-handle"></div>
+                  <div class="sheet-title">选择预约时间</div>
+                  <div class="sheet-sub" id="sheetSub">营业时间 09:00 - 22:00</div>
+                  <div class="time-input-wrap">
+                     <input type="time" class="time-input" id="timeInput" min="09:00" max="22:00" />
+                  </div>
+                  <div class="sheet-actions">
+                     <button class="sheet-btn cancel" onclick="closePicker()">取消</button>
+                     <button class="sheet-btn confirm" onclick="confirmTime()">确定</button>
+                  </div>
+               </div>
+            </div>
+
+            <div class="notes">
+               <div class="note-card">
+                  <h3>设计原则</h3>
+                  <ul>
+                     <li><strong>只给有效时间</strong>：选择器 start/end 约束 → 所选必合法，无错误提示</li>
+                     <li><strong>无有效时间则隐藏</strong>：关店或蛋糕来不及时，选择器不显示，只留原因</li>
+                     <li>普通订单：start = 营业开始 与 当前 取大</li>
+                     <li>含蛋糕：start = 营业开始 与 当前+3h 取大</li>
+                     <li>end 固定 = 营业结束（22:00）</li>
+                  </ul>
+               </div>
+
+               <div class="note-card">
+                  <h3>四种状态</h3>
+                  <ul>
+                     <li><strong>普通</strong>：选择器可选 14:00+ → 选完即结算</li>
+                     <li><strong>蛋糕</strong>：选择器从 17:00 起（已排除不足3h）</li>
+                     <li><strong>关店前下蛋糕(21:00)</strong>：选择器隐藏，红色"蛋糕来不及"</li>
+                     <li><strong>营业已结束(23:00)</strong>：选择器隐藏，灰色"今日营业已结束"</li>
+                  </ul>
+               </div>
+
+               <div class="note-card q-card">
+                  <h3>💬 待确认</h3>
+                  <ol>
+                     <li>位置放在「取餐方式」下方 OK？</li>
+                     <li>时间粒度：任意分钟，还是按 15/30 分钟取整？</li>
+                     <li>关店/蛋糕来不及时，是否在文案里加"明天 09:00 可下单"的引导？</li>
+                  </ol>
+               </div>
+            </div>
+         </div>
+      </div>
+
+      <script>
+         const OPEN = 9 * 60; // 09:00
+         const CLOSE = 22 * 60; // 22:00
+         const CAKE_HOURS = 3;
+
+         const scenarios = {
+            normal: {
+               items: [
+                  { name: '生椰拿铁', spec: '大杯 · 标准甜', price: 22, qty: 1, color: '#d9a066' },
+                  { name: '提拉米苏', spec: '', price: 32, qty: 2, color: '#c8a27c' },
+               ],
+               nowMin: 14 * 60,
+               hasCake: false,
+            },
+            cake: {
+               items: [
+                  { name: '草莓奶油蛋糕', spec: '6寸 · 双层', price: 88, qty: 1, color: '#f4b8c4', cake: true },
+                  { name: '生椰拿铁', spec: '大杯', price: 22, qty: 1, color: '#d9a066' },
+               ],
+               nowMin: 14 * 60,
+               hasCake: true,
+            },
+            late: {
+               items: [{ name: '草莓奶油蛋糕', spec: '6寸 · 双层', price: 88, qty: 1, color: '#f4b8c4', cake: true }],
+               nowMin: 21 * 60,
+               hasCake: true,
+            },
+            closed: {
+               items: [{ name: '生椰拿铁', spec: '大杯', price: 22, qty: 1, color: '#d9a066' }],
+               nowMin: 23 * 60,
+               hasCake: false,
+            },
+         };
+
+         let state = { scn: 'normal', dlv: 'pickup', time: '' };
+
+         function fmt(min) {
+            return String(Math.floor(min / 60)).padStart(2, '0') + ':' + String(min % 60).padStart(2, '0');
+         }
+         function cur() {
+            return scenarios[state.scn];
+         }
+
+         // 今天是否还有有效时间；返回 null=有 / 'closed'=已关店 / 'cake'=营业中但蛋糕来不及
+         function noValidReason() {
+            const c = cur();
+            if (c.nowMin >= CLOSE) return 'closed';
+            if (c.hasCake && c.nowMin + CAKE_HOURS * 60 > CLOSE) return 'cake';
+            return null;
+         }
+         function earliestMin() {
+            const c = cur();
+            return Math.max(OPEN, c.hasCake ? c.nowMin + CAKE_HOURS * 60 : c.nowMin + 1);
+         }
+
+         function renderItems() {
+            const c = cur();
+            document.getElementById('items').innerHTML = c.items
+               .map(
+                  it => `
+               <div class="cart-item">
+                  <div class="item-img" style="background:${it.color}"></div>
+                  <div class="item-info">
+                     <div class="item-name">${it.name}${it.cake ? '<span class="cake-tag">🎂 生日蛋糕</span>' : ''}</div>
+                     ${it.spec ? `<div class="item-spec">${it.spec}</div>` : ''}
+                     <div class="item-price">¥${it.price.toFixed(2)}</div>
+                  </div>
+                  <div class="qty">
+                     <span class="qty-btn qty-minus">−</span><span>${it.qty}</span><span class="qty-btn qty-plus">+</span>
+                  </div>
+               </div>`,
+               )
+               .join('');
+            const total = c.items.reduce((s, it) => s + it.price * it.qty, 0);
+            document.getElementById('totalAmount').textContent = '¥' + total.toFixed(2);
+         }
+
+         function renderReserv() {
+            const c = cur();
+            const body = document.getElementById('reservBody');
+            const dlvLabel = document.getElementById('dlvLabel');
+            dlvLabel.textContent = state.dlv === 'pickup' ? '到店时间' : '期望到货';
+
+            const reason = noValidReason();
+            if (reason) {
+               // 无有效时间 → 隐藏选择器，显示原因
+               if (reason === 'closed') {
+                  body.innerHTML = `<div class="unavailable closed">🌙 今日营业已结束<br /><span style="font-size:11px;color:var(--text-muted)">营业时间 09:00 - 22:00，请明日再来</span></div>`;
+               } else {
+                  body.innerHTML = `<div class="unavailable cake">🎂 今日营业时间内已无法预订生日蛋糕<br /><span style="font-size:11px">需提前 3 小时，但距关店（22:00）已不足 3 小时</span></div>`;
+               }
+               setCheckout(false, reason === 'closed' ? '营业已结束' : '蛋糕来不及');
+               return;
+            }
+
+            // 有有效时间 → 显示选择器（已约束到合法范围，无错误提示）
+            const earliest = earliestMin();
+            const placeholder = '请选择期望' + (state.dlv === 'pickup' ? '到店' : '到货') + '时间';
+            const cakeHint = c.hasCake
+               ? `<div class="reserv-hint"><span>🎂 需提前 3 小时，最早 ${fmt(earliest)}</span></div>`
+               : '';
+            const valueHtml = state.time
+               ? `<span class="reserv-value set">${state.time}</span>`
+               : `<span class="reserv-value">${placeholder}</span>`;
+            body.innerHTML = `
+               <div class="reserv-row ${state.time ? 'has-value' : ''}" onclick="openPicker()">
+                  <span class="reserv-icon">🕐</span>${valueHtml}<span class="reserv-arrow">❯</span>
+               </div>
+               <div class="reserv-hint"><span>营业时间 09:00 - 22:00</span><span class="dot"></span><span>仅限当天</span></div>
+               ${cakeHint}
+            `;
+            setCheckout(!!state.time, state.time ? '去结算' : '请选择时间');
+         }
+
+         function setCheckout(ok, text) {
+            const btn = document.getElementById('checkoutBtn');
+            btn.textContent = text;
+            btn.classList.toggle('disabled', !ok);
+         }
+         function onCheckout() {
+            if (document.getElementById('checkoutBtn').classList.contains('disabled')) return;
+            alert('✅ 校验通过，订单已提交（预约时间 ' + state.time + '）');
+         }
+
+         function openPicker() {
+            if (noValidReason()) return;
+            const c = cur();
+            const earliest = earliestMin();
+            const input = document.getElementById('timeInput');
+            input.min = fmt(earliest);
+            input.max = fmt(CLOSE);
+            input.value = state.time || fmt(earliest);
+            document.getElementById('sheetSub').textContent =
+               '营业时间 09:00 - 22:00' + (c.hasCake ? ` · 蛋糕最早 ${fmt(earliest)}` : '');
+            document.getElementById('sheetMask').classList.add('show');
+            document.getElementById('pickerSheet').classList.add('show');
+         }
+         function closePicker() {
+            document.getElementById('sheetMask').classList.remove('show');
+            document.getElementById('pickerSheet').classList.remove('show');
+         }
+         function confirmTime() {
+            // 选择器已约束 min/max，所选必合法，直接采用
+            state.time = document.getElementById('timeInput').value;
+            closePicker();
+            renderReserv();
+         }
+
+         document.querySelectorAll('.scn-btn').forEach(b => {
+            b.addEventListener('click', () => {
+               document.querySelectorAll('.scn-btn').forEach(x => x.classList.remove('active'));
+               b.classList.add('active');
+               state.scn = b.dataset.scn;
+               state.time = '';
+               renderItems();
+               renderReserv();
+            });
+         });
+         document.querySelectorAll('.delivery-opt').forEach(b => {
+            b.addEventListener('click', () => {
+               document.querySelectorAll('.delivery-opt').forEach(x => x.classList.remove('active'));
+               b.classList.add('active');
+               state.dlv = b.dataset.dlv;
+               renderReserv();
+            });
+         });
+
+         renderItems();
+         renderReserv();
+      </script>
+   </body>
+</html>

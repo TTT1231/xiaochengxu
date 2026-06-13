@@ -14,3 +14,8 @@ export const DELIVERY_TYPE_TEXT: Record<DeliveryType, string> = {
    pickup: '到店自提',
    delivery: '商家配送',
 };
+
+/** 生日蛋糕品类 ID（categoried_id，需提前 3 小时预订） */
+export const CATEGORY_ID_BIRTHDAY_CAKE = '3';
+/** 生日蛋糕需提前预订的小时数 */
+export const BIRTHDAY_CAKE_ADVANCE_HOURS = 3;

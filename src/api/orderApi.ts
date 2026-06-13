@@ -23,6 +23,7 @@ function normalizeOrder(raw: Record<string, unknown>): Orders {
       remark: raw.remark as string | undefined,
       delivery_address: raw.delivery_address as string | undefined,
       delivery_phone: raw.delivery_phone as string | undefined,
+      expected_time: raw.expected_time as string | undefined,
    };
 }
 
@@ -47,6 +48,8 @@ interface CreateOrderParams {
    remark?: string;
    deliveryAddress?: string;
    deliveryPhone?: string;
+   /** 期望到店/到货时间 HH:MM */
+   expectedTime: string;
 }
 
 interface CreateOrderItem {
@@ -66,6 +69,7 @@ export async function createOrder(params: CreateOrderParams): Promise<Orders> {
       remark,
       deliveryAddress,
       deliveryPhone,
+      expectedTime,
    } = params;
 
    const orderItems: CreateOrderItem[] = items.map(item => ({
@@ -84,6 +88,7 @@ export async function createOrder(params: CreateOrderParams): Promise<Orders> {
             walletDeduct,
             deliveryType,
             deliveryFee,
+            expectedTime,
             ...(remark !== undefined ? { remark } : {}),
             ...(deliveryAddress !== undefined ? { deliveryAddress } : {}),
             ...(deliveryPhone !== undefined ? { deliveryPhone } : {}),

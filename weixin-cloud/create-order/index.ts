@@ -5,6 +5,13 @@ const MAX_CART_ITEMS = 20;
 const EPSILON = 0.01;
 const VIP_DISCOUNT_CATEGORY_ID = '2';
 const VIP_DISCOUNT_RATE = 0.12;
+/** 生日蛋糕品类 ID（需提前 3 小时预订）—— 与前端 src/types/constants.ts 保持同步 */
+const BIRTHDAY_CAKE_CATEGORY_ID = '3';
+/** 生日蛋糕需提前预订的小时数 */
+const BIRTHDAY_CAKE_ADVANCE_HOURS = 3;
+/** 营业时间默认值（business_hours 配置缺失时兜底） */
+const DEFAULT_OPEN_TIME = '09:00';
+const DEFAULT_CLOSE_TIME = '22:00';
 
 interface CartItem {
    product_id: string;
@@ -32,6 +39,7 @@ interface CreateOrderParams {
    remark?: string;
    deliveryAddress?: string;
    deliveryPhone?: string;
+   expectedTime: string;
 }
 
 interface ProductSpecOption {
@@ -69,6 +77,55 @@ function computeServerDiscount(price: number, categoriedId: unknown, isVip: bool
    if (!isVip) return 0;
    if (String(categoriedId) !== VIP_DISCOUNT_CATEGORY_ID) return 0;
    return Math.round(price * VIP_DISCOUNT_RATE * 100) / 100;
+}
+
+function parseTimeToMinutes(time: string): number {
+   const match = time.match(/^(\d{2}):(\d{2})$/);
+   if (!match) return Number.NaN;
+   const hours = Number(match[1]);
+   const minutes = Number(match[2]);
+   if (hours > 23 || minutes > 59) return Number.NaN;
+   return hours * 60 + minutes;
+}
+
+/**
+ * 取当前北京时间（东八区）的当天分钟数。
+ * 云函数运行环境默认为 UTC，而营业时间与预约时间均为北京时间；
+ * 必须用 getUTCHours()+8 显式换算，否则跨时区会把未来时间误判为"已过"。
+ * 此写法无论服务器处于 UTC 还是 UTC+8 都正确。
+ */
+function getBeijingNowMinutes(): number {
+   const now = new Date();
+   return (now.getUTCHours() * 60 + now.getUTCMinutes() + 8 * 60) % (24 * 60);
+}
+
+/**
+ * 服务端预约时间校验（与前端 src/utils/orderTime.ts 的 validateOrderTime 保持同步）。
+ * 返回错误消息字符串；合法返回 null。
+ */
+function validateServerOrderTime(
+   expectedTime: string,
+   openTime: string,
+   closeTime: string,
+   hasCake: boolean,
+): string | null {
+   const exp = parseTimeToMinutes(expectedTime);
+   if (Number.isNaN(exp)) return '请选择有效的预约时间';
+   const open = parseTimeToMinutes(openTime);
+   const close = parseTimeToMinutes(closeTime);
+   const nowM = getBeijingNowMinutes();
+   if (!Number.isNaN(open) && !Number.isNaN(close) && (exp < open || exp > close)) {
+      return '请在营业时间内选择预约时间';
+   }
+   const openFloor = Number.isNaN(open) ? 0 : open;
+   const earliest = Math.max(openFloor, nowM + (hasCake ? BIRTHDAY_CAKE_ADVANCE_HOURS * 60 : 1));
+   if (exp < earliest) {
+      if (hasCake && exp < nowM + BIRTHDAY_CAKE_ADVANCE_HOURS * 60) {
+         return '生日蛋糕需提前 3 小时预订';
+      }
+      return '所选时间已过，请重新选择';
+   }
+   return null;
 }
 
 function parseSpecs(rawSpecs: unknown): ProductSpecs {
@@ -150,6 +207,7 @@ export async function main(event: Partial<CreateOrderParams> = {}) {
       remark,
       deliveryAddress,
       deliveryPhone,
+      expectedTime,
    } = event;
 
    if (!Array.isArray(items) || items.length === 0) {
@@ -183,6 +241,7 @@ export async function main(event: Partial<CreateOrderParams> = {}) {
 
    // Step 2: Validate products OUTSIDE transaction (read-only)
    const validatedItems: OrderDetailItem[] = [];
+   let hasCake = false;
    for (const item of items) {
       if (!item.product_id || !Number.isInteger(item.quantity) || item.quantity < 1) {
          return { success: false, message: 'Invalid item data' };
@@ -201,6 +260,9 @@ export async function main(event: Partial<CreateOrderParams> = {}) {
          }
          if (!isFiniteAmount(product.price) || product.price < 0) {
             return { success: false, message: 'Invalid product pricing: ' + product.name };
+         }
+         if (String(product.categoried_id) === BIRTHDAY_CAKE_CATEGORY_ID) {
+            hasCake = true;
          }
          const specError = validateSelectedSpecs(
             product.name as string,
@@ -261,6 +323,24 @@ export async function main(event: Partial<CreateOrderParams> = {}) {
       } catch {
          return { success: false, message: '配送费配置读取失败' };
       }
+   }
+
+   // 预约时间校验（营业时间 + 蛋糕提前量，服务端复核防篡改）
+   if (typeof expectedTime !== 'string' || !/^\d{2}:\d{2}$/.test(expectedTime)) {
+      return { success: false, message: '请选择有效的预约时间' };
+   }
+   let openTime = DEFAULT_OPEN_TIME;
+   let closeTime = DEFAULT_CLOSE_TIME;
+   try {
+      const { data: hoursDoc } = await db.collection('business_hours').doc('config').get();
+      openTime = (hoursDoc?.open_time ?? DEFAULT_OPEN_TIME) as string;
+      closeTime = (hoursDoc?.close_time ?? DEFAULT_CLOSE_TIME) as string;
+   } catch {
+      // 营业时间配置读取失败时使用默认值，不阻断下单
+   }
+   const timeError = validateServerOrderTime(expectedTime, openTime, closeTime, hasCake);
+   if (timeError) {
+      return { success: false, message: timeError };
    }
 
    let walletId: string | null = null;
@@ -324,6 +404,7 @@ export async function main(event: Partial<CreateOrderParams> = {}) {
                oder_details: validatedItems,
                delivery_type: deliveryType,
                delivery_fee: deliveryType === 'pickup' ? 0 : deliveryFee,
+               expected_time: expectedTime,
                ...(remark ? { remark } : {}),
                ...(deliveryAddress ? { delivery_address: deliveryAddress } : {}),
                ...(deliveryPhone ? { delivery_phone: deliveryPhone } : {}),
